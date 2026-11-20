@@ -4070,11 +4070,11 @@ lvTa.value=S.lv||LIVE_EX[0][1];lvRun();
 
 /* ---------- EJERCICIOS: enunciado y solución al pulsar «Ver» ---------- */
 var pe=panel('ejercicios');
-pe.innerHTML='<div class="card"><h3>Ejercicios</h3><p class="lead" style="margin:0 0 12px">Lee el enunciado, hazlo en papel y, cuando quieras, pulsa <b>Ver solución</b>. Hay preguntas de teoría (qué hace, qué diferencia hay, qué es mejor, por qué no…) y ejercicios de código.</p><div class="pills" id="wb-eg"></div><div id="wb-el"></div></div>';
+pe.innerHTML='<div class="card"><h3>Ejercicios</h3><p class="lead" style="margin:0 0 12px">Lee el enunciado, hazlo en papel y, cuando quieras, pulsa <b>Ver solución</b>. Elige un tema.</p><div class="pills" id="wb-eg"></div><div id="wb-el"></div></div>';
 var TEO=[];WQ.forEach(function(q){if(TEO.indexOf(q.c)<0)TEO.push(q.c)});
 var EG=[['Teoría'].concat([]),];
-var eGrp='t:'+TEO[0],ebox=$('#wb-eg',pe);
-var GR=[];TEO.forEach(function(c){GR.push(['t:'+c,c])});EXGROUPS.forEach(function(g){GR.push(['x:'+g[0],'Código · '+g[1]])});
+var eGrp='x:vg',ebox=$('#wb-eg',pe);
+var GR=[];EXGROUPS.forEach(function(g){GR.push(['x:'+g[0],g[1]])});
 GR.forEach(function(g){var b=el('button','pill'+(g[0]===eGrp?' on':''),g[1]);b.type='button';b.setAttribute('data-g',g[0]);b.onclick=function(){eGrp=g[0];drawE()};ebox.appendChild(b)});
 function solBtn(box){
   var b=$('.vs',box),s=$('.sl',box);
