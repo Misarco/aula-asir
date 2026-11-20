@@ -170,6 +170,16 @@ code{font-family:var(--mono);font-size:.92em}
 .btn:disabled{opacity:.45;cursor:default}
 @media (max-width:520px){.mbr{grid-template-columns:1fr}.mba{transform:rotate(90deg)}}
 @media (max-width:520px){h1{font-size:26px}h2{font-size:22px}}
+.enun{background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:8px;padding:8px 12px;margin:0 0 12px}.enun b{display:block;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);margin-bottom:2px}.enun p{margin:0 0 4px}.enun .vr{font:500 13px var(--mono)}
+.exh2{margin:4px 0 8px;font-size:16px}.lab{display:block;font:600 12px var(--body);color:var(--muted);margin:10px 0 4px;letter-spacing:.03em}
+.ta{width:100%;box-sizing:border-box;font:400 13.5px/1.5 var(--mono);background:var(--code-bg);color:var(--ink);border:1px solid var(--line-strong);border-radius:10px;padding:10px 12px;resize:vertical;tab-size:4;white-space:pre;overflow:auto}.ta:focus{outline:2px solid var(--accent);outline-offset:1px}
+details.arr{margin:0 0 6px}details.arr summary{cursor:pointer;font-weight:600;font-size:14px;margin-bottom:6px}
+.pill.sm{font-size:13px;padding:5px 10px}
+.cres{border-radius:10px;padding:10px 14px;margin:12px 0 8px}.cres p{margin:4px 0 0}.cres.good{background:var(--good-soft);color:var(--good)}.cres.bad{background:var(--bad-soft);color:var(--bad)}
+ul.cl{list-style:none;padding:0;margin:0 0 6px}ul.cl li{display:flex;gap:10px;padding:6px 2px;border-bottom:1px solid var(--line)}ul.cl .mk{font-weight:700;width:18px;flex:none}ul.cl li.ok .mk{color:var(--good)}ul.cl li.no .mk{color:var(--bad)}ul.cl small{display:block;color:var(--muted);margin-top:2px}
+iframe.prev{width:100%;height:160px;border:1px solid var(--line-strong);border-radius:10px;background:#fff}
+.live{display:grid;grid-template-columns:1fr 1fr;gap:14px}.live .ta{min-height:300px}@media(max-width:760px){.live{grid-template-columns:1fr}}
+.card.sol{margin:12px 0 0;background:var(--surface-2,var(--surface))}
 </style>
 </head>
 <body>
@@ -2016,6 +2026,1560 @@ window.addEventListener('hashchange',route);
 start('Todas');newExam();refresh();route();
 })();
 
+var PHPSim=(function(){
+/* ---------- Array de PHP (ordenado, con claves) ---------- */
+function PArr(){this.m=new Map();this.n=0}
+function nk(k){
+  if(typeof k==='number')return Math.trunc(k);
+  if(typeof k==='boolean')return k?1:0;
+  if(k===null||k===undefined)return '';
+  if(typeof k==='string'&&/^(0|-?[1-9][0-9]*)$/.test(k))return parseInt(k,10);
+  return String(k);
+}
+PArr.prototype.set=function(k,v){k=nk(k);this.m.set(k,v);if(typeof k==='number'&&k>=this.n)this.n=k+1};
+PArr.prototype.push=function(v){this.m.set(this.n,v);this.n++};
+PArr.prototype.get=function(k){return this.m.get(nk(k))};
+PArr.prototype.has=function(k){return this.m.has(nk(k))};
+PArr.prototype.del=function(k){this.m.delete(nk(k))};
+PArr.prototype.keys=function(){return Array.from(this.m.keys())};
+PArr.prototype.vals=function(){return Array.from(this.m.values())};
+PArr.prototype.size=function(){return this.m.size};
+PArr.prototype.entries=function(){return Array.from(this.m.entries())};
+PArr.prototype.clone=function(){var a=new PArr();this.m.forEach(function(v,k){a.m.set(k,v instanceof PArr?v.clone():v)});a.n=this.n;return a};
+PArr.prototype.replace=function(ents,reindex){this.m=new Map();this.n=0;var s=this;ents.forEach(function(e){if(reindex)s.push(e[1]);else s.set(e[0],e[1])})};
+function fromList(l){var a=new PArr();l.forEach(function(x){a.push(x)});return a}
+function PHPError(msg,line){this.message=msg;this.line=line;this.name='PHPError'}
+function store(v){return v instanceof PArr?v.clone():v}
+
+/* ---------- conversiones ---------- */
+function fstr(n){
+  if(n===0&&1/n<0)return '-0';
+  if(Number.isInteger(n))return Math.abs(n)<1e15?String(n):n.toExponential().replace('e+','E+').replace(/^(\d)E/,'$1.0E');
+  if(!isFinite(n))return isNaN(n)?'NAN':(n>0?'INF':'-INF');
+  var s=String(parseFloat(n.toPrecision(14)));
+  if(/e/.test(s)){s=s.replace('e','E');if(s.indexOf('.')<0)s=s.replace('E','.0E')}
+  return s;
+}
+function toStr(v){
+  if(typeof v==='string')return v;
+  if(typeof v==='number')return fstr(v);
+  if(v===true)return '1';
+  if(v===false||v===null||v===undefined)return '';
+  if(v instanceof PArr)return 'Array';
+  return String(v);
+}
+function isNumStr(s){return typeof s==='string'&&/^\s*[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?\s*$/.test(s)}
+function toNum(v){
+  if(typeof v==='number')return v;
+  if(v===true)return 1;
+  if(v===false||v===null||v===undefined)return 0;
+  if(typeof v==='string'){var m=v.match(/^\s*[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?/);return m?parseFloat(m[0]):0}
+  if(v instanceof PArr)return v.size()?1:0;
+  return 0;
+}
+function toBool(v){
+  if(typeof v==='boolean')return v;
+  if(v===null||v===undefined)return false;
+  if(typeof v==='number')return v!==0;
+  if(typeof v==='string')return !(v===''||v==='0');
+  if(v instanceof PArr)return v.size()>0;
+  return true;
+}
+function looseEq(a,b){
+  if((a instanceof PArr&&(typeof b==='boolean'||b===null||b===undefined))||(b instanceof PArr&&(typeof a==='boolean'||a===null||a===undefined)))return toBool(a)===toBool(b);
+  if(a instanceof PArr||b instanceof PArr){
+    if(a instanceof PArr&&b instanceof PArr){
+      if(a.size()!==b.size())return false;
+      var ok=true;a.m.forEach(function(v,k){if(!b.m.has(k)||!looseEq(v,b.m.get(k)))ok=false});return ok;
+    }
+    return false;
+  }
+  if(typeof a==='boolean'||typeof b==='boolean'||a===null||b===null||a===undefined||b===undefined){
+    if((a===null||a===undefined)&&typeof b==='string')return b==='';
+    if((b===null||b===undefined)&&typeof a==='string')return a==='';
+    return toBool(a)===toBool(b);
+  }
+  if(typeof a==='number'&&typeof b==='number')return a===b;
+  if(typeof a==='number'&&typeof b==='string')return isNumStr(b)?a===toNum(b):fstr(a)===b;
+  if(typeof a==='string'&&typeof b==='number')return looseEq(b,a);
+  if(typeof a==='string'&&typeof b==='string'){if(isNumStr(a)&&isNumStr(b))return toNum(a)===toNum(b);return a===b}
+  return a===b;
+}
+function strictEq(a,b){
+  if(a===undefined)a=null;if(b===undefined)b=null;
+  if(a instanceof PArr&&b instanceof PArr){
+    if(a.size()!==b.size())return false;
+    var ea=a.entries(),eb=b.entries();
+    for(var i=0;i<ea.length;i++){if(ea[i][0]!==eb[i][0]||!strictEq(ea[i][1],eb[i][1]))return false}
+    return true;
+  }
+  return a===b;
+}
+function cmp(a,b){
+  if(typeof a==='string'&&typeof b==='string'){
+    if(isNumStr(a)&&isNumStr(b)){a=toNum(a);b=toNum(b)}
+    else return a<b?-1:a>b?1:0;
+  }else if(typeof a==='string'&&typeof b==='number'){
+    if(isNumStr(a))a=toNum(a);else{a=a;b=fstr(b);return a<b?-1:a>b?1:0}
+  }else if(typeof a==='number'&&typeof b==='string'){
+    if(isNumStr(b))b=toNum(b);else{a=fstr(a);return a<b?-1:a>b?1:0}
+  }else if(a instanceof PArr&&b instanceof PArr){return a.size()-b.size()}
+  else{a=toNum(a);b=toNum(b)}
+  return a<b?-1:a>b?1:0;
+}
+function phpRound(x,p){
+  p=p||0;var m=Math.pow(10,p),s=x<0?-1:1,v=Math.abs(x)*m;
+  v=parseFloat(v.toPrecision(15));
+  return s*Math.floor(v+0.5)/m;
+}
+function numberFormat(n,dec,dp,ts){
+  n=toNum(n);dec=dec===undefined?0:toNum(dec);dp=dp===undefined?'.':toStr(dp);ts=ts===undefined?',':toStr(ts);
+  var v=phpRound(n,dec),neg=v<0,s=Math.abs(v).toFixed(dec),parts=s.split('.');
+  parts[0]=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,ts);
+  var r=parts[0]+(parts.length>1?dp+parts[1]:'');
+  if(neg&&/[1-9]/.test(r))r='-'+r;
+  return r;
+}
+function sprintf(f){
+  var args=Array.prototype.slice.call(arguments,1),ai=0;
+  return toStr(f).replace(/%(?:(\d+)\$)?([-+0 ]|'.)*(\d+)?(?:\.(\d+))?([sdfFeEuxXbco%])/g,function(m,pos,flag,w,pr,t){
+    if(t==='%')return '%';
+    var fl=m.slice(1).match(/^(?:\d+\$)?((?:[-+0 ]|'.)*)/)[1];
+    var left=fl.indexOf('-')>=0,plus=fl.indexOf('+')>=0,pad=' ';
+    var pm=fl.match(/'(.)/);if(pm)pad=pm[1];else if(fl.indexOf('0')>=0)pad='0';
+    var v=pos?args[+pos-1]:args[ai++],s;
+    if(t==='s'){s=toStr(v);if(pr!==undefined)s=s.slice(0,+pr)}
+    else if(t==='d'||t==='u'){var n=Math.trunc(toNum(v));s=String(Math.abs(n));if(n<0)s='-'+s;else if(plus)s='+'+s}
+    else if(t==='f'||t==='F'){var x=toNum(v);s=numberFormat(x,pr===undefined?6:+pr,'.','');if(plus&&x>=0)s='+'+s}
+    else if(t==='x')s=Math.trunc(toNum(v)).toString(16);
+    else if(t==='X')s=Math.trunc(toNum(v)).toString(16).toUpperCase();
+    else if(t==='b')s=Math.trunc(toNum(v)).toString(2);
+    else if(t==='c')s=String.fromCharCode(toNum(v));
+    else s=toStr(v);
+    if(w){w=+w;while(s.length<w){if(left)s=s+(pad==='0'?' ':pad);else if(pad==='0'&&/^[-+]/.test(s))s=s[0]+'0'+s.slice(1);else s=pad+s}}
+    return s;
+  });
+}
+function printR(v,ind){
+  ind=ind||0;
+  if(v instanceof PArr){
+    var sp=' '.repeat(ind),s='Array\n'+sp+'(\n';
+    v.m.forEach(function(x,k){s+=sp+'    ['+k+'] => '+printR(x,ind+8)+'\n'});
+    return s+sp+')\n';
+  }
+  return toStr(v);
+}
+function varDump(v,ind){
+  ind=ind||0;var sp=' '.repeat(ind);
+  if(v===null||v===undefined)return sp+'NULL\n';
+  if(typeof v==='boolean')return sp+'bool('+v+')\n';
+  if(typeof v==='number')return sp+(Number.isInteger(v)?'int('+v+')':'float('+fstr(v)+')')+'\n';
+  if(typeof v==='string')return sp+'string('+new TextEncoder().encode(v).length+') "'+v+'"\n';
+  var s=sp+'array('+v.size()+') {\n';
+  v.m.forEach(function(x,k){s+=sp+'  ['+(typeof k==='number'?k:'"'+k+'"')+']=>\n'+varDump(x,ind+2)});
+  return s+sp+'}\n';
+}
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+
+/* ---------- Tokenizador ---------- */
+var OPS=['<=>','===','!==','**=','...','??=','==','!=','<>','<=','>=','&&','||','++','--','+=','-=','*=','/=','.=','%=','=>','->','??','::','+','-','*','/','%','.','=','@','<','>','!','?',':',';',',','(',')','[',']','{','}','&'];
+function tokenize(src){
+  var T=[],i=0,line=1,n=src.length;
+  function push(t,v,extra){var o={t:t,v:v,l:line};if(extra)for(var k in extra)o[k]=extra[k];T.push(o)}
+  function countNl(s){var c=0;for(var j=0;j<s.length;j++)if(s[j]==='\n')c++;return c}
+  while(i<n){
+    // modo HTML
+    var a=src.indexOf('<?php',i),b=src.indexOf('<?=',i),st=-1,isEcho=false;
+    if(a>=0&&(b<0||a<b)){st=a}else if(b>=0){st=b;isEcho=true}
+    if(st<0){var h=src.slice(i);if(h)push('html',h);break}
+    if(st>i){var hh=src.slice(i,st);push('html',hh);line+=countNl(hh)}
+    i=st+(isEcho?3:5);
+    if(isEcho)push('id','echo');
+    // modo PHP
+    var closed=false;
+    while(i<n){
+      var c=src[i];
+      if(c==='\n'){line++;i++;continue}
+      if(/\s/.test(c)){i++;continue}
+      if(c==='?'&&src[i+1]==='>'){
+        push('op',';');i+=2;if(src[i]==='\n'){i++;line++}else if(src[i]==='\r'&&src[i+1]==='\n'){i+=2;line++}
+        closed=true;break;
+      }
+      if(c==='#'||(c==='/'&&src[i+1]==='/')){
+        while(i<n&&src[i]!=='\n'&&!(src[i]==='?'&&src[i+1]==='>'))i++;continue;
+      }
+      if(c==='/'&&src[i+1]==='*'){var e=src.indexOf('*/',i+2);if(e<0)e=n;line+=countNl(src.slice(i,e));i=e+2;continue}
+      if(c==='$'&&/[A-Za-z_]/.test(src[i+1]||'')){
+        var m=/^[A-Za-z_][A-Za-z0-9_]*/.exec(src.slice(i+1));push('var',m[0]);i+=1+m[0].length;continue;
+      }
+      if(/[A-Za-z_\\]/.test(c)){
+        var m2=/^[A-Za-z_\\][A-Za-z0-9_\\]*/.exec(src.slice(i));push('id',m2[0].replace(/^\\/,''));i+=m2[0].length;continue;
+      }
+      if(/[0-9]/.test(c)||(c==='.'&&/[0-9]/.test(src[i+1]||''))){
+        var m3=/^(0[xX][0-9a-fA-F]+|\d[\d_]*\.?\d*([eE][+-]?\d+)?|\.\d+([eE][+-]?\d+)?)/.exec(src.slice(i));
+        var txt=m3[0];
+        // evitar tragarse el punto de concatenación: 1 . 2 → "1."
+        if(/\.$/.test(txt)&&/^[\s.]*[A-Za-z$"']/.test(src.slice(i+txt.length))===false&&false){}
+        push('num',parseFloat(txt.replace(/_/g,'')) ,{int:!/[.eE]/.test(txt)||/^0[xX]/.test(txt)});
+        if(/^0[xX]/.test(txt))T[T.length-1].v=parseInt(txt,16);
+        i+=txt.length;continue;
+      }
+      if(c==="'"){
+        var s2='',j=i+1;
+        while(j<n&&src[j]!=="'"){if(src[j]==='\\'&&(src[j+1]==="'"||src[j+1]==='\\')){s2+=src[j+1];j+=2}else{if(src[j]==='\n')line++;s2+=src[j];j++}}
+        push('str',s2);i=j+1;continue;
+      }
+      if(c==='"'){
+        var parts=[],buf='',j2=i+1;
+        while(j2<n&&src[j2]!=='"'){
+          var ch=src[j2];
+          if(ch==='\\'){
+            var nx=src[j2+1];
+            if(nx==='n'){buf+='\n';j2+=2}else if(nx==='t'){buf+='\t';j2+=2}else if(nx==='r'){buf+='\r';j2+=2}
+            else if(nx==='"'||nx==='\\'||nx==='$'){buf+=nx;j2+=2}else{buf+='\\';j2++}
+            continue;
+          }
+          if(ch==='{'&&src[j2+1]==='$'){
+            var d=1,k=j2+1;
+            while(k<n&&d>0){if(src[k]==='{')d++;else if(src[k]==='}')d--;k++}
+            if(buf){parts.push(buf);buf=''}
+            parts.push({src:src.slice(j2+1,k-1)});j2=k;continue;
+          }
+          if(ch==='$'&&/[A-Za-z_]/.test(src[j2+1]||'')){
+            var mv=/^[A-Za-z_][A-Za-z0-9_]*/.exec(src.slice(j2+1))[0],k2=j2+1+mv.length,ex='$'+mv;
+            if(src[k2]==='['){
+              var e2=src.indexOf(']',k2);
+              if(e2>0){
+                var key=src.slice(k2+1,e2);
+                if(/^\$/.test(key)||/^-?\d+$/.test(key))ex+='['+key+']';
+                else ex+='["'+key.replace(/^['"]|['"]$/g,'')+'"]';
+                k2=e2+1;
+              }
+            }
+            if(buf){parts.push(buf);buf=''}
+            parts.push({src:ex});j2=k2;continue;
+          }
+          if(ch==='\n')line++;
+          buf+=ch;j2++;
+        }
+        if(buf)parts.push(buf);
+        if(parts.every(function(p){return typeof p==='string'}))push('str',parts.join(''));
+        else push('tpl',parts);
+        i=j2+1;continue;
+      }
+      var op=null;
+      for(var q=0;q<OPS.length;q++){if(src.substr(i,OPS[q].length)===OPS[q]){op=OPS[q];break}}
+      if(op){push('op',op);i+=op.length;continue}
+      throw new PHPError('Carácter inesperado «'+c+'»',line);
+    }
+    if(!closed){/* fin de archivo en modo PHP */}
+  }
+  T.push({t:'eof',v:'',l:line});
+  return T;
+}
+
+/* ---------- Parser ---------- */
+function parse(src){
+  var T=tokenize(src),p=0;
+  function pk(o){return T[p+(o||0)]}
+  function err(msg){var t=pk();throw new PHPError(msg||('Sintaxis inesperada cerca de «'+(t.t==='eof'?'el final del código':t.v)+'»'),t.l)}
+  function isOp(v,o){var t=pk(o);return t.t==='op'&&t.v===v}
+  function isId(v,o){var t=pk(o);return t.t==='id'&&t.v.toLowerCase()===v}
+  function eatOp(v){if(isOp(v)){p++;return true}return false}
+  function needOp(v){if(!eatOp(v))err('Se esperaba «'+v+'» y se ha encontrado «'+(pk().t==='eof'?'el final del código':pk().v)+'»')}
+  function eatId(v){if(isId(v)){p++;return true}return false}
+  function needId(v){if(!eatId(v))err('Se esperaba «'+v+'»')}
+  function endStmt(){if(eatOp(';'))return;if(pk().t==='html'||pk().t==='eof')return;err('Falta un punto y coma «;» antes de «'+pk().v+'»')}
+
+  function block(){needOp('{');var s=[];while(!isOp('}')){if(pk().t==='eof')err('Falta cerrar la llave «}»');s.push(stmt())}p++;return {k:'block',s:s}}
+  function body(endwords){
+    if(eatOp(':')){
+      var s=[];
+      while(!(pk().t==='id'&&endwords.indexOf(pk().v.toLowerCase())>=0)){if(pk().t==='eof')err('Falta «'+endwords[endwords.length-1]+'»');s.push(stmt())}
+      return {k:'block',s:s,alt:true};
+    }
+    return stmt();
+  }
+  function stmt(){
+    var t=pk();
+    if(t.t==='html'){p++;return {k:'echo',a:[{k:'str',v:t.v}]}}
+    if(t.t==='op'){
+      if(t.v==='{')return block();
+      if(t.v===';'){p++;return {k:'block',s:[]}}
+    }
+    if(t.t==='id'){
+      var w=t.v.toLowerCase();
+      if(w==='echo'||w==='print'){
+        p++;var a=[expr()];while(eatOp(','))a.push(expr());endStmt();return {k:'echo',a:a,l:t.l};
+      }
+      if(w==='if'){
+        p++;needOp('(');var c=expr();needOp(')');
+        var alt=isOp(':');
+        var th=body(['elseif','else','endif']),el=null;
+        if(alt){
+          if(isId('elseif')){el=stmtElseifAlt()}
+          else if(eatId('else')){if(isId('if')){/* else if (…): no estándar */}el=body(['endif']);needId('endif');endStmt()}
+          else{needId('endif');endStmt()}
+        }else{
+          if(isId('elseif')){p++;p--;T[p]={t:'id',v:'if',l:T[p].l};el=stmt()}
+          else if(isId('else')&&isId('if',1)){p++;el=stmt()}
+          else if(eatId('else')){el=stmt()}
+        }
+        return {k:'if',c:c,t:th,e:el,l:t.l};
+      }
+      if(w==='foreach'){
+        p++;needOp('(');var e=expr();needId('as');var kv=null,byref=false,vv;
+        if(eatOp('&')){byref=true}
+        if(pk().t!=='var')err('Se esperaba una variable en el foreach');
+        vv=pk().v;p++;
+        if(eatOp('=>')){kv=vv;if(eatOp('&'))byref=true;if(pk().t!=='var')err('Se esperaba una variable tras «=>»');vv=pk().v;p++}
+        needOp(')');
+        var b=body(['endforeach']);if(b.alt){needId('endforeach');endStmt()}
+        return {k:'foreach',e:e,kv:kv,v:vv,ref:byref,b:b,l:t.l};
+      }
+      if(w==='for'){
+        p++;needOp('(');var ini=[],cnd=[],stp=[];
+        if(!isOp(';')){ini.push(expr());while(eatOp(','))ini.push(expr())}needOp(';');
+        if(!isOp(';')){cnd.push(expr());while(eatOp(','))cnd.push(expr())}needOp(';');
+        if(!isOp(')')){stp.push(expr());while(eatOp(','))stp.push(expr())}needOp(')');
+        var fb=body(['endfor']);if(fb.alt){needId('endfor');endStmt()}
+        return {k:'for',i:ini,c:cnd,s:stp,b:fb,l:t.l};
+      }
+      if(w==='while'){
+        p++;needOp('(');var wc=expr();needOp(')');var wb=body(['endwhile']);if(wb.alt){needId('endwhile');endStmt()}
+        return {k:'while',c:wc,b:wb,l:t.l};
+      }
+      if(w==='do'){
+        p++;var db=stmt();needId('while');needOp('(');var dc=expr();needOp(')');endStmt();
+        return {k:'dowhile',c:dc,b:db,l:t.l};
+      }
+      if(w==='switch'){
+        p++;needOp('(');var sv=expr();needOp(')');needOp('{');var cases=[];
+        while(!isOp('}')){
+          if(pk().t==='eof')err('Falta cerrar la llave «}»');
+          var ce=null;
+          if(eatId('case')){ce=expr()}else if(eatId('default')){ce=null}else err('Se esperaba «case» o «default»');
+          if(!eatOp(':'))needOp(';');
+          var body2=[];
+          while(!isOp('}')&&!isId('case')&&!isId('default')){if(pk().t==='eof')err('Falta cerrar la llave «}»');body2.push(stmt())}
+          cases.push({e:ce,s:body2,def:ce===null});
+        }
+        p++;return {k:'switch',v:sv,cs:cases,l:t.l};
+      }
+      if(w==='break'||w==='continue'){p++;if(pk().t==='num')p++;endStmt();return {k:w}}
+      if(w==='return'){p++;var rv=null;if(!isOp(';')&&pk().t!=='html'&&pk().t!=='eof')rv=expr();endStmt();return {k:'return',e:rv}}
+      if(w==='unset'){
+        p++;needOp('(');var us=[expr()];while(eatOp(','))us.push(expr());needOp(')');endStmt();return {k:'unset',a:us};
+      }
+      if(w==='function'&&pk(1).t==='id'){
+        p++;var name=pk().v;p++;var f=funcRest();return {k:'fdecl',n:name.toLowerCase(),f:f};
+      }
+      if(w==='declare'){p++;needOp('(');while(!isOp(')'))p++;p++;endStmt();return {k:'block',s:[]}}
+    }
+    var e2=expr();endStmt();return {k:'expr',e:e2,l:t.l};
+  }
+  function stmtElseifAlt(){
+    var t=pk();p++;needOp('(');var c=expr();needOp(')');needOp(':');
+    var s=[];while(!(pk().t==='id'&&['elseif','else','endif'].indexOf(pk().v.toLowerCase())>=0)){if(pk().t==='eof')err('Falta «endif»');s.push(stmt())}
+    var th={k:'block',s:s},el=null;
+    if(isId('elseif'))el=stmtElseifAlt();
+    else if(eatId('else')){needOp(':');var s2=[];while(!isId('endif')){if(pk().t==='eof')err('Falta «endif»');s2.push(stmt())}el={k:'block',s:s2};needId('endif');endStmt()}
+    else{needId('endif');endStmt()}
+    return {k:'if',c:c,t:th,e:el,l:t.l};
+  }
+  function funcRest(){
+    needOp('(');var params=[];
+    while(!isOp(')')){
+      eatOp('&');
+      if(pk().t==='id'&&pk(1).t==='var')p++;
+      if(pk().t!=='var')err('Se esperaba un parámetro');
+      var nm=pk().v;p++;var def=null;if(eatOp('='))def=expr();params.push({n:nm,d:def});
+      if(!eatOp(','))break;
+    }
+    needOp(')');var uses=[];
+    if(eatId('use')){needOp('(');while(!isOp(')')){eatOp('&');uses.push(pk().v);p++;if(!eatOp(','))break}needOp(')')}
+    if(eatOp(':')){p++}
+    var bd=block();return {params:params,uses:uses,body:bd};
+  }
+  var BIN=[
+    ['or'],['xor'],['and'],
+    null, // asignación se trata aparte
+    ['??'],['||'],['&&'],
+    ['==','!=','===','!==','<>','<=>'],
+    ['<','>','<=','>='],
+    ['.'],['+','-'],['*','/','%']
+  ];
+  function expr(){return assign()}
+  function lval(n){return n.k==='var'||n.k==='idx'}
+  function assign(){
+    var l=ternary();
+    var t=pk();
+    if(t.t==='op'&&['=','+=','-=','*=','/=','.=','%=','??='].indexOf(t.v)>=0){
+      if(!lval(l))err('No se puede asignar a esa expresión');
+      p++;
+      if(t.v==='='&&isOp('&'))p++;
+      var r=assign();return {k:'asg',op:t.v,t:l,e:r,l:t.l};
+    }
+    return l;
+  }
+  function ternary(){
+    var c=bin(0);
+    while(isOp('?')){
+      p++;
+      if(eatOp(':')){var b0=assign();c={k:'tern',c:c,a:null,b:b0};continue}
+      var a=assign();needOp(':');var b=assign();c={k:'tern',c:c,a:a,b:b};
+    }
+    return c;
+  }
+  var LEVELS=[['or'],['xor'],['and'],['??'],['||'],['&&'],['==','!=','===','!==','<>','<=>'],['<','>','<=','>='],['.'],['+','-'],['*','/','%']];
+  function curOp(){
+    var t=pk();
+    if(t.t==='op')return t.v;
+    if(t.t==='id'){var w=t.v.toLowerCase();if(w==='or'||w==='and'||w==='xor')return w}
+    return null;
+  }
+  function bin(lv){
+    if(lv>=LEVELS.length)return unary();
+    var l=bin(lv+1);
+    if(LEVELS[lv][0]==='??'){
+      // asociativo por la derecha
+      if(curOp()==='??'){p++;var r=bin(lv);return {k:'bin',op:'??',l:l,r:r}}
+      return l;
+    }
+    for(;;){
+      var o=curOp();
+      if(o&&LEVELS[lv].indexOf(o)>=0){p++;var r2=bin(lv+1);l={k:'bin',op:o,l:l,r:r2,ln:pk().l}}
+      else break;
+    }
+    return l;
+  }
+  function unary(){
+    var t=pk();
+    if(t.t==='op'){
+      if(t.v==='!'){p++;return {k:'un',op:'!',e:unary()}}
+      if(t.v==='-'){p++;return {k:'un',op:'-',e:unary()}}
+      if(t.v==='+'){p++;return {k:'un',op:'+',e:unary()}}
+      if(t.v==='@'){p++;return unary()}
+      if(t.v==='&'){p++;return unary()}
+      if(t.v==='++'||t.v==='--'){p++;var tg=unary();return {k:'inc',pre:true,d:t.v==='++'?1:-1,t:tg}}
+      if(t.v==='('&&pk(1).t==='id'&&pk(2).t==='op'&&pk(2).v===')'&&['int','integer','float','double','string','bool','boolean','array'].indexOf(pk(1).v.toLowerCase())>=0){
+        var ty=pk(1).v.toLowerCase();p+=3;return {k:'cast',ty:ty,e:unary()};
+      }
+    }
+    return pow();
+  }
+  function pow(){
+    var b=postfix();
+    if(isOp('**')||(pk().t==='op'&&pk().v==='*'&&isOp('*',1))){
+      if(isOp('**'))p++;else p+=2;
+      var e=unary();return {k:'bin',op:'**',l:b,r:e};
+    }
+    return b;
+  }
+  function postfix(){
+    var e=primary();
+    for(;;){
+      if(isOp('[')){
+        p++;
+        if(eatOp(']')){e={k:'idx',b:e,i:null};continue}
+        var ix=expr();needOp(']');e={k:'idx',b:e,i:ix};continue;
+      }
+      if(isOp('++')||isOp('--')){var d=pk().v==='++'?1:-1;p++;e={k:'inc',pre:false,d:d,t:e};continue}
+      break;
+    }
+    return e;
+  }
+  function primary(){
+    var t=pk();
+    if(t.t==='num'){p++;return {k:'num',v:t.v,int:t.int}}
+    if(t.t==='str'){p++;return {k:'str',v:t.v}}
+    if(t.t==='tpl'){
+      p++;
+      var parts=t.v.map(function(x){
+        if(typeof x==='string')return x;
+        var sub=parse('<?php '+x.src+';');
+        return sub.s[0].e;
+      });
+      return {k:'tpl',parts:parts};
+    }
+    if(t.t==='var'){p++;return {k:'var',n:t.v}}
+    if(t.t==='op'){
+      if(t.v==='('){p++;var e=expr();needOp(')');return e}
+      if(t.v==='['){return arrayLit(']')}
+    }
+    if(t.t==='id'){
+      var w=t.v.toLowerCase();
+      if(w==='array'&&isOp('(',1)){p++;return arrayLit(')')}
+      if(w==='isset'){p++;needOp('(');var l=[expr()];while(eatOp(','))l.push(expr());needOp(')');return {k:'isset',a:l}}
+      if(w==='empty'){p++;needOp('(');var e2=expr();needOp(')');return {k:'empty',e:e2}}
+      if(w==='fn'){
+        p++;needOp('(');var params=[];
+        while(!isOp(')')){eatOp('&');if(pk().t==='id'&&pk(1).t==='var')p++;params.push({n:pk().v,d:null});p++;if(!eatOp(','))break}
+        needOp(')');if(eatOp(':'))p++;needOp('=>');var be=assign();
+        return {k:'closure',f:{params:params,uses:null,arrow:true,body:{k:'return',e:be}}};
+      }
+      if(w==='function'){p++;return {k:'closure',f:funcRest()}}
+      if(w==='true'||w==='false'||w==='null'){p++;return {k:'const',n:w}}
+      if(isOp('(',1)){
+        p+=2;var args=[];
+        while(!isOp(')')){
+          if(eatOp('...')){}
+          args.push(expr());if(!eatOp(','))break;
+        }
+        needOp(')');return {k:'call',n:t.v.toLowerCase(),a:args,l:t.l};
+      }
+      p++;return {k:'const',n:t.v};
+    }
+    err();
+  }
+  function arrayLit(close){
+    p++;var items=[];
+    while(!isOp(close)){
+      if(eatOp('...')){items.push({spread:expr()})}
+      else{
+        var v=expr(),k=null;
+        if(eatOp('=>')){k=v;v=expr()}
+        items.push({k:k,v:v});
+      }
+      if(!eatOp(','))break;
+    }
+    needOp(close);return {k:'arr',items:items};
+  }
+  var prog=[];
+  while(pk().t!=='eof')prog.push(stmt());
+  return {s:prog};
+}
+
+/* ---------- Intérprete ---------- */
+var CONSTS={PHP_EOL:'\n',M_PI:Math.PI,PHP_INT_MAX:9007199254740991,PHP_INT_MIN:-9007199254740991,PHP_FLOAT_EPSILON:2.220446049250313e-16,SORT_ASC:4,SORT_DESC:3,STR_PAD_RIGHT:1,STR_PAD_LEFT:0,STR_PAD_BOTH:2,COUNT_RECURSIVE:1,ENT_QUOTES:3,E_ALL:32767};
+function run(src,opts){
+  opts=opts||{};
+  var out=[],vars={},funcs={},steps=0,MAX=400000;
+  var ast;
+  try{ast=parse(src)}catch(e){if(e instanceof PHPError)return {ok:false,error:e.message,line:e.line,out:'',vars:vars};throw e}
+  function tick(l){if(++steps>MAX)throw new PHPError('El programa tarda demasiado (¿bucle infinito?)',l)}
+  function ErrAt(m,l){return new PHPError(m,l)}
+  function call(fn,args,l){
+    // fn: closure object {f,uses}
+    var f=fn.f,loc={};
+    if(fn.bound)for(var k in fn.bound)loc[k]=fn.bound[k];
+    f.params.forEach(function(pm,i){loc[pm.n]=i<args.length?store(args[i]):(pm.d?ev(pm.d,{vars:loc}):null)});
+    var env={vars:loc};
+    try{exec(f.body,env)}catch(r){if(r&&r.__ret){return r.v}throw r}
+    return null;
+  }
+  function toCallable(v,l){
+    if(v&&v.f)return v;
+    if(typeof v==='string'){
+      var nm=v.toLowerCase();
+      if(funcs[nm])return {f:funcs[nm]};
+      if(B[nm])return {native:B[nm]};
+    }
+    throw ErrAt('Función de retorno no válida',l);
+  }
+  function callCb(cb,args,l){
+    cb=toCallable(cb,l);
+    if(cb.native)return cb.native.apply(null,args);
+    return call(cb,args,l);
+  }
+  function arr(v,fname,l){if(!(v instanceof PArr))throw ErrAt(fname+'() espera un array',l);return v}
+  var B={
+    strtoupper:function(s){return toStr(s).toUpperCase()},
+    strtolower:function(s){return toStr(s).toLowerCase()},
+    ucfirst:function(s){s=toStr(s);return s.charAt(0).toUpperCase()+s.slice(1)},
+    lcfirst:function(s){s=toStr(s);return s.charAt(0).toLowerCase()+s.slice(1)},
+    ucwords:function(s){return toStr(s).replace(/(^|[\s\-])(\S)/g,function(m,a,b){return a+b.toUpperCase()})},
+    strlen:function(s){return new TextEncoder().encode(toStr(s)).length},
+    mb_strlen:function(s){return Array.from(toStr(s)).length},
+    mb_strtoupper:function(s){return toStr(s).toUpperCase()},
+    mb_strtolower:function(s){return toStr(s).toLowerCase()},
+    mb_substr:function(s,st,len){return B.substr(Array.from(toStr(s)).join(''),st,len)},
+    substr:function(s,st,len){
+      s=toStr(s);st=Math.trunc(toNum(st));var L=s.length;
+      if(st<0)st=Math.max(0,L+st);if(st>L)return '';
+      var end;
+      if(len===undefined||len===null)end=L;else{len=Math.trunc(toNum(len));end=len<0?L+len:st+len}
+      if(end<st)return '';
+      return s.slice(st,end);
+    },
+    stripos:function(h,n,off){h=toStr(h).toLowerCase();n=toStr(n).toLowerCase();off=off?toNum(off):0;var r=h.indexOf(n,off<0?h.length+off:off);return r<0?false:r},
+    strpos:function(h,n,off){h=toStr(h);n=toStr(n);off=off?toNum(off):0;var r=h.indexOf(n,off<0?h.length+off:off);return r<0?false:r},
+    strrpos:function(h,n){var r=toStr(h).lastIndexOf(toStr(n));return r<0?false:r},
+    str_contains:function(h,n){return toStr(h).indexOf(toStr(n))>=0},
+    str_starts_with:function(h,n){return toStr(h).indexOf(toStr(n))===0},
+    str_ends_with:function(h,n){h=toStr(h);n=toStr(n);return h.length>=n.length&&h.slice(h.length-n.length)===n},
+    str_replace:function(se,re,su){
+      function one(s){
+        s=toStr(s);
+        if(se instanceof PArr){se.vals().forEach(function(x,i){var r=re instanceof PArr?(re.vals()[i]===undefined?'':re.vals()[i]):re;x=toStr(x);if(x!=='')s=s.split(x).join(toStr(r))})}
+        else if(toStr(se)!=='')s=s.split(toStr(se)).join(toStr(re));
+        return s;
+      }
+      if(su instanceof PArr){var a=new PArr();su.m.forEach(function(v,k){a.set(k,one(v))});return a}
+      return one(su);
+    },
+    trim:function(s,c){s=toStr(s);if(c===undefined)return s.replace(/^[ \t\n\r\0\x0B]+|[ \t\n\r\0\x0B]+$/g,'');c=toStr(c);var i=0,j=s.length;while(i<j&&c.indexOf(s[i])>=0)i++;while(j>i&&c.indexOf(s[j-1])>=0)j--;return s.slice(i,j)},
+    ltrim:function(s){return toStr(s).replace(/^[ \t\n\r\0\x0B]+/,'')},
+    rtrim:function(s){return toStr(s).replace(/[ \t\n\r\0\x0B]+$/,'')},
+    strrev:function(s){return toStr(s).split('').reverse().join('')},
+    str_repeat:function(s,n){return toStr(s).repeat(Math.max(0,toNum(n)))},
+    str_pad:function(s,len,pad,type){
+      s=toStr(s);len=toNum(len);pad=pad===undefined?' ':toStr(pad);type=type===undefined?1:toNum(type);
+      var need=len-s.length;if(need<=0||pad==='')return s;
+      function mk(n){return pad.repeat(Math.ceil(n/pad.length)).slice(0,n)}
+      if(type===0)return mk(need)+s;
+      if(type===2){var l=Math.floor(need/2);return mk(l)+s+mk(need-l)}
+      return s+mk(need);
+    },
+    str_word_count:function(s){var m=toStr(s).match(/[A-Za-zÀ-ÿ'-]+/g);return m?m.length:0},
+    strcmp:function(a,b){a=toStr(a);b=toStr(b);return a<b?-1:a>b?1:0},
+    strcasecmp:function(a,b){a=toStr(a).toLowerCase();b=toStr(b).toLowerCase();return a<b?-1:a>b?1:0},
+    nl2br:function(s){return toStr(s).replace(/(\r\n|\n|\r)/g,'<br />$1')},
+    htmlspecialchars:function(s){return toStr(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')},
+    implode:function(g,a){if(g instanceof PArr){var t=g;g=a===undefined?'':a;a=t}return arr(a,'implode').vals().map(toStr).join(toStr(g))},
+    explode:function(sep,s,lim){var r=toStr(s).split(toStr(sep));if(lim!==undefined&&lim>0&&r.length>lim){r=r.slice(0,lim-1).concat(r.slice(lim-1).join(toStr(sep)))}return fromList(r)},
+    str_split:function(s,n){s=toStr(s);n=n?toNum(n):1;var r=[];for(var i=0;i<s.length;i+=n)r.push(s.substr(i,n));return fromList(r)},
+    number_format:numberFormat,
+    sprintf:sprintf,
+    printf:function(){var s=sprintf.apply(null,arguments);out.push(s);return s.length},
+    round:function(x,p){return phpRound(toNum(x),p===undefined?0:toNum(p))},
+    floor:function(x){return Math.floor(toNum(x))},
+    ceil:function(x){return Math.ceil(toNum(x))},
+    abs:function(x){return Math.abs(toNum(x))},
+    sqrt:function(x){return Math.sqrt(toNum(x))},
+    pow:function(a,b){return Math.pow(toNum(a),toNum(b))},
+    intdiv:function(a,b){if(toNum(b)===0)throw new PHPError('Division by zero');return Math.trunc(toNum(a)/toNum(b))},
+    fmod:function(a,b){return toNum(a)%toNum(b)},
+    max:function(){var a=arguments.length===1&&arguments[0] instanceof PArr?arguments[0].vals():Array.prototype.slice.call(arguments);if(!a.length)throw new PHPError('max() necesita al menos un valor');return a.reduce(function(m,x){return cmp(x,m)>0?x:m})},
+    min:function(){var a=arguments.length===1&&arguments[0] instanceof PArr?arguments[0].vals():Array.prototype.slice.call(arguments);if(!a.length)throw new PHPError('min() necesita al menos un valor');return a.reduce(function(m,x){return cmp(x,m)<0?x:m})},
+    count:function(a,mode){
+      if(!(a instanceof PArr))throw new PHPError('count(): el argumento debe ser un array');
+      if(mode===1){var c=0;(function f(x){x.m.forEach(function(v){c++;if(v instanceof PArr)f(v)})})(a);return c}
+      return a.size();
+    },
+    array_sum:function(a){return arr(a,'array_sum').vals().reduce(function(s,x){return s+toNum(x)},0)},
+    array_product:function(a){return arr(a,'array_product').vals().reduce(function(s,x){return s*toNum(x)},1)},
+    array_column:function(a,col,idx){
+      var r=new PArr();
+      arr(a,'array_column').vals().forEach(function(row){
+        if(!(row instanceof PArr))return;
+        var v=col===null||col===undefined?row:row.get(col);
+        if(col!==null&&col!==undefined&&!row.has(col))return;
+        if(idx!==undefined&&idx!==null&&row.has(idx))r.set(row.get(idx),v);else r.push(v);
+      });
+      return r;
+    },
+    array_keys:function(a,s){var r=new PArr();arr(a,'array_keys').m.forEach(function(v,k){if(s===undefined||looseEq(v,s))r.push(k)});return r},
+    array_values:function(a){return fromList(arr(a,'array_values').vals())},
+    array_key_exists:function(k,a){return arr(a,'array_key_exists').has(k)},
+    key_exists:function(k,a){return arr(a,'array_key_exists').has(k)},
+    in_array:function(x,a,strict){return arr(a,'in_array').vals().some(function(v){return strict?strictEq(v,x):looseEq(v,x)})},
+    array_search:function(x,a,strict){var r=false;arr(a,'array_search').m.forEach(function(v,k){if(r===false&&(strict?strictEq(v,x):looseEq(v,x)))r=k});return r},
+    array_key_first:function(a){var k=arr(a,'array_key_first').keys();return k.length?k[0]:null},
+    array_key_last:function(a){var k=arr(a,'array_key_last').keys();return k.length?k[k.length-1]:null},
+    array_filter:function(a,cb,mode){
+      var r=new PArr();
+      arr(a,'array_filter').m.forEach(function(v,k){
+        var keep=cb===undefined||cb===null?toBool(v):toBool(mode===2?callCb(cb,[k]):mode===1?callCb(cb,[v,k]):callCb(cb,[v]));
+        if(keep)r.set(k,v);
+      });
+      return r;
+    },
+    array_map:function(cb,a){
+      if(arguments.length>2){
+        var arrs=Array.prototype.slice.call(arguments,1),n=Math.max.apply(null,arrs.map(function(x){return x.size()})),r2=new PArr();
+        for(var i=0;i<n;i++){var args=arrs.map(function(x){var v=x.vals()[i];return v===undefined?null:v});r2.push(callCb(cb,args))}
+        return r2;
+      }
+      var r=new PArr();arr(a,'array_map').m.forEach(function(v,k){r.set(k,callCb(cb,[v]))});return r;
+    },
+    array_reduce:function(a,cb,init){var acc=init===undefined?null:init;arr(a,'array_reduce').vals().forEach(function(v){acc=callCb(cb,[acc,v])});return acc},
+    array_merge:function(){var r=new PArr();Array.prototype.slice.call(arguments).forEach(function(a){arr(a,'array_merge').m.forEach(function(v,k){if(typeof k==='number')r.push(v);else r.set(k,v)})});return r},
+    array_slice:function(a,off,len,pk){
+      var e=arr(a,'array_slice').entries(),L=e.length;off=toNum(off);if(off<0)off=Math.max(0,L+off);
+      var end=len===undefined||len===null?L:(len<0?L+len:off+len);
+      var r=new PArr();e.slice(off,end).forEach(function(x){if(typeof x[0]==='number'&&!pk)r.push(x[1]);else r.set(x[0],x[1])});return r;
+    },
+    array_reverse:function(a,pk){var e=arr(a,'array_reverse').entries().reverse(),r=new PArr();e.forEach(function(x){if(typeof x[0]==='number'&&!pk)r.push(x[1]);else r.set(x[0],x[1])});return r},
+    array_unique:function(a){var r=new PArr(),seen=[];arr(a,'array_unique').m.forEach(function(v,k){if(!seen.some(function(s){return looseEq(s,v)})){seen.push(v);r.set(k,v)}});return r},
+    array_flip:function(a){var r=new PArr();arr(a,'array_flip').m.forEach(function(v,k){r.set(v,k)});return r},
+    array_combine:function(k,v){var r=new PArr(),kv=arr(k,'array_combine').vals(),vv=arr(v,'array_combine').vals();kv.forEach(function(x,i){r.set(x,vv[i])});return r},
+    array_count_values:function(a){var r=new PArr();arr(a,'array_count_values').vals().forEach(function(v){r.set(v,(r.get(v)||0)+1)});return r},
+    array_fill:function(s,n,v){var r=new PArr();for(var i=0;i<n;i++)r.set(s+i,store(v));return r},
+    range:function(a,b,st){
+      st=st?Math.abs(toNum(st)):1;var r=new PArr();
+      if(typeof a==='string'&&typeof b==='string'&&a.length===1&&b.length===1&&!isNumStr(a)){
+        var x=a.charCodeAt(0),y=b.charCodeAt(0);if(x<=y)for(;x<=y;x+=st)r.push(String.fromCharCode(x));else for(;x>=y;x-=st)r.push(String.fromCharCode(x));return r;
+      }
+      a=toNum(a);b=toNum(b);if(a<=b)for(var i=a;i<=b+1e-9;i+=st)r.push(i);else for(var j=a;j>=b-1e-9;j-=st)r.push(j);
+      return r;
+    },
+    is_array:function(x){return x instanceof PArr},
+    is_string:function(x){return typeof x==='string'},
+    is_int:function(x){return typeof x==='number'&&Number.isInteger(x)},
+    is_integer:function(x){return typeof x==='number'&&Number.isInteger(x)},
+    is_float:function(x){return typeof x==='number'&&!Number.isInteger(x)},
+    is_numeric:function(x){return typeof x==='number'||isNumStr(x)},
+    is_bool:function(x){return typeof x==='boolean'},
+    is_null:function(x){return x===null||x===undefined},
+    intval:function(x){return Math.trunc(toNum(x))},
+    floatval:function(x){return toNum(x)},
+    strval:toStr,
+    boolval:toBool,
+    var_export:function(x,ret){
+      function ve(v,ind){
+        if(v===null||v===undefined)return 'NULL';if(v===true)return 'true';if(v===false)return 'false';
+        if(typeof v==='number')return Number.isInteger(v)?String(v):fstr(v);
+        if(typeof v==='string')return "'"+v.replace(/\\/g,'\\\\').replace(/'/g,"\\'")+"'";
+        var sp=' '.repeat(ind),s='array (\n';
+        v.m.forEach(function(x,k){s+=sp+'  '+(typeof k==='number'?k:ve(k))+' => '+(x instanceof PArr?'\n'+sp+'  ':'')+ve(x,ind+2)+',\n'});
+        return s+sp+')';
+      }
+      var r=ve(x,0);if(ret)return r;out.push(r);return null;
+    },
+    print_r:function(x,ret){var s=printR(x);if(ret)return s;out.push(s);return true},
+    var_dump:function(){Array.prototype.slice.call(arguments).forEach(function(x){out.push(varDump(x))});return null},
+    rand:function(a,b){return a===undefined?rnd(0,2147483647):rnd(Math.trunc(toNum(a)),Math.trunc(toNum(b)))},
+    mt_rand:function(a,b){return a===undefined?rnd(0,2147483647):rnd(Math.trunc(toNum(a)),Math.trunc(toNum(b)))},
+    random_int:function(a,b){if(toNum(a)>toNum(b))throw new PHPError('random_int(): $min debe ser menor o igual que $max');return rnd(Math.trunc(toNum(a)),Math.trunc(toNum(b)))},
+    mt_getrandmax:function(){return 2147483647},
+    getrandmax:function(){return 2147483647},
+    srand:function(){return null},
+    mt_srand:function(){return null},
+    lcg_value:function(){return Math.random()},
+    array_rand:function(a,n){
+      var ks=arr(a,'array_rand').keys();if(!ks.length)throw new PHPError('array_rand(): el array está vacío');
+      n=n===undefined?1:toNum(n);
+      if(n===1)return ks[rnd(0,ks.length-1)];
+      if(n<1||n>ks.length)throw new PHPError('array_rand(): el segundo argumento debe estar entre 1 y el número de elementos');
+      var idx=ks.map(function(_,i){return i}),pick=[];
+      while(pick.length<n){var j=rnd(0,idx.length-1);pick.push(idx.splice(j,1)[0])}
+      pick.sort(function(x,y){return x-y});
+      return fromList(pick.map(function(i){return ks[i]}));
+    },
+    date:function(f,ts){
+      var d=ts===undefined?new Date():new Date(toNum(ts)*1000),p2=function(n){return (n<10?'0':'')+n};
+      var DN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+      return toStr(f).replace(/[YmdHisjnyDN]/g,function(c){
+        switch(c){case 'Y':return d.getFullYear();case 'y':return String(d.getFullYear()).slice(2);case 'm':return p2(d.getMonth()+1);case 'n':return d.getMonth()+1;case 'd':return p2(d.getDate());case 'j':return d.getDate();case 'H':return p2(d.getHours());case 'i':return p2(d.getMinutes());case 's':return p2(d.getSeconds());case 'D':return DN[d.getDay()].slice(0,3);case 'N':return d.getDay()||7}
+        return c;
+      });
+    },
+    time:function(){return Math.floor(Date.now()/1000)},
+    microtime:function(){return Date.now()/1000},
+    json_encode:function(x){function c(v){if(v instanceof PArr){var ks=v.keys(),isl=ks.every(function(k,i){return k===i});if(isl)return v.vals().map(c);var o={};v.m.forEach(function(x,k){o[k]=c(x)});return o}return v}return JSON.stringify(c(x))},
+    function_exists:function(n){n=toStr(n).toLowerCase();return !!(funcs[n]||B[n])},
+    usleep:function(){return null},
+    error_reporting:function(){return 0},
+    ini_set:function(){return false},
+    mb_internal_encoding:function(){return true},
+    header:function(){return null},
+    htmlentities:function(s){return B.htmlspecialchars(s)}
+  };
+  // funciones que modifican su primer argumento
+  var REF={
+    sort:function(a){a.replace(a.entries().sort(function(x,y){return cmp(x[1],y[1])}),true);return true},
+    rsort:function(a){a.replace(a.entries().sort(function(x,y){return cmp(y[1],x[1])}),true);return true},
+    asort:function(a){a.replace(a.entries().sort(function(x,y){return cmp(x[1],y[1])}));return true},
+    arsort:function(a){a.replace(a.entries().sort(function(x,y){return cmp(y[1],x[1])}));return true},
+    ksort:function(a){a.replace(a.entries().sort(function(x,y){return cmp(x[0],y[0])}));return true},
+    krsort:function(a){a.replace(a.entries().sort(function(x,y){return cmp(y[0],x[0])}));return true},
+    usort:function(a,cb,l){a.replace(a.entries().sort(function(x,y){return toNum(callCb(cb,[x[1],y[1]],l))}),true);return true},
+    uasort:function(a,cb,l){a.replace(a.entries().sort(function(x,y){return toNum(callCb(cb,[x[1],y[1]],l))}));return true},
+    uksort:function(a,cb,l){a.replace(a.entries().sort(function(x,y){return toNum(callCb(cb,[x[0],y[0]],l))}));return true},
+    shuffle:function(a){var v=a.vals();for(var i=v.length-1;i>0;i--){var j=rnd(0,i),t=v[i];v[i]=v[j];v[j]=t}a.replace(v.map(function(x,i){return [i,x]}),true);return true},
+    array_push:function(a){for(var i=1;i<arguments.length-1;i++)a.push(store(arguments[i]));return a.size()},
+    array_pop:function(a){var k=a.keys();if(!k.length)return null;var v=a.get(k[k.length-1]);a.del(k[k.length-1]);a.n=0;a.keys().forEach(function(x){if(typeof x==='number'&&x>=a.n)a.n=x+1});return v},
+    array_shift:function(a){var e=a.entries();if(!e.length)return null;var f=e.shift();var ne=[];e.forEach(function(x){ne.push(x)});var m=new PArr();ne.forEach(function(x){if(typeof x[0]==='number')m.push(x[1]);else m.set(x[0],x[1])});a.m=m.m;a.n=m.n;return f[1]},
+    array_unshift:function(a){var vals=Array.prototype.slice.call(arguments,1,arguments.length-1),m=new PArr();vals.forEach(function(v){m.push(store(v))});a.entries().forEach(function(x){if(typeof x[0]==='number')m.push(x[1]);else m.set(x[0],x[1])});a.m=m.m;a.n=m.n;return a.size()}
+  };
+
+  function readIdx(b,k,l){
+    if(b instanceof PArr){var v=b.get(k);return v===undefined?null:v}
+    if(typeof b==='string'){var i=Math.trunc(toNum(k));if(i<0)i+=b.length;return i>=0&&i<b.length?b[i]:null}
+    return null;
+  }
+  function lref(node,env,l){
+    if(node.k==='var'){
+      var v=env.vars[node.n];
+      if(v===undefined||v===null){v=new PArr();env.vars[node.n]=v}
+      if(!(v instanceof PArr))throw ErrAt('No se puede usar un valor que no es array como array ($'+node.n+')',l);
+      return v;
+    }
+    if(node.k==='idx'){
+      var par=lref(node.b,env,l);
+      if(node.i===null){var nw=new PArr();par.push(nw);return nw}
+      var key=ev(node.i,env),ch=par.get(key);
+      if(ch===undefined||ch===null){ch=new PArr();par.set(key,ch)}
+      if(!(ch instanceof PArr))throw ErrAt('No se puede usar un valor que no es array como array',l);
+      return ch;
+    }
+    throw ErrAt('Expresión no válida',l);
+  }
+  function assignTo(t,v,env,l){
+    if(t.k==='var'){env.vars[t.n]=store(v);return v}
+    if(t.k==='idx'){
+      var c=lref(t.b,env,l);
+      if(t.i===null)c.push(store(v));else c.set(ev(t.i,env),store(v));
+      return v;
+    }
+    throw ErrAt('No se puede asignar',l);
+  }
+  function arith(op,a,b,l){
+    switch(op){
+      case '+':return toNum(a)+toNum(b);
+      case '-':return toNum(a)-toNum(b);
+      case '*':return toNum(a)*toNum(b);
+      case '/':if(toNum(b)===0)throw ErrAt('División entre cero',l);return toNum(a)/toNum(b);
+      case '%':if(Math.trunc(toNum(b))===0)throw ErrAt('Módulo por cero',l);return Math.trunc(toNum(a))%Math.trunc(toNum(b));
+      case '**':return Math.pow(toNum(a),toNum(b));
+      case '.':return toStr(a)+toStr(b);
+    }
+  }
+  function ev(n,env){
+    tick(n.l);
+    switch(n.k){
+      case 'num':return n.v;
+      case 'str':return n.v;
+      case 'tpl':{var s='';n.parts.forEach(function(p){s+=typeof p==='string'?p:toStr(ev(p,env))});return s}
+      case 'var':{var v=env.vars[n.n];return v===undefined?null:v}
+      case 'const':{
+        var w=n.n.toLowerCase();
+        if(w==='true')return true;if(w==='false')return false;if(w==='null')return null;
+        if(CONSTS.hasOwnProperty(n.n))return CONSTS[n.n];
+        throw ErrAt('Constante no definida: '+n.n,n.l);
+      }
+      case 'arr':{
+        var a=new PArr();
+        n.items.forEach(function(it){
+          if(it.spread){var sp=ev(it.spread,env);sp.m.forEach(function(v,k){if(typeof k==='number')a.push(store(v));else a.set(k,store(v))});return}
+          var val=store(ev(it.v,env));
+          if(it.k)a.set(ev(it.k,env),val);else a.push(val);
+        });
+        return a;
+      }
+      case 'idx':{
+        if(n.i===null)throw ErrAt('No se puede leer con []',n.l);
+        return readIdx(ev(n.b,env),ev(n.i,env),n.l);
+      }
+      case 'un':{
+        var x=ev(n.e,env);
+        if(n.op==='!')return !toBool(x);
+        if(n.op==='-')return -toNum(x);
+        return toNum(x);
+      }
+      case 'cast':{
+        var cv=ev(n.e,env);
+        switch(n.ty){case 'int':case 'integer':return Math.trunc(toNum(cv));case 'float':case 'double':return toNum(cv);case 'string':return toStr(cv);case 'bool':case 'boolean':return toBool(cv);case 'array':return cv instanceof PArr?cv:fromList([cv])}
+        return cv;
+      }
+      case 'bin':{
+        var op=n.op;
+        if(op==='&&'||op==='and')return toBool(ev(n.l,env))&&toBool(ev(n.r,env));
+        if(op==='||'||op==='or')return toBool(ev(n.l,env))||toBool(ev(n.r,env));
+        if(op==='xor')return toBool(ev(n.l,env))!==toBool(ev(n.r,env));
+        if(op==='??'){
+          var lv;try{lv=ev(n.l,env)}catch(e){lv=null}
+          return lv===null||lv===undefined?ev(n.r,env):lv;
+        }
+        var l=ev(n.l,env),r=ev(n.r,env);
+        switch(op){
+          case '==':return looseEq(l,r);
+          case '!=':case '<>':return !looseEq(l,r);
+          case '===':return strictEq(l,r);
+          case '!==':return !strictEq(l,r);
+          case '<':return cmp(l,r)<0;
+          case '>':return cmp(l,r)>0;
+          case '<=':return cmp(l,r)<=0;
+          case '>=':return cmp(l,r)>=0;
+          case '<=>':return cmp(l,r);
+          default:return arith(op,l,r,n.l&&n.l.l);
+        }
+      }
+      case 'tern':{
+        var c=ev(n.c,env);
+        if(n.a===null)return toBool(c)?c:ev(n.b,env);
+        return toBool(c)?ev(n.a,env):ev(n.b,env);
+      }
+      case 'asg':{
+        var val;
+        if(n.op==='='){val=ev(n.e,env);return assignTo(n.t,val,env,n.l)}
+        if(n.op==='??='){var cur0=ev(n.t,env);if(cur0!==null&&cur0!==undefined)return cur0;return assignTo(n.t,ev(n.e,env),env,n.l)}
+        var cur=ev(n.t,env),rhs=ev(n.e,env),o=n.op.slice(0,-1);
+        return assignTo(n.t,arith(o,cur,rhs,n.l),env,n.l);
+      }
+      case 'inc':{
+        var old=ev(n.t,env),nv=old===null?(n.d>0?1:null):toNum(old)+n.d;
+        if(old===null&&n.d<0)nv=null;
+        assignTo(n.t,nv,env,n.l);return n.pre?nv:old;
+      }
+      case 'isset':{
+        return n.a.every(function(x){
+          try{var v=ev(x,env);return v!==null&&v!==undefined}catch(e){return false}
+        });
+      }
+      case 'empty':{var ev0;try{ev0=ev(n.e,env)}catch(e){ev0=null}return !toBool(ev0)}
+      case 'closure':{
+        var bound={};
+        if(n.f.arrow){for(var k in env.vars)bound[k]=env.vars[k]}
+        else if(n.f.uses)n.f.uses.forEach(function(u){bound[u]=store(env.vars[u]===undefined?null:env.vars[u])});
+        return {f:n.f,bound:bound};
+      }
+      case 'call':return callFn(n,env);
+    }
+    throw ErrAt('Expresión no soportada',n.l);
+  }
+  function callFn(n,env){
+    var name=n.n;
+    if(funcs[name]){
+      var args=n.a.map(function(a){return ev(a,env)});
+      return call({f:funcs[name]},args,n.l);
+    }
+    if(REF[name]){
+      var first=n.a[0];
+      if(!first||!(first.k==='var'||first.k==='idx'))throw ErrAt(name+'() necesita una variable como primer argumento',n.l);
+      var target=ev(first,env);
+      if(!(target instanceof PArr))throw ErrAt(name+'() espera un array',n.l);
+      var rest=n.a.slice(1).map(function(a){return ev(a,env)});
+      return REF[name].apply(null,[target].concat(rest).concat([n.l]));
+    }
+    if(B[name]){
+      var av=n.a.map(function(a){return ev(a,env)});
+      try{return B[name].apply(null,av)}
+      catch(e){if(e instanceof PHPError){if(!e.line)e.line=n.l;}throw e}
+    }
+    throw ErrAt('La función «'+n.n+'()» no existe o este simulador no la soporta todavía',n.l);
+  }
+  function exec(n,env){
+    tick(n.l);
+    switch(n.k){
+      case 'block':n.s.forEach(function(s){exec(s,env)});return;
+      case 'echo':n.a.forEach(function(e){out.push(toStr(ev(e,env)))});return;
+      case 'expr':ev(n.e,env);return;
+      case 'if':
+        if(toBool(ev(n.c,env)))exec(n.t,env);else if(n.e)exec(n.e,env);return;
+      case 'foreach':{
+        var src=ev(n.e,env);
+        if(!(src instanceof PArr))return;
+        var ks=src.keys();
+        for(var i=0;i<ks.length;i++){
+          if(!src.m.has(ks[i]))continue;
+          if(n.kv)env.vars[n.kv]=ks[i];
+          env.vars[n.v]=store(src.m.get(ks[i]));
+          try{exec(n.b,env)}catch(e){
+            if(e&&e.__brk){if(n.ref)src.m.set(ks[i],store(env.vars[n.v]));break}
+            if(e&&e.__cnt){}else throw e;
+          }
+          if(n.ref)src.m.set(ks[i],store(env.vars[n.v]));
+        }
+        return;
+      }
+      case 'for':{
+        n.i.forEach(function(e){ev(e,env)});
+        for(;;){
+          var ok=true;n.c.forEach(function(e){ok=toBool(ev(e,env))});
+          if(!ok)break;
+          try{exec(n.b,env)}catch(e){if(e&&e.__brk)break;if(!(e&&e.__cnt))throw e}
+          n.s.forEach(function(e){ev(e,env)});
+        }
+        return;
+      }
+      case 'while':{
+        while(toBool(ev(n.c,env))){
+          try{exec(n.b,env)}catch(e){if(e&&e.__brk)break;if(!(e&&e.__cnt))throw e}
+        }
+        return;
+      }
+      case 'dowhile':{
+        do{
+          try{exec(n.b,env)}catch(e){if(e&&e.__brk)break;if(!(e&&e.__cnt))throw e}
+        }while(toBool(ev(n.c,env)));
+        return;
+      }
+      case 'switch':{
+        var sv=ev(n.v,env),start=-1;
+        for(var i=0;i<n.cs.length;i++){if(!n.cs[i].def&&looseEq(sv,ev(n.cs[i].e,env))){start=i;break}}
+        if(start<0)for(var j=0;j<n.cs.length;j++){if(n.cs[j].def){start=j;break}}
+        if(start<0)return;
+        try{for(var k=start;k<n.cs.length;k++)n.cs[k].s.forEach(function(x){exec(x,env)})}catch(e){if(!(e&&(e.__brk||e.__cnt)))throw e}
+        return;
+      }
+      case 'break':throw {__brk:true};
+      case 'continue':throw {__cnt:true};
+      case 'return':throw {__ret:true,v:n.e?ev(n.e,env):null};
+      case 'unset':
+        n.a.forEach(function(t){
+          if(t.k==='var')delete env.vars[t.n];
+          else if(t.k==='idx'&&t.i!==null){var c=ev(t.b,env);if(c instanceof PArr)c.del(ev(t.i,env))}
+        });return;
+      case 'fdecl':funcs[n.n]=n.f;return;
+    }
+    throw ErrAt('Instrucción no soportada',n.l);
+  }
+  // declarar funciones antes (hoisting)
+  ast.s.forEach(function(s){if(s.k==='fdecl')funcs[s.n]=s.f});
+  var env={vars:vars};
+  try{
+    ast.s.forEach(function(s){exec(s,env)});
+  }catch(e){
+    if(e instanceof PHPError)return {ok:false,error:e.message,line:e.line,out:out.join(''),vars:vars};
+    if(e&&(e.__ret||e.__brk||e.__cnt))return {ok:true,out:out.join(''),vars:vars};
+    throw e;
+  }
+  return {ok:true,out:out.join(''),vars:vars};
+}
+return {run:run,PArr:PArr,toStr:toStr,fromList:fromList,toNum:toNum,looseEq:looseEq};
+})();
+
+var EXSETUP={
+vg:String.raw`$videojuegos = [
+  "J001" => ["titulo" => "Grand Theft Auto VI", "genero" => "Accion", "plataforma" => "PS5", "precio" => 79.99, "stock" => 12],
+  "J002" => ["titulo" => "Red Dead Redemption 2", "genero" => "Aventura", "plataforma" => "PC", "precio" => 39.99, "stock" => 8],
+  "J003" => ["titulo" => "Minecraft", "genero" => "Construccion", "plataforma" => "PC", "precio" => 29.99, "stock" => 20],
+  "J004" => ["titulo" => "Elden Ring", "genero" => "Rol", "plataforma" => "PS5", "precio" => 59.99, "stock" => 5],
+  "J005" => ["titulo" => "The Witcher 3", "genero" => "Rol", "plataforma" => "PC", "precio" => 24.99, "stock" => 15]
+];`,
+alu:String.raw`$alumnos = ["Ana" => 7.5, "Luis" => 4, "Marta" => 9, "Pablo" => 5.5, "Eva" => 3.5];`,
+prod:String.raw`$productos = [
+  "P01" => ["nombre" => "Teclado", "precio" => 25.5, "cantidad" => 2],
+  "P02" => ["nombre" => "Raton", "precio" => 12, "cantidad" => 3],
+  "P03" => ["nombre" => "Monitor", "precio" => 149.9, "cantidad" => 1],
+  "P04" => ["nombre" => "Cable HDMI", "precio" => 7.25, "cantidad" => 4]
+];`,
+nums:String.raw`$nums = [4, 9, 2, 7, 10, 5];`,
+emp:String.raw`$empleados = [
+  "E1" => ["nombre" => "Sara", "depto" => "IT", "sueldo" => 2100],
+  "E2" => ["nombre" => "Ivan", "depto" => "RRHH", "sueldo" => 1800],
+  "E3" => ["nombre" => "Lucia", "depto" => "IT", "sueldo" => 2500],
+  "E4" => ["nombre" => "Omar", "depto" => "Ventas", "sueldo" => 1900]
+];`
+};
+var EXGROUPS=[['vg','Catálogo (el del examen)'],['alu','Notas de alumnos'],['prod','Productos y precios'],['nums','Lista de números'],['emp','Empleados'],['azar','Azar (random)']];
+/* utilidades para las comprobaciones */
+function _near(a,b,t){return typeof a==='number'&&Math.abs(a-b)<=(t||0.011)}
+function _cnt(s,re){var m=s.match(re);return m?m.length:0}
+function _numRe(n){
+  var s=Math.abs(n).toFixed(2).split('.'),ip=s[0],dp=s[1],body;
+  if(dp==='00')body=ip+'(?:[.,]0{1,2})?';else if(dp[1]==='0')body=ip+'[.,]'+dp[0]+'0?';else body=ip+'[.,]'+dp;
+  return new RegExp('(?<![\\d.,])'+(n<0?'-':'')+body+'(?![\\d])');
+}
+function _hasNum(out,n){return _numRe(n).test(out)}
+function _order(out,list){var p=-1;for(var i=0;i<list.length;i++){var q=out.indexOf(list[i],p+1);if(q<0)return false;p=q}return true}
+var VGT=['Grand Theft Auto VI','Red Dead Redemption 2','Minecraft','Elden Ring','The Witcher 3'];
+function _allIn(out,list){return list.every(function(x){return out.indexOf(x)>=0})}
+function _fnUse(src,name){return new RegExp('\\b'+name+'\\s*\\(').test(src)}
+var EX=[];
+function X_(id,g,t,enun,s,mode,vars,sol,chk){EX.push({id:id,g:g,t:t,enun:enun,s:s,mode:mode,vars:vars,sol:sol,chk:chk})}
+
+/* ---------- Catálogo ---------- */
+X_('c1','vg','Actividad 1 · Tabla del catálogo',
+'Recorre el array y muestra todos los videojuegos en una tabla HTML con las columnas: código, título, género, plataforma, precio y stock.',
+'vg','html','',
+String.raw`<table>
+  <tr><th>Código</th><th>Título</th><th>Género</th><th>Plataforma</th><th>Precio</th><th>Stock</th></tr>
+<?php foreach ($videojuegos as $codigo => $j): ?>
+  <tr>
+    <td><?= $codigo ?></td>
+    <td><?= $j["titulo"] ?></td>
+    <td><?= $j["genero"] ?></td>
+    <td><?= $j["plataforma"] ?></td>
+    <td><?= number_format($j["precio"], 2, ",", ".") ?> €</td>
+    <td><?= $j["stock"] ?></td>
+  </tr>
+<?php endforeach; ?>
+</table>`,
+[['Hay una tabla (<table>)',function(R){return /<table/i.test(R.out)},'Empieza con <table> fuera del foreach.'],
+ ['Tiene 6 encabezados (<th>)',function(R){return _cnt(R.out,/<th[\s>]/gi)>=6},'Código, título, género, plataforma, precio y stock: una <th> cada uno.'],
+ ['Genera 5 filas de datos, una por videojuego',function(R){return R.out.split(/<tr[\s>]/i).filter(function(x){return /<td/i.test(x)}).length===5},'El <tr> con las <td> va DENTRO del foreach; la cabecera, fuera.'],
+ ['Cada fila tiene 6 celdas (<td>)',function(R){return _cnt(R.out,/<td[\s>]/gi)===30},'Una <td> por columna: código, título, género, plataforma, precio, stock.'],
+ ['Aparecen los 5 códigos (J001…J005)',function(R){return _allIn(R.out,['J001','J002','J003','J004','J005'])},'El código es la CLAVE del foreach: foreach ($videojuegos as $codigo => $j).'],
+ ['Aparecen los 5 títulos',function(R){return _allIn(R.out,VGT)},'$j["titulo"] dentro de la fila.'],
+ ['Aparecen los precios',function(R){return [79.99,39.99,29.99,59.99,24.99].every(function(n){return _hasNum(R.out,n)})},'$j["precio"] en la columna de precio.'],
+ ['Aparecen los stocks',function(R){return /(?<![\d.,])12(?!\d)/.test(R.out)&&/(?<![\d.,])20(?!\d)/.test(R.out)},'$j["stock"] en la última columna.']]);
+
+X_('c2','vg','Actividad 2 · Tratamiento de cadenas',
+'Para cada videojuego muestra: el título en mayúsculas (strtoupper), la longitud del título (strlen) y los cinco primeros caracteres (substr).',
+'vg','php','',
+String.raw`<?php
+foreach ($videojuegos as $codigo => $j) {
+    echo strtoupper($j["titulo"]) . " - " . strlen($j["titulo"]) . " - " . substr($j["titulo"], 0, 5) . "<br>";
+}`,
+[['Usas strtoupper()',function(R){return _fnUse(R.src,'strtoupper')}],
+ ['Usas strlen()',function(R){return _fnUse(R.src,'strlen')}],
+ ['Usas substr()',function(R){return _fnUse(R.src,'substr')}],
+ ['Muestra los 5 títulos en MAYÚSCULAS',function(R){return _allIn(R.out,VGT.map(function(x){return x.toUpperCase()}))},'strtoupper($j["titulo"])'],
+ ['Muestra las longitudes (19, 21, 9, 10 y 13)',function(R){return [19,21,9,10,13].every(function(n){return new RegExp('(?<![\\d.,])'+n+'(?!\\d)').test(R.out)})},'strlen cuenta también los espacios: «Elden Ring» son 10.'],
+ ['Muestra los 5 primeros caracteres (Grand, Red D, Minec, Elden, The W)',function(R){return _allIn(R.out,['Grand','Red D','Minec','Elden','The W'])},'substr($titulo, 0, 5): empieza en 0 y toma 5.']]);
+
+X_('c3','vg','Actividad 3 · Búsqueda con stripos',
+'Busca los videojuegos cuyo título contenga la palabra «Red» o «The», con stripos(). Muestra los títulos encontrados y guarda en $total el número de coincidencias. La búsqueda no distingue mayúsculas.',
+'vg','php','Guarda el número en $total.',
+String.raw`<?php
+$total = 0;
+foreach ($videojuegos as $codigo => $j) {
+    if (stripos($j["titulo"], "Red") !== false || stripos($j["titulo"], "The") !== false) {
+        echo $j["titulo"] . "<br>";
+        $total++;
+    }
+}
+echo "Total: " . $total;`,
+[['Usas stripos()',function(R){return _fnUse(R.src,'stripos')}],
+ ['Compruebas con !== false (no con == false)',function(R){return !/stripos\s*\([^;]*?\)\s*(==|!=)\s*(false|0|null)/i.test(R.src)&&/!==\s*false|===\s*false/.test(R.src)},'stripos devuelve 0 si lo encuentra al principio y 0 == false. Usa !== false.'],
+ ['$total vale 3',function(R){return R.v('total')===3},'Coinciden 3: «Theft» contiene «the», más Red Dead Redemption 2 y The Witcher 3.'],
+ ['Muestras los 3 títulos encontrados',function(R){return _allIn(R.out,['Grand Theft Auto VI','Red Dead Redemption 2','The Witcher 3'])}],
+ ['No muestras los que no coinciden',function(R){return R.out.indexOf('Minecraft')<0&&R.out.indexOf('Elden Ring')<0}]]);
+
+X_('c4','vg','Actividad 4 · Modificar el array',
+'Modifica directamente los datos del array: reduce el precio de J001 un 10 %, incrementa el stock de J004 en 5 unidades y cambia la plataforma de J003 a «PC y PS5».',
+'vg','php','Modifica $videojuegos directamente.',
+String.raw`<?php
+$videojuegos["J001"]["precio"] = round($videojuegos["J001"]["precio"] * 0.9, 2);
+$videojuegos["J004"]["stock"] += 5;
+$videojuegos["J003"]["plataforma"] = "PC y PS5";`,
+[['J001: el precio baja un 10 % (71.99)',function(R){return _near(R.get('videojuegos','J001','precio'),71.99,0.011)},'Multiplica por 0.9 (no restes 10): 79.99 × 0.9 = 71.991.'],
+ ['J004: el stock pasa de 5 a 10',function(R){return R.get('videojuegos','J004','stock')===10},'Usa += 5 (con = lo sobrescribirías).'],
+ ['J003: la plataforma es «PC y PS5»',function(R){return R.get('videojuegos','J003','plataforma')==='PC y PS5'}],
+ ['No has tocado nada más (J002 sigue igual)',function(R){return R.get('videojuegos','J002','precio')===39.99&&R.get('videojuegos','J002','stock')===8&&R.get('videojuegos','J001','stock')===12}],
+ ['Usas las dos claves en cada cambio ($videojuegos["J001"]["precio"])',function(R){return /\$videojuegos\s*\[\s*["']J001["']\s*\]\s*\[\s*["']precio["']\s*\]/.test(R.src)}]]);
+
+X_('c5','vg','Actividad 5 · Cálculos (catálogo inicial)',
+'Calcula: el precio medio ($media), el título del videojuego más caro ($masCaro), el número total de unidades en stock ($unidades) y el número de videojuegos cuyo precio supera los 40 € ($caros). Muestra los resultados.',
+'vg','php','Variables: $media, $masCaro, $unidades, $caros.',
+String.raw`<?php
+$precios = array_column($videojuegos, "precio");
+$media = array_sum($precios) / count($precios);
+$masCaro = "";
+$mayor = 0;
+$unidades = 0;
+$caros = 0;
+foreach ($videojuegos as $codigo => $j) {
+    if ($j["precio"] > $mayor) {
+        $mayor = $j["precio"];
+        $masCaro = $j["titulo"];
+    }
+    $unidades += $j["stock"];
+    if ($j["precio"] > 40) {
+        $caros++;
+    }
+}
+echo "Media: " . number_format($media, 2, ",", ".") . " €<br>";
+echo "Más caro: " . $masCaro . "<br>";
+echo "Unidades: " . $unidades . "<br>";
+echo "Más de 40 €: " . $caros . "<br>";`,
+[['$media = 46,99',function(R){return _near(R.v('media'),46.99)},'Suma de precios entre número de videojuegos: array_sum(...) / count(...).'],
+ ['$masCaro = «Grand Theft Auto VI»',function(R){return R.v('masCaro')==='Grand Theft Auto VI'},'Guarda el título (no el precio) del que tenga el mayor precio.'],
+ ['$unidades = 60',function(R){return R.v('unidades')===60},'12 + 8 + 20 + 5 + 15.'],
+ ['$caros = 2',function(R){return R.v('caros')===2},'Red Dead Redemption 2 cuesta 39,99: NO supera 40.'],
+ ['Muestras los resultados por pantalla',function(R){return _hasNum(R.out,46.99)&&R.out.indexOf('Grand Theft Auto VI')>=0&&/(?<![\d.,])60(?!\d)/.test(R.out)}]]);
+
+X_('c6','vg','Modificar y luego calcular',
+'Primero aplica las modificaciones de la actividad 4 (J001 −10 %, J004 +5 de stock) y después calcula con los datos ya modificados: $media (precio medio), $unidades (stock total), $caros (precio > 40 €) y $masCaro (título).',
+'vg','php','Variables: $media, $unidades, $caros, $masCaro.',
+String.raw`<?php
+$videojuegos["J001"]["precio"] = round($videojuegos["J001"]["precio"] * 0.9, 2);
+$videojuegos["J004"]["stock"] += 5;
+$media = array_sum(array_column($videojuegos, "precio")) / count($videojuegos);
+$unidades = array_sum(array_column($videojuegos, "stock"));
+$caros = count(array_filter($videojuegos, fn($j) => $j["precio"] > 40));
+$mayor = max(array_column($videojuegos, "precio"));
+foreach ($videojuegos as $j) {
+    if ($j["precio"] == $mayor) { $masCaro = $j["titulo"]; }
+}
+echo number_format($media, 2, ",", ".") . " | $unidades | $caros | $masCaro";`,
+[['$media = 45,39 (con J001 rebajado)',function(R){return _near(R.v('media'),45.39,0.012)},'Hay que calcularlo DESPUÉS de modificar: (71.99+39.99+29.99+59.99+24.99)/5.'],
+ ['$unidades = 65',function(R){return R.v('unidades')===65},'Con el +5 de J004: 12+8+20+10+15.'],
+ ['$caros = 2',function(R){return R.v('caros')===2}],
+ ['$masCaro = «Grand Theft Auto VI»',function(R){return R.v('masCaro')==='Grand Theft Auto VI'},'Sigue siendo el más caro aunque baje a 71,99.']]);
+
+X_('c7','vg','Añadir y eliminar videojuegos',
+'Añade al array un videojuego nuevo con código J006: título «FIFA 26», género «Deportes», plataforma «PS5», precio 69.99 y stock 10. Después elimina J005. Muestra con count() cuántos videojuegos quedan.',
+'vg','php','',
+String.raw`<?php
+$videojuegos["J006"] = [
+    "titulo" => "FIFA 26",
+    "genero" => "Deportes",
+    "plataforma" => "PS5",
+    "precio" => 69.99,
+    "stock" => 10
+];
+unset($videojuegos["J005"]);
+echo count($videojuegos);`,
+[['Existe J006 con título «FIFA 26»',function(R){return R.get('videojuegos','J006','titulo')==='FIFA 26'},'$videojuegos["J006"] = [ … ];'],
+ ['J006 tiene género, plataforma, precio y stock correctos',function(R){return R.get('videojuegos','J006','genero')==='Deportes'&&R.get('videojuegos','J006','plataforma')==='PS5'&&R.get('videojuegos','J006','precio')===69.99&&R.get('videojuegos','J006','stock')===10}],
+ ['J005 ya no existe',function(R){return R.get('videojuegos','J005')===null},'unset($videojuegos["J005"]);'],
+ ['Quedan 5 videojuegos',function(R){var a=R.v('videojuegos');return a&&a.size&&a.size()===5}],
+ ['Muestras el número con count()',function(R){return _fnUse(R.src,'count')&&/(?<![\d.,])5(?!\d)/.test(R.out)}]]);
+
+X_('c8','vg','Stock bajo',
+'Muestra el título de cada videojuego y, si su stock es menor que 10, escribe al lado «Pocas unidades».',
+'vg','php','',
+String.raw`<?php
+foreach ($videojuegos as $codigo => $j) {
+    echo $j["titulo"];
+    if ($j["stock"] < 10) {
+        echo " - Pocas unidades";
+    }
+    echo "<br>";
+}`,
+[['Aparecen los 5 títulos',function(R){return _allIn(R.out,VGT)}],
+ ['«Pocas unidades» sale exactamente 2 veces',function(R){return _cnt(R.out,/Pocas unidades/g)===2},'Solo J002 (8) y J004 (5) tienen menos de 10. El if va dentro del foreach.'],
+ ['Está junto a los títulos correctos',function(R){return /Red Dead Redemption 2\s*-?\s*Pocas unidades/.test(R.out)&&/Elden Ring\s*-?\s*Pocas unidades/.test(R.out)}],
+ ['Usas una condición if',function(R){return /\bif\s*\(/.test(R.src)}]]);
+
+X_('c9','vg','Contar por plataforma',
+'Cuenta cuántos videojuegos hay para la plataforma «PC» (guárdalo en $pc) y cuántos para «PS5» (en $ps5).',
+'vg','php','Variables: $pc y $ps5.',
+String.raw`<?php
+$pc = 0;
+$ps5 = 0;
+foreach ($videojuegos as $j) {
+    if ($j["plataforma"] == "PC") { $pc++; }
+    if ($j["plataforma"] == "PS5") { $ps5++; }
+}
+echo "PC: $pc, PS5: $ps5";`,
+[['$pc = 3',function(R){return R.v('pc')===3},'Red Dead, Minecraft y The Witcher 3.'],
+ ['$ps5 = 2',function(R){return R.v('ps5')===2},'Grand Theft Auto VI y Elden Ring.'],
+ ['Inicializas los contadores a 0 antes del bucle',function(R){return /\$pc\s*=\s*0/.test(R.src)&&/\$ps5\s*=\s*0/.test(R.src)}]]);
+
+X_('c10','vg','Géneros sin repetir',
+'Obtén los géneros de los videojuegos sin repetir ninguno (array_column y array_unique), guárdalos en $generos y muéstralos separados por comas con implode().',
+'vg','php','Variable: $generos.',
+String.raw`<?php
+$generos = array_unique(array_column($videojuegos, "genero"));
+echo implode(", ", $generos);`,
+[['Usas array_column()',function(R){return _fnUse(R.src,'array_column')}],
+ ['Usas array_unique()',function(R){return _fnUse(R.src,'array_unique')}],
+ ['$generos tiene 4 elementos',function(R){var a=R.v('generos');return a&&a.size&&a.size()===4},'Accion, Aventura, Construccion y Rol (Rol estaba repetido).'],
+ ['Se muestran separados por comas, con «Rol» una sola vez',function(R){return _allIn(R.out,['Accion','Aventura','Construccion','Rol'])&&_cnt(R.out,/Rol/g)===1&&R.out.indexOf(',')>=0},'implode(", ", $generos)']]);
+
+X_('c11','vg','Ordenar por precio',
+'Ordena el catálogo de mayor a menor precio conservando los códigos (uasort con una función de comparación) y muestra código y título en ese orden.',
+'vg','php','',
+String.raw`<?php
+uasort($videojuegos, fn($a, $b) => $b["precio"] <=> $a["precio"]);
+foreach ($videojuegos as $codigo => $j) {
+    echo $codigo . " " . $j["titulo"] . "<br>";
+}`,
+[['Usas uasort() o usort()',function(R){return _fnUse(R.src,'uasort')||_fnUse(R.src,'usort')},'sort() no sabe por qué campo comparar: hace falta una función de comparación.'],
+ ['Orden correcto: GTA VI, Elden Ring, Red Dead, Minecraft, The Witcher',function(R){return _order(R.out,['Grand Theft Auto VI','Elden Ring','Red Dead Redemption 2','Minecraft','The Witcher 3'])},'De mayor a menor: $b["precio"] <=> $a["precio"].'],
+ ['Se muestran los códigos junto a los títulos',function(R){return _allIn(R.out,['J001','J002','J003','J004','J005'])},'Con uasort se conservan los códigos; con usort se perderían.']]);
+
+/* ---------- Alumnos ---------- */
+X_('a1','alu','Media y aprobados',
+'Calcula la nota media de la clase ($media) y cuántos alumnos han aprobado, es decir, tienen 5 o más ($aprobados).',
+'alu','php','Variables: $media y $aprobados.',
+String.raw`<?php
+$media = array_sum($alumnos) / count($alumnos);
+$aprobados = 0;
+foreach ($alumnos as $nombre => $nota) {
+    if ($nota >= 5) { $aprobados++; }
+}
+echo "Media: " . round($media, 2) . " - Aprobados: " . $aprobados;`,
+[['$media = 5,9',function(R){return _near(R.v('media'),5.9)},'array_sum($alumnos) / count($alumnos) = 29.5 / 5.'],
+ ['$aprobados = 3',function(R){return R.v('aprobados')===3},'Ana (7,5), Marta (9) y Pablo (5,5). Aprobar es >= 5.'],
+ ['Muestras los resultados',function(R){return _hasNum(R.out,5.9)&&/(?<![\d.,])3(?!\d)/.test(R.out)}]]);
+
+X_('a2','alu','Mejor alumno',
+'Encuentra la nota más alta ($notaMax) y el nombre del alumno que la tiene ($mejor).',
+'alu','php','Variables: $notaMax y $mejor.',
+String.raw`<?php
+$notaMax = max($alumnos);
+$mejor = array_search($notaMax, $alumnos);
+echo $mejor . " con un " . $notaMax;`,
+[['$notaMax = 9',function(R){return R.v('notaMax')===9},'max($alumnos) da la nota mayor.'],
+ ['$mejor = «Marta»',function(R){return R.v('mejor')==='Marta'},'array_search devuelve la CLAVE (el nombre) de ese valor.'],
+ ['Muestras el nombre y la nota',function(R){return R.out.indexOf('Marta')>=0&&/(?<![\d.,])9(?!\d)/.test(R.out)}]]);
+
+X_('a3','alu','Aprobado o suspenso',
+'Muestra cada alumno con su resultado: «Aprobado» si la nota es 5 o más y «Suspenso» si no.',
+'alu','php','',
+String.raw`<?php
+foreach ($alumnos as $nombre => $nota) {
+    $estado = $nota >= 5 ? "Aprobado" : "Suspenso";
+    echo $nombre . ": " . $estado . "<br>";
+}`,
+[['Aparecen los 5 nombres',function(R){return _allIn(R.out,['Ana','Luis','Marta','Pablo','Eva'])}],
+ ['«Aprobado» sale 3 veces',function(R){return _cnt(R.out,/Aprobado/g)===3}],
+ ['«Suspenso» sale 2 veces (Luis y Eva)',function(R){return _cnt(R.out,/Suspenso/g)===2},'Luis (4) y Eva (3,5) no llegan a 5.'],
+ ['Cada nombre con su resultado correcto',function(R){return /Luis\W+Suspenso/.test(R.out)&&/Eva\W+Suspenso/.test(R.out)&&/Marta\W+Aprobado/.test(R.out)}]]);
+
+X_('a4','alu','Ranking de notas',
+'Ordena los alumnos de mayor a menor nota conservando los nombres (arsort) y muéstralos con su nota.',
+'alu','php','',
+String.raw`<?php
+arsort($alumnos);
+foreach ($alumnos as $nombre => $nota) {
+    echo $nombre . ": " . $nota . "<br>";
+}`,
+[['Usas arsort()',function(R){return _fnUse(R.src,'arsort')},'arsort = ordenar por valor de mayor a menor conservando las claves.'],
+ ['Orden: Marta, Ana, Pablo, Luis, Eva',function(R){return _order(R.out,['Marta','Ana','Pablo','Luis','Eva'])}],
+ ['Se muestra la nota de cada uno',function(R){return [7.5,9,5.5,3.5].every(function(n){return _hasNum(R.out,n)})}]]);
+
+/* ---------- Productos ---------- */
+X_('p1','prod','Total de la compra',
+'Calcula el importe total de la compra ($total): la suma de precio × cantidad de cada producto.',
+'prod','php','Variable: $total.',
+String.raw`<?php
+$total = 0;
+foreach ($productos as $codigo => $p) {
+    $total += $p["precio"] * $p["cantidad"];
+}
+echo "Total: " . number_format($total, 2, ",", ".") . " €";`,
+[['$total = 265,90',function(R){return _near(R.v('total'),265.9)},'25,5×2 + 12×3 + 149,9×1 + 7,25×4 = 51 + 36 + 149,9 + 29.'],
+ ['Inicializas $total = 0',function(R){return /\$total\s*=\s*0/.test(R.src)}],
+ ['Multiplicas precio por cantidad en cada vuelta',function(R){return /\["precio"\]\s*\*\s*\$\w+\["cantidad"\]|\["cantidad"\]\s*\*\s*\$\w+\["precio"\]/.test(R.src)}],
+ ['Muestras el total',function(R){return _hasNum(R.out,265.9)}]]);
+
+X_('p2','prod','Tabla con subtotales',
+'Muestra los productos en una tabla HTML con las columnas: producto, precio, cantidad y subtotal (precio × cantidad).',
+'prod','html','',
+String.raw`<table>
+  <tr><th>Producto</th><th>Precio</th><th>Cantidad</th><th>Subtotal</th></tr>
+<?php foreach ($productos as $p): ?>
+  <tr>
+    <td><?= $p["nombre"] ?></td>
+    <td><?= $p["precio"] ?></td>
+    <td><?= $p["cantidad"] ?></td>
+    <td><?= $p["precio"] * $p["cantidad"] ?></td>
+  </tr>
+<?php endforeach; ?>
+</table>`,
+[['Hay una tabla con 4 encabezados',function(R){return /<table/i.test(R.out)&&_cnt(R.out,/<th[\s>]/gi)>=4}],
+ ['4 filas de datos con 4 celdas cada una',function(R){return R.out.split(/<tr[\s>]/i).filter(function(x){return /<td/i.test(x)}).length===4&&_cnt(R.out,/<td[\s>]/gi)===16}],
+ ['Aparecen los nombres de los 4 productos',function(R){return _allIn(R.out,['Teclado','Raton','Monitor','Cable HDMI'])}],
+ ['Los subtotales son 51, 36, 149,9 y 29',function(R){return [51,36,149.9,29].every(function(n){return _hasNum(R.out,n)})},'El subtotal se calcula en la celda: $p["precio"] * $p["cantidad"].']]);
+
+X_('p3','prod','Producto más caro y unidades',
+'Averigua el nombre del producto con mayor precio unitario ($nombre) y el total de unidades compradas ($unidades).',
+'prod','php','Variables: $nombre y $unidades.',
+String.raw`<?php
+$mayor = 0;
+$nombre = "";
+$unidades = 0;
+foreach ($productos as $p) {
+    if ($p["precio"] > $mayor) {
+        $mayor = $p["precio"];
+        $nombre = $p["nombre"];
+    }
+    $unidades += $p["cantidad"];
+}
+echo $nombre . " / " . $unidades;`,
+[['$nombre = «Monitor»',function(R){return R.v('nombre')==='Monitor'},'Guarda el NOMBRE del producto de mayor precio, no el precio.'],
+ ['$unidades = 10',function(R){return R.v('unidades')===10},'2 + 3 + 1 + 4.']]);
+
+X_('p4','prod','Productos con varias unidades',
+'Cuenta cuántos productos se han comprado en cantidad superior a 2 ($muchos) y muestra sus nombres.',
+'prod','php','Variable: $muchos.',
+String.raw`<?php
+$muchos = 0;
+foreach ($productos as $p) {
+    if ($p["cantidad"] > 2) {
+        echo $p["nombre"] . "<br>";
+        $muchos++;
+    }
+}`,
+[['$muchos = 2',function(R){return R.v('muchos')===2},'Raton (3) y Cable HDMI (4). El Teclado (2) no supera 2.'],
+ ['Muestras Raton y Cable HDMI, y no los demás',function(R){return R.out.indexOf('Raton')>=0&&R.out.indexOf('Cable HDMI')>=0&&R.out.indexOf('Teclado')<0&&R.out.indexOf('Monitor')<0}]]);
+
+/* ---------- Números ---------- */
+X_('n1','nums','Estadísticas de una lista',
+'Calcula: la suma ($suma), el mayor ($mayor), el menor ($menor), la media redondeada a 2 decimales ($media) y cuántos números son pares ($pares).',
+'nums','php','Variables: $suma, $mayor, $menor, $media y $pares.',
+String.raw`<?php
+$suma = array_sum($nums);
+$mayor = max($nums);
+$menor = min($nums);
+$media = round($suma / count($nums), 2);
+$pares = 0;
+foreach ($nums as $n) {
+    if ($n % 2 == 0) { $pares++; }
+}
+echo "$suma $mayor $menor $media $pares";`,
+[['$suma = 37',function(R){return R.v('suma')===37}],
+ ['$mayor = 10 y $menor = 2',function(R){return R.v('mayor')===10&&R.v('menor')===2}],
+ ['$media = 6,17',function(R){return _near(R.v('media'),6.17)},'37 / 6 = 6,1666… → round(…, 2).'],
+ ['$pares = 3 (4, 2 y 10)',function(R){return R.v('pares')===3},'Un número es par si $n % 2 == 0.']]);
+
+X_('n2','nums','Mostrar al revés',
+'Muestra los números en orden inverso, separados por «, » (coma y espacio).',
+'nums','php','',
+String.raw`<?php
+echo implode(", ", array_reverse($nums));`,
+[['Usas array_reverse()',function(R){return _fnUse(R.src,'array_reverse')},'También podrías recorrerlo con un for de atrás hacia delante.'],
+ ['Sale «5, 10, 7, 2, 9, 4»',function(R){return R.out.replace(/\s+/g,' ').indexOf('5, 10, 7, 2, 9, 4')>=0},'implode(", ", …) une con coma y espacio.']]);
+
+X_('n3','nums','Ordenar de menor a mayor',
+'Ordena $nums de menor a mayor con sort() y muéstralo separado por «, ».',
+'nums','php','',
+String.raw`<?php
+sort($nums);
+echo implode(", ", $nums);`,
+[['Usas sort()',function(R){return _fnUse(R.src,'sort')}],
+ ['Sale «2, 4, 5, 7, 9, 10»',function(R){return R.out.replace(/\s+/g,' ').indexOf('2, 4, 5, 7, 9, 10')>=0},'Recuerda: sort() modifica el propio array (no devuelve uno nuevo).']]);
+
+X_('n4','nums','Añadir y quitar',
+'Añade el número 8 al final de $nums y elimina el primer elemento (array_shift). Muestra el resultado separado por comas.',
+'nums','php','',
+String.raw`<?php
+$nums[] = 8;
+array_shift($nums);
+echo implode(",", $nums);`,
+[['$nums queda como 9, 2, 7, 10, 5, 8',function(R){var a=R.v('nums');return !!a&&a.vals&&a.vals().join(',')==='9,2,7,10,5,8'},'$nums[] = 8 añade al final; array_shift quita el primero.'],
+ ['Muestras el resultado',function(R){return R.out.replace(/\s+/g,'').indexOf('9,2,7,10,5,8')>=0}]]);
+
+X_('n5','nums','Doble de cada número con for',
+'Con un bucle for clásico (con contador $i), muestra el doble de cada número de $nums, separados por espacios.',
+'nums','php','',
+String.raw`<?php
+for ($i = 0; $i < count($nums); $i++) {
+    echo $nums[$i] * 2 . " ";
+}`,
+[['Usas un bucle for',function(R){return /\bfor\s*\(/.test(R.src)},'for ($i = 0; $i < count($nums); $i++)'],
+ ['Salen 8 18 4 14 20 10',function(R){return /8\D+18\D+4\D+14\D+20\D+10/.test(R.out)}]]);
+
+/* ---------- Empleados ---------- */
+X_('e1','emp','Sueldos del departamento IT',
+'Calcula la suma de los sueldos del departamento «IT» ($totalIT) y cuántos empleados tiene ese departamento ($nIT).',
+'emp','php','Variables: $totalIT y $nIT.',
+String.raw`<?php
+$totalIT = 0;
+$nIT = 0;
+foreach ($empleados as $e) {
+    if ($e["depto"] == "IT") {
+        $totalIT += $e["sueldo"];
+        $nIT++;
+    }
+}
+echo "$totalIT ($nIT empleados)";`,
+[['$totalIT = 4600',function(R){return R.v('totalIT')===4600},'Sara (2100) + Lucia (2500).'],
+ ['$nIT = 2',function(R){return R.v('nIT')===2}]]);
+
+X_('e2','emp','Tabla de empleados',
+'Muestra una tabla con el nombre en MAYÚSCULAS, el departamento y el sueldo con formato español (por ejemplo 2.100,00 €).',
+'emp','html','',
+String.raw`<table>
+  <tr><th>Nombre</th><th>Departamento</th><th>Sueldo</th></tr>
+<?php foreach ($empleados as $e): ?>
+  <tr>
+    <td><?= strtoupper($e["nombre"]) ?></td>
+    <td><?= $e["depto"] ?></td>
+    <td><?= number_format($e["sueldo"], 2, ",", ".") ?> €</td>
+  </tr>
+<?php endforeach; ?>
+</table>`,
+[['Hay una tabla con 4 filas de datos',function(R){return /<table/i.test(R.out)&&R.out.split(/<tr[\s>]/i).filter(function(x){return /<td/i.test(x)}).length===4}],
+ ['Los nombres salen en MAYÚSCULAS',function(R){return _allIn(R.out,['SARA','IVAN','LUCIA','OMAR'])},'strtoupper($e["nombre"])'],
+ ['Los sueldos tienen formato 2.100,00',function(R){return _allIn(R.out,['2.100,00','1.800,00','2.500,00','1.900,00'])},'number_format($e["sueldo"], 2, ",", ".")']]);
+
+X_('e3','emp','Sueldo medio y mejor pagado',
+'Calcula el sueldo medio ($media) y el nombre del empleado que más cobra ($mejor).',
+'emp','php','Variables: $media y $mejor.',
+String.raw`<?php
+$suma = 0;
+$max = 0;
+$mejor = "";
+foreach ($empleados as $e) {
+    $suma += $e["sueldo"];
+    if ($e["sueldo"] > $max) {
+        $max = $e["sueldo"];
+        $mejor = $e["nombre"];
+    }
+}
+$media = $suma / count($empleados);
+echo "$media - $mejor";`,
+[['$media = 2075',function(R){return _near(R.v('media'),2075,0.01)},'(2100 + 1800 + 2500 + 1900) / 4.'],
+ ['$mejor = «Lucia»',function(R){return R.v('mejor')==='Lucia'}]]);
+
+X_('e4','emp','Subida de sueldo',
+'Sube un 5 % el sueldo de los empleados del departamento «IT», modificando el array directamente.',
+'emp','php','',
+String.raw`<?php
+foreach ($empleados as $id => $e) {
+    if ($e["depto"] == "IT") {
+        $empleados[$id]["sueldo"] *= 1.05;
+    }
+}`,
+[['Sara (E1) pasa a 2205',function(R){return _near(R.get('empleados','E1','sueldo'),2205,0.01)}],
+ ['Lucia (E3) pasa a 2625',function(R){return _near(R.get('empleados','E3','sueldo'),2625,0.01)},'Hay que escribir en $empleados[$id]["sueldo"], no en la copia $e.'],
+ ['Los demás no cambian (E2 y E4)',function(R){return R.get('empleados','E2','sueldo')===1800&&R.get('empleados','E4','sueldo')===1900}]]);
+
+/* ---------- Azar ---------- */
+X_('r1','azar','Tirar un dado',
+'Simula tirar un dado: guarda en $dado un número entero aleatorio entre 1 y 6 y muéstralo. (Pulsa Comprobar varias veces: el resultado cambia.)',
+'nums','php','Variable: $dado.',
+String.raw`<?php
+$dado = rand(1, 6);
+echo "Ha salido: " . $dado;`,
+[['Usas rand(), mt_rand() o random_int()',function(R){return /\b(rand|mt_rand|random_int)\s*\(/.test(R.src)}],
+ ['$dado es un entero entre 1 y 6',function(R){var d=R.v('dado');return typeof d==='number'&&Number.isInteger(d)&&d>=1&&d<=6},'rand(1, 6) incluye los dos extremos.'],
+ ['Muestras el número que ha salido',function(R){var d=R.v('dado');return d!=null&&new RegExp('(?<![\\d.,])'+d+'(?!\\d)').test(R.out)}]]);
+
+X_('r2','azar','Videojuego al azar',
+'Elige un videojuego al azar del catálogo con array_rand(): guarda su código en $clave y muestra su título.',
+'vg','php','Variable: $clave.',
+String.raw`<?php
+$clave = array_rand($videojuegos);
+echo $videojuegos[$clave]["titulo"];`,
+[['Usas array_rand()',function(R){return _fnUse(R.src,'array_rand')},'array_rand devuelve una CLAVE (J001…), no el elemento.'],
+ ['$clave es un código válido (J001 a J005)',function(R){return ['J001','J002','J003','J004','J005'].indexOf(R.v('clave'))>=0}],
+ ['Muestras el título de ese videojuego',function(R){var c=R.v('clave'),t=R.get('videojuegos',c,'titulo');return !!t&&R.out.indexOf(t)>=0}]]);
+
+X_('r3','azar','Barajar',
+'Baraja $nums con shuffle() y guarda en $primero el primer elemento del array ya barajado.',
+'nums','php','Variable: $primero.',
+String.raw`<?php
+shuffle($nums);
+$primero = $nums[0];
+echo $primero;`,
+[['Usas shuffle()',function(R){return _fnUse(R.src,'shuffle')},'shuffle modifica el array directamente: no hagas $x = shuffle($nums) (devuelve true).'],
+ ['$nums conserva los mismos 6 números',function(R){var a=R.v('nums');return !!a&&a.vals&&a.vals().slice().sort(function(x,y){return x-y}).join(',')==='2,4,5,7,9,10'}],
+ ['$primero es el primer elemento del array barajado',function(R){var a=R.v('nums');return !!a&&a.vals&&R.v('primero')===a.vals()[0]}]]);
+
+X_('r4','azar','Lotería',
+'Con un bucle, genera 3 números aleatorios entre 1 y 49 y guárdalos en un array $loteria. Muéstralos separados por comas.',
+'nums','php','Variable: $loteria.',
+String.raw`<?php
+$loteria = [];
+for ($i = 0; $i < 3; $i++) {
+    $loteria[] = rand(1, 49);
+}
+echo implode(", ", $loteria);`,
+[['Usas rand(), mt_rand() o random_int()',function(R){return /\b(rand|mt_rand|random_int)\s*\(/.test(R.src)}],
+ ['$loteria es un array con 3 números',function(R){var a=R.v('loteria');return !!a&&a.vals&&a.size()===3}],
+ ['Todos están entre 1 y 49',function(R){var a=R.v('loteria');return !!a&&a.vals&&a.vals().every(function(x){return typeof x==='number'&&x>=1&&x<=49})}],
+ ['Los muestras por pantalla',function(R){var a=R.v('loteria');return !!a&&a.vals&&a.vals().every(function(x){return new RegExp('(?<![\\d.,])'+x+'(?!\\d)').test(R.out)})}]]);
+
+X_('r5','azar','Título al azar con índice',
+'Guarda los títulos en un array indexado $titulos (array_column) y elige uno al azar usando rand() sobre los índices: guárdalo en $elegido.',
+'vg','php','Variables: $titulos y $elegido.',
+String.raw`<?php
+$titulos = array_column($videojuegos, "titulo");
+$elegido = $titulos[rand(0, count($titulos) - 1)];
+echo $elegido;`,
+[['Usas rand() (o similar) y count()',function(R){return /\b(rand|mt_rand|random_int)\s*\(/.test(R.src)&&_fnUse(R.src,'count')},'El último índice es count($titulos) - 1: si pones count($titulos) puede salir un índice que no existe.'],
+ ['$titulos es un array de 5 títulos',function(R){var a=R.v('titulos');return !!a&&a.vals&&a.size()===5&&a.vals()[0]==='Grand Theft Auto VI'}],
+ ['$elegido es uno de los títulos',function(R){return VGT.indexOf(R.v('elegido'))>=0},'Si sale vacío, el índice estaba fuera de rango.']]);
+
+/* ---------- ejecución y comprobación (compartido por la web y los tests) ---------- */
+function exProgram(setup,code,mode){
+  var hasTag=/<\?(php|=)/.test(code),pre;
+  if(!hasTag&&mode==='php')pre='<?php\n'+setup+'\n';
+  else pre='<?php\n'+setup+'\n?>\n';
+  return {p:pre+code,off:pre.split('\n').length-1};
+}
+function exMakeR(res,src){
+  var PA=PHPSim.PArr;
+  return {out:res.out,src:src,
+    v:function(n){var x=res.vars[n];return x===undefined?null:x},
+    get:function(n){var x=this.v(n);for(var i=1;i<arguments.length;i++){if(!(x instanceof PA))return null;x=x.get(arguments[i]);if(x===undefined)return null}return x}};
+}
+function exCheck(ex,code){
+  var pr=exProgram(EXSETUP[ex.s],code,ex.mode),res=PHPSim.run(pr.p);
+  if(!res.ok)return {ok:false,error:res.error,line:res.line?Math.max(1,res.line-pr.off):0,out:res.out,items:[]};
+  var R=exMakeR(res,code),items=ex.chk.map(function(c){var ok=false;try{ok=!!c[1](R)}catch(e){ok=false}return {t:c[0],ok:ok,hint:c[2]||''}});
+  return {ok:true,out:res.out,items:items,all:items.every(function(i){return i.ok})};
+}
+
 var WQ=[];
 function W_(c,code,q,o,e){WQ.push({c:c,code:code||'',q:q,o:o,e:e})}
 var A='Arrays',R_='Recorrer',F_='Funciones de array',C='Cadenas',M='Modificar y calcular',H='HTML y PHP',Z_='Comparativas';
@@ -2139,6 +3703,19 @@ W_(Z_,'',"¿Qué diferencia hay entre echo y print_r()?",["echo imprime textos o
 W_(Z_,'',"¿Qué diferencia hay entre sort() y usort()?",["sort() ordena por el propio valor; usort() ordena con una función de comparación que defines tú","sort() ordena por clave y usort() por valor","usort() solo ordena textos","sort() conserva las claves y usort() no"],"Para ordenar videojuegos por precio, el valor es un array y sort() no sabría por qué campo comparar.");
 W_(Z_,'',"¿Qué es mejor para calcular el precio medio: array_sum/count o un foreach con contador?",["Las dos dan lo mismo; array_sum(array_column($v,\"precio\")) / count($v) es la más compacta","Solo vale el foreach","Solo vale count()","Ninguna: hay que usar avg()"],"PHP no tiene una función avg() nativa para arrays: se calcula como suma entre número de elementos.");
 
+/* ---------- Azar ---------- */
+var AZ_='Azar (random)';
+W_(AZ_,'$dado = rand(1, 6);',"¿Qué valores puede tomar $dado?",["1, 2, 3, 4, 5 o 6: los dos extremos están incluidos","Solo 2, 3, 4 o 5: los extremos no se incluyen","0, 1, 2, 3, 4 o 5: empieza siempre en 0","Solo 1 o 6: los extremos del intervalo"],"rand(min, max) incluye min y max. Es la función típica para simular un dado.");
+W_(AZ_,'',"¿Qué diferencia hay entre rand() y random_int()?",["random_int genera números seguros, impredecibles, aptos para códigos o contraseñas; rand es suficiente para juegos o pruebas","rand genera números seguros y random_int solo sirve para decimales","No hay ninguna diferencia: son dos nombres de la misma función","rand admite arrays como argumento y random_int solo números"],"Para claves, tokens o códigos de verificación se usa random_int (o funciones criptográficas). rand/mt_rand no son seguros.");
+W_(AZ_,'$k = array_rand($videojuegos);',"¿Qué contiene $k?",["Una clave aleatoria del array, por ejemplo «J003»","El array de un videojuego elegido al azar","El título de un videojuego elegido al azar","Un número aleatorio entre 0 y 4"],"array_rand devuelve la CLAVE. Para sacar el videojuego hay que hacer $videojuegos[$k].");
+W_(AZ_,'',"Quieres mostrar el título de un videojuego al azar. ¿Qué es correcto?",["$k = array_rand($videojuegos); echo $videojuegos[$k][\"titulo\"];","echo array_rand($videojuegos)[\"titulo\"];","echo $videojuegos[rand(0, 4)][\"titulo\"];","echo shuffle($videojuegos)[\"titulo\"];"],"La segunda opción trata la clave como si fuera un array. La tercera usa índices 0-4 que no existen: las claves son J001… La cuarta usa el valor true que devuelve shuffle.");
+W_(AZ_,'$b = shuffle($nums);',"¿Qué contiene $b y qué pasa con $nums?",["$b vale true; $nums queda barajado y con los índices renumerados","$b contiene el array barajado y $nums no cambia","$b vale false si hay números repetidos; $nums no cambia","$b es un número aleatorio y $nums queda igual"],"shuffle trabaja sobre el propio array (por referencia) y solo devuelve true. Se usa: shuffle($nums); y luego $nums.");
+W_(AZ_,'$a = ["x", "y", "z"];\n$e = $a[rand(0, count($a))];',"¿Qué falla en este código?",["rand(0, count($a)) puede dar 3, un índice que no existe: debería ser count($a) - 1","Nada: es la forma correcta de elegir un elemento al azar","rand no admite una función como argumento","count($a) devuelve siempre 0 en arrays con letras"],"Con 3 elementos los índices válidos son 0, 1 y 2. rand incluye el máximo, así que hay que restar uno.");
+W_(AZ_,'',"¿Qué diferencia hay entre array_rand($a) y array_rand($a, 2)?",["Sin número devuelve una clave; con 2 devuelve un array con 2 claves distintas","Sin número devuelve un valor; con 2 devuelve dos valores","Los dos devuelven una clave, pero el segundo la repite dos veces","El segundo baraja el array y el primero no"],"Con el segundo argumento mayor que 1, el resultado es un array de claves sin repetir.");
+W_(AZ_,'',"¿Para qué sirve mt_srand(42) antes de llamar a mt_rand()?",["Para fijar la semilla y obtener siempre la misma secuencia de números, útil para pruebas","Para que los números sean más seguros","Para limitar el resultado a 42","Para generar 42 números seguidos"],"Con una semilla fija el «azar» se repite igual en cada ejecución: sirve para depurar, no para producción.");
+W_(AZ_,'',"¿Cuál es mejor para barajar el orden de una lista de preguntas: shuffle() o llamar a rand() varias veces?",["shuffle(): reordena todos los elementos sin repetir ni perder ninguno","rand() varias veces: es más rápido y no repite","Da igual: las dos garantizan que no se repita ninguna","Ninguna: PHP no puede cambiar el orden de un array"],"Varias llamadas a rand() pueden repetir un mismo elemento y dejar otros fuera. shuffle() hace una mezcla completa.");
+W_(AZ_,'',"¿Por qué no se debe usar rand() para generar la contraseña de un usuario?",["Porque sus números son predecibles; hay que usar random_int()","Porque rand() solo devuelve números pares","Porque rand() está prohibido en PHP 8","Porque no admite números de más de 3 cifras"],"rand/mt_rand usan un generador pseudoaleatorio que se puede predecir. Para seguridad existe random_int().");
+
 (function(){var F={
 2:["Un array que tiene exactamente dos elementos en total","Un array que se puede recorrer en dos sentidos distintos","Un array que repite dos veces cada clave con su valor"],
 10:["Hace que el array ocupe menos memoria al guardar los datos","Obliga a PHP a ordenar los videojuegos por su código siempre","Permite repetir el mismo código en varios videojuegos distintos"],
@@ -2208,7 +3785,7 @@ var N=WQ.length,CATS=[];
 WQ.forEach(function(q){if(CATS.indexOf(q.c)<0)CATS.push(q.c)});
 var EXAM_N=Math.min(40,N);
 var tabs=$('#wb-tabs'),panels=$('#wb-panels');
-var TABS=[['estudio','Estudio'],['practica','Ejercicios'],['simulacro','Simulacro de '+EXAM_N]];
+var TABS=[['estudio','Estudio'],['taller','Escribe código'],['vivo','Vista en vivo'],['practica','Test'],['simulacro','Simulacro de '+EXAM_N]];
 TABS.forEach(function(t){var a=el('a','',t[1]);a.href='#wb-'+t[0];a.setAttribute('data-t',t[0]);tabs.appendChild(a)});
 function panel(id){var p=el('section','panel');p.id='wbp-'+id;p.hidden=true;panels.appendChild(p);return p}
 
@@ -2219,6 +3796,7 @@ function two(a,b2){return '<div class="two">'+a+b2+'</div>'}
 function steps(a){var s='';a.forEach(function(x,i){s+='<div class="stp"><b>'+(i+1)+'. '+x[0]+'</b>'+(x[1]?'<code class="cm">'+x[1]+'</code>':'')+'<p>'+x[2]+'</p>'+(x[3]?im(x[3]):'')+'</div>'});return s}
 function sec(t,body){return '<div class="card"><h3>'+t+'</h3>'+body+'</div>'}
 
+function enun(t,x){return '<div class="enun"><b>'+t+'</b><p>'+x+'</p></div>'}
 function code(s){return '<div class="r-code">'+esc(s)+'</div>'}
 var VG=String.raw`$videojuegos = [
   "J001" => [
@@ -2235,6 +3813,7 @@ var BL=[];
 function blk(id,name,body){BL.push([id,name]);return '<div class="sb" data-b="'+id+'" hidden>'+body+'</div>'}
 var h='';
 h+=blk('mapa','Mapa y chuleta',
+sec('El enunciado del ejercicio',enun('El caso','Una tienda especializada en videojuegos necesita desarrollar una pequeña aplicación PHP para gestionar su catálogo. La información se almacenará en un array asociativo bidimensional: cada videojuego tiene un código identificativo y varios atributos. Se parte obligatoriamente del array inicial (J001 a J005, con titulo, genero, plataforma, precio y stock).')+enun('Actividad 1 · Visualización del catálogo','Recorrer el array y mostrar todos los videojuegos en una tabla HTML con las columnas: código, título, género, plataforma, precio y stock.')+enun('Actividad 2 · Tratamiento de cadenas','Utilizando funciones de PHP, mostrar para cada videojuego: el título convertido a mayúsculas con strtoupper(), la longitud del título mediante strlen() y los primeros cinco caracteres del título mediante substr(). Se trabajará con los títulos del array, que contienen caracteres ASCII.')+enun('Actividad 3 · Búsqueda de palabras','Buscar todos los videojuegos cuyo título contenga la palabra «Red» o «The», utilizando stripos(). Mostrar los títulos encontrados y el número total de coincidencias. La búsqueda no debe distinguir mayúsculas y minúsculas.')+enun('Actividad 4 · Modificación del array','Modificar directamente los datos del array: reducir el precio de J001 un 10 %, incrementar el stock de J004 en 5 unidades y cambiar la plataforma de J003 a «PC y PS5». Mostrar una tabla con los datos actualizados.')+enun('Actividad 5 · Cálculos sobre el catálogo','Calcular y mostrar: el precio medio de los videojuegos, el videojuego más caro, el número total de unidades disponibles en stock y el número de videojuegos cuyo precio supera los 40 €.'))+
 sec('Qué te piden y con qué herramienta',tbl(['Actividad','Qué hay que hacer','Herramienta clave'],[
 ['1 · Visualizar','tabla HTML con 6 columnas','foreach ($a as $cod => $j) + &lt;table&gt;'],
 ['2 · Cadenas','mayúsculas, longitud, 5 primeros caracteres','strtoupper · strlen · substr'],
@@ -2277,27 +3856,55 @@ code('$mayor = 0; $caro = "";\nforeach ($videojuegos as $cod => $j) {\n  if ($j[
 rules(['Inicializa siempre el acumulador antes del bucle ($total = 0).','Dentro de un foreach, <code>$j["stock"] = 0</code> cambia solo una <b>copia</b>. Para modificar el original: <code>$videojuegos[$codigo]["stock"] = 0;</code>']))
 )
 h+=blk('cadenas','Cadenas',
-sec('Actividad 2: las tres funciones',code('$t = "Elden Ring";\necho strtoupper($t);   // ELDEN RING\necho strlen($t);       // 10  (cuenta el espacio)\necho substr($t, 0, 5); // Elden')+
+sec('Actividad 2: las tres funciones',enun('Actividad 2 · Tratamiento de cadenas','Utilizando funciones de PHP, mostrar para cada videojuego: el título convertido a mayúsculas con strtoupper(), la longitud del título mediante strlen() y los primeros cinco caracteres del título mediante substr(). Se trabajará con los títulos del array, que contienen caracteres ASCII.')+code('$t = "Elden Ring";\necho strtoupper($t);   // ELDEN RING\necho strlen($t);       // 10  (cuenta el espacio)\necho substr($t, 0, 5); // Elden')+
 tbl(['Función','Qué hace','Ojo'],[['strtoupper','todo a mayúsculas','strtolower = minúsculas; ucfirst / ucwords = iniciales'],['strlen','nº de caracteres (bytes)','por eso el enunciado dice ASCII: con tildes cuenta más'],['substr($t,ini,long)','trozo del texto','ini 0 = primera letra; ini negativo cuenta desde el final']])+
 code('substr("Minecraft", 0, 5);  // Minec\nsubstr("Minecraft", -3);    // aft\nsubstr("Elden Ring", 2, 3); // den'))+
-sec('Actividad 3: stripos y la trampa del 0',tbl(['','strpos','stripos'],[['Distingue mayúsculas','sí','no (la i = insensible)'],['Devuelve','posición o false','posición o false']])+
+sec('Actividad 3: stripos y la trampa del 0',enun('Actividad 3 · Búsqueda de palabras','Buscar todos los videojuegos cuyo título contenga la palabra «Red» o «The», utilizando stripos(). Mostrar los títulos encontrados y el número total de coincidencias. La búsqueda no debe distinguir mayúsculas y minúsculas.')+tbl(['','strpos','stripos'],[['Distingue mayúsculas','sí','no (la i = insensible)'],['Devuelve','posición o false','posición o false']])+
 code('// "Red" está en la posición 0 → stripos devuelve 0\nif (stripos($t, "Red") == false)  { … }  // MAL: 0 == false\nif (stripos($t, "Red") !== false) { … }  // BIEN')+
 flow([['Devuelve 0','encontrado al principio'],['Devuelve false','no encontrado'],['Se comprueba con','!== false']])+
 rules(['<code>==</code> compara valor (0 == false es true); <code>===</code> / <code>!==</code> comparan valor y tipo.','Con «Red» o «The» coinciden <b>3</b> títulos: Grand Theft Auto VI (porque «Th<b>e</b>ft» contiene «the»), Red Dead Redemption 2 y The Witcher 3.','stripos busca la cadena en cualquier sitio, no palabras completas.']))+
 sec('Más funciones de texto que pueden caer',tbl(['Función','Ejemplo','Resultado'],[['str_replace','str_replace("a","o","banana")','bononoo'],['trim','trim("  hola  ")','hola'],['str_contains (PHP 8)','str_contains("Theft","the")','false (distingue mayúsculas)'],['implode','implode(", ", ["a","b"])','a, b'],['explode','explode(",", "a,b")','["a","b"]'],['htmlspecialchars','htmlspecialchars("&lt;b&gt;")','&amp;lt;b&amp;gt; (se muestra como texto)']])+
 rules(['El punto <b>.</b> concatena: <code>"Precio: " . $p . " €"</code>.','Comillas dobles: sustituyen variables ("Valor: $p"). Simples: texto literal (\'Valor: $p\').'])))
 h+=blk('calculo','Modificar y calcular',
-sec('Actividad 4: modificar el array directamente',code('$videojuegos["J001"]["precio"] *= 0.9;          // −10 %  → 71.991\n$videojuegos["J001"]["precio"] = round($videojuegos["J001"]["precio"], 2); // 71.99\n$videojuegos["J004"]["stock"] += 5;            // 5 → 10\n$videojuegos["J003"]["plataforma"] = "PC y PS5";')+
+sec('Actividad 4: modificar el array directamente',enun('Actividad 4 · Modificación del array','Modificar directamente los datos del array: reducir el precio de J001 un 10 %, incrementar el stock de J004 en 5 unidades y cambiar la plataforma de J003 a «PC y PS5». Mostrar una tabla con los datos actualizados.')+code('$videojuegos["J001"]["precio"] *= 0.9;          // −10 %  → 71.991\n$videojuegos["J001"]["precio"] = round($videojuegos["J001"]["precio"], 2); // 71.99\n$videojuegos["J004"]["stock"] += 5;            // 5 → 10\n$videojuegos["J003"]["plataforma"] = "PC y PS5";')+
 tbl(['Operador','Qué hace'],[['=','asigna (sobrescribe)'],['+=','suma al valor actual'],['*= 0.9','multiplica por 0.9 = deja el 90 %'],['.=','añade texto al final']])+
 rules(['Una rebaja del 10 % es multiplicar por 0.9, no restar 10.','Cada cambio se hace por sus dos claves: <code>["J001"]["precio"]</code>.']))+
-sec('Actividad 5: cálculos',code('$precios = array_column($videojuegos, "precio");\n$media  = array_sum($precios) / count($precios);\n$stock  = array_sum(array_column($videojuegos, "stock"));\n$caros  = count(array_filter($videojuegos, fn($j) => $j["precio"] > 40));\n$mas_caro = max($precios);')+
+sec('Actividad 5: cálculos',enun('Actividad 5 · Cálculos sobre el catálogo','Calcular y mostrar: el precio medio de los videojuegos, el videojuego más caro, el número total de unidades disponibles en stock y el número de videojuegos cuyo precio supera los 40 €.')+code('$precios = array_column($videojuegos, "precio");\n$media  = array_sum($precios) / count($precios);\n$stock  = array_sum(array_column($videojuegos, "stock"));\n$caros  = count(array_filter($videojuegos, fn($j) => $j["precio"] > 40));\n$mas_caro = max($precios);')+
 tbl(['Dato','Catálogo inicial','Tras la actividad 4'],[['Precio medio','46,99 €','45,39 €'],['Más caro','GTA VI 79,99 €','GTA VI 71,99 €'],['Unidades en stock','60','65'],['Precio &gt; 40 €','2 (GTA VI y Elden Ring)','2 (GTA VI y Elden Ring)']])+
 rules(['Red Dead Redemption 2 vale 39,99: <b>no</b> supera 40.','Haz los cálculos después de modificar el array, para que usen los datos nuevos.','Para mostrar: <code>number_format($media, 2, ",", ".")</code> da 45,39. Calcula con números y formatea solo al imprimir.']))+
 sec('Comparar dos formas de hacer lo mismo',tbl(['','foreach con acumulador','array_sum(array_column())'],[['Líneas','más','una'],['Se ve el recorrido','sí (más didáctico)','no'],['Resultado','igual','igual'],['Cuándo','si el enunciado pide recorrer','si quieres brevedad']])))
+h+=blk('azar','Aleatorios (random)',
+sec('Funciones para generar azar',tbl(['Función','Qué hace','Ejemplo'],[
+['rand(min, max)','entero aleatorio entre min y max, <b>ambos incluidos</b>','rand(1, 6) → un dado'],
+['mt_rand(min, max)','igual que rand (desde PHP 7.1 rand es un alias de mt_rand)','mt_rand(1, 100)'],
+['random_int(min, max)','entero aleatorio <b>seguro</b> (criptográfico): contraseñas, códigos, tokens','random_int(100000, 999999)'],
+['array_rand($a)','devuelve una <b>clave</b> aleatoria del array (no el valor)','$k = array_rand($videojuegos)'],
+['array_rand($a, 2)','devuelve un array con 2 claves distintas','array_rand($nums, 2)'],
+['shuffle($a)','baraja el array <b>en sitio</b>, devuelve true y reindexa (pierde las claves)','shuffle($nums)'],
+['mt_srand(n)','fija la semilla: misma secuencia cada vez (para pruebas)','mt_srand(42)'],
+['mt_getrandmax()','valor máximo de rand() sin argumentos: 2147483647','']]))+
+sec('Patrones típicos',code(String.raw`$dado = rand(1, 6);                          // 1, 2, 3, 4, 5 o 6
+
+$clave = array_rand($videojuegos);              // p. ej. "J003"
+echo $videojuegos[$clave]["titulo"];            // su título
+
+$titulos = array_column($videojuegos, "titulo");
+$uno = $titulos[rand(0, count($titulos) - 1)];  // índice válido: 0 .. count-1
+
+shuffle($nums);                                 // baraja $nums
+$primero = $nums[0];                            // el primero ya barajado`)+
+rules(['El último índice válido de una lista es <code>count($a) - 1</code>: con <code>rand(0, count($a))</code> puede salir un índice que no existe.','<code>$b = shuffle($a)</code> es un error típico: shuffle modifica $a y devuelve <b>true</b>, no el array barajado.','<code>array_rand</code> devuelve una clave: para obtener el elemento hay que hacer <code>$a[$clave]</code>.']))+
+sec('Comparar: ¿cuál uso?',tbl(['Quiero…','Uso','Por qué'],[
+['un número entre dos valores','rand() o mt_rand()','sencillo y suficiente para juegos o pruebas'],
+['un código o contraseña','random_int()','es impredecible (seguro); rand no lo es'],
+['un elemento al azar de un array','array_rand() o $a[rand(0,count($a)-1)]','array_rand devuelve la clave; con índices se accede directo'],
+['mezclar todo el orden','shuffle()','reordena todo el array en sitio'],
+['varios elementos distintos','array_rand($a, n)','no repite claves; rand varias veces sí puede repetir']]))
+)
 h+=blk('html','HTML + PHP',
 sec('Cómo se mezclan',flow([['Navegador','pide la página .php'],['Servidor','ejecuta &lt;?php … ?&gt;'],['HTML resultante','solo texto HTML'],['Navegador','lo muestra']])+
 rules(['Lo de fuera de <code>&lt;?php ?&gt;</code> se envía tal cual; lo de dentro lo ejecuta el servidor.','El navegador nunca ve el PHP: solo el HTML generado.','<code>&lt;?= $x ?&gt;</code> equivale a <code>&lt;?php echo $x; ?&gt;</code>.','El archivo debe ser .php para que el servidor lo procese.']))+
-sec('Actividad 1: la tabla',code(String.raw`<table>
+sec('Actividad 1: la tabla',enun('Actividad 1 · Visualización del catálogo','Recorrer el array y mostrar todos los videojuegos en una tabla HTML con las columnas: código, título, género, plataforma, precio y stock.')+code(String.raw`<table>
   <tr><th>Código</th><th>Título</th><th>Género</th><th>Plataforma</th><th>Precio</th><th>Stock</th></tr>
   <?php foreach ($videojuegos as $codigo => $j): ?>
   <tr>
@@ -2354,6 +3961,111 @@ var bb=$('#wb-blocks',pr);
 function showB(id){$$('.sb',pr).forEach(function(d){d.hidden=d.getAttribute('data-b')!==id});$$('.pill',bb).forEach(function(b){b.classList.toggle('on',b.getAttribute('data-b')===id)})}
 BL.forEach(function(x,i){var b=el('button','pill'+(i?'':' on'),x[1]);b.type='button';b.setAttribute('data-b',x[0]);b.onclick=function(){showB(x[0])};bb.appendChild(b)});
 showB('mapa');
+
+/* ---------- TALLER: escribe código y comprueba ---------- */
+var pt=panel('taller');
+pt.innerHTML='<div class="card"><h3>Escribe el código</h3><p class="lead" style="margin:0 0 12px">El examen es escrito: aquí escribes el código tú, sin ayudas. Al pulsar <b>Comprobar</b> se ejecuta de verdad y te dice qué está bien y qué falta. El array ya está definido; no lo copies.</p><div class="pills" id="wb-exg"></div><div class="pills" id="wb-exl"></div><div id="wb-ex"></div></div>';
+S.d=S.d||{};
+var exCur=null,exGrp='vg',gbox=$('#wb-exg',pt),lbox=$('#wb-exl',pt);
+EXGROUPS.forEach(function(g){var b=el('button','pill'+(g[0]===exGrp?' on':''),g[1]);b.type='button';b.setAttribute('data-g',g[0]);b.onclick=function(){exGrp=g[0];drawList();showEx(listOf()[0].id)};gbox.appendChild(b)});
+function listOf(){return EX.filter(function(x){return x.g===exGrp})}
+function drawList(){
+  $$('.pill',gbox).forEach(function(b){b.classList.toggle('on',b.getAttribute('data-g')===exGrp)});
+  lbox.innerHTML='';
+  listOf().forEach(function(x,i){var b=el('button','pill sm'+(exCur&&exCur.id===x.id?' on':''),x.t);b.type='button';b.setAttribute('data-x',x.id);b.onclick=function(){showEx(x.id)};lbox.appendChild(b)});
+}
+function frame(out,id){
+  var css='body{font:15px/1.5 system-ui,sans-serif;color:#1f2d3d;margin:12px}table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:7px 10px;border-bottom:1px solid #dde3ea}th{background:#f1f4f8}';
+  return '<iframe class="prev" id="'+id+'" sandbox="allow-same-origin" title="Vista del resultado" srcdoc="'+esc('<style>'+css+'</style>'+out).replace(/"/g,'&quot;')+'"></iframe>';
+}
+function fitFrame(id){var f=document.getElementById(id);if(!f)return;f.onload=function(){try{var h=f.contentDocument.body.scrollHeight+28;f.style.height=Math.min(Math.max(h,80),460)+'px'}catch(e){}}}
+function showEx(id){
+  var ex=EX.filter(function(x){return x.id===id})[0];exCur=ex;drawList();
+  var h='<div class="exbox"><h4 class="exh2">'+esc(ex.t)+'</h4><div class="enun"><b>Enunciado</b><p>'+esc(ex.enun)+'</p>'+(ex.vars?'<p class="vr">'+esc(ex.vars)+'</p>':'')+'</div>';
+  h+='<details class="arr"><summary>Array que ya tienes definido (no lo escribas)</summary><div class="r-code">'+esc(EXSETUP[ex.s])+'</div></details>';
+  h+='<label class="lab" for="wb-ta">Tu código'+(ex.mode==='html'?' (HTML con PHP: usa &lt;?php … ?&gt; y &lt;?= … ?&gt;)':' (PHP; puedes empezar con &lt;?php o escribir directamente)')+'</label>';
+  h+='<textarea id="wb-ta" class="ta" spellcheck="false" autocomplete="off" autocapitalize="off" rows="'+(ex.mode==='html'?14:11)+'" placeholder="Escribe aquí…"></textarea>';
+  h+='<div class="r-btns"><button type="button" class="btn primary" id="wb-chk">Comprobar</button><button type="button" class="btn" id="wb-sol">Ver solución</button><button type="button" class="btn" id="wb-clr">Borrar</button></div><div id="wb-res" aria-live="polite"></div></div>';
+  $('#wb-ex',pt).innerHTML=h;
+  var ta=$('#wb-ta',pt);ta.value=S.d[ex.id]||'';
+  ta.oninput=function(){S.d[ex.id]=ta.value;save()};
+  ta.onkeydown=function(e){if(e.key==='Tab'){e.preventDefault();var s=ta.selectionStart,en=ta.selectionEnd;ta.value=ta.value.slice(0,s)+'    '+ta.value.slice(en);ta.selectionStart=ta.selectionEnd=s+4;ta.oninput()}};
+  $('#wb-chk',pt).onclick=function(){checkEx(ex)};
+  $('#wb-sol',pt).onclick=function(){
+    var r=$('#wb-res',pt);r.innerHTML='<div class="card sol"><h4>Solución modelo</h4><div class="r-code">'+esc(ex.sol)+'</div><div class="r-btns"><button type="button" class="btn" id="wb-use">Copiar en el editor</button></div><p class="lead" style="margin:8px 0 0">Hay más de una forma correcta: lo que importa es que el resultado y las funciones pedidas sean los mismos.</p></div>';
+    $('#wb-use',pt).onclick=function(){ta.value=ex.sol;ta.oninput()};
+  };
+  $('#wb-clr',pt).onclick=function(){ta.value='';ta.oninput();$('#wb-res',pt).innerHTML=''};
+}
+function checkEx(ex){
+  var code=$('#wb-ta',pt).value,r=$('#wb-res',pt);
+  if(!code.replace(/\s/g,'')){r.innerHTML='<p class="r-msg bad">Escribe primero tu código.</p>';return}
+  var c=exCheck(ex,code),h='';
+  if(!c.ok){
+    h='<div class="cres bad"><b>Tu código da un error'+(c.line?' (línea '+c.line+')':'')+'</b><p>'+esc(c.error)+'</p></div>';
+    if(c.out)h+='<p class="lab">Lo que llegó a mostrar antes del error</p>'+frame(c.out,'wb-fr');
+    r.innerHTML=h;fitFrame('wb-fr');return;
+  }
+  h='<div class="cres '+(c.all?'good':'bad')+'"><b>'+(c.all?'¡Correcto! Cumple todo lo que pide el enunciado.':'Todavía no: mira lo que falta.')+'</b></div><ul class="cl">';
+  c.items.forEach(function(i){h+='<li class="'+(i.ok?'ok':'no')+'"><span class="mk">'+(i.ok?'✔':'✘')+'</span><span>'+esc(i.t)+(!i.ok&&i.hint?'<small>Pista: '+esc(i.hint)+'</small>':'')+'</span></li>'});
+  h+='</ul><p class="lab">Así se ve el resultado de tu código</p>'+frame(c.out,'wb-fr');
+  if(ex.g==='azar')h+='<p class="lead" style="margin:8px 0 0">Es aleatorio: pulsa Comprobar otra vez y cambiará.</p>';
+  r.innerHTML=h;fitFrame('wb-fr');
+}
+drawList();showEx('c1');
+
+/* ---------- VISTA EN VIVO ---------- */
+var pv=panel('vivo');
+var LIVE_SETUP=['vg','alu','prod','nums','emp'].map(function(k){return EXSETUP[k]}).join('\n');
+var LIVE_EX=[
+['Tabla del catálogo',EX[0].sol],
+['Lista con stock bajo en rojo',String.raw`<h2>Catálogo</h2>
+<ul>
+<?php foreach ($videojuegos as $codigo => $j): ?>
+  <li>
+    <?= $j["titulo"] ?> (<?= $j["plataforma"] ?>)
+    <?php if ($j["stock"] < 10): ?>
+      <b style="color:#b3261e">¡Pocas unidades!</b>
+    <?php endif; ?>
+  </li>
+<?php endforeach; ?>
+</ul>`],
+['Tarjetas con estilo',String.raw`<style>
+  .carta { display:inline-block; width:150px; border:1px solid #cbd5e1; border-radius:10px; padding:10px; margin:6px; vertical-align:top }
+  .carta h4 { margin:0 0 6px }
+  .precio { font-weight:700; color:#1b7f4b }
+</style>
+<?php foreach ($videojuegos as $j): ?>
+  <div class="carta">
+    <h4><?= $j["titulo"] ?></h4>
+    <div><?= $j["genero"] ?></div>
+    <div class="precio"><?= number_format($j["precio"], 2, ",", ".") ?> €</div>
+  </div>
+<?php endforeach; ?>`],
+['Tabla de empleados',EX.filter(function(x){return x.id==='e2'})[0].sol],
+['Cálculos mostrados (PHP puro)',String.raw`<?php
+$total = array_sum(array_column($videojuegos, "stock"));
+$media = array_sum(array_column($videojuegos, "precio")) / count($videojuegos);
+echo "<h3>Resumen</h3>";
+echo "<p>Unidades en stock: <b>" . $total . "</b></p>";
+echo "<p>Precio medio: <b>" . number_format($media, 2, ",", ".") . " €</b></p>";
+echo "<p>Dado: " . rand(1, 6) . " (cambia al recargar la vista)</p>";`]
+];
+pv.innerHTML='<div class="card"><h3>Vista en vivo</h3><p class="lead" style="margin:0 0 10px">Escribe HTML y PHP a la izquierda y mira cómo se ve a la derecha, al momento. Ya están definidos: <code>$videojuegos</code>, <code>$alumnos</code>, <code>$productos</code>, <code>$nums</code> y <code>$empleados</code>.</p><div class="pills" id="wb-lv-ex"></div><div class="live"><div class="lv-l"><label class="lab" for="wb-lv-ta">Tu código</label><textarea id="wb-lv-ta" class="ta" spellcheck="false" autocomplete="off" autocapitalize="off" rows="18"></textarea></div><div class="lv-r"><label class="lab">Resultado</label><div id="wb-lv-err"></div><div id="wb-lv-out"></div></div></div><div class="r-btns"><button type="button" class="btn" id="wb-lv-raw">Ver el HTML generado</button></div><pre class="r-code" id="wb-lv-pre" hidden></pre></div>';
+var lvTa=$('#wb-lv-ta',pv),lvTimer=null,lvRaw=false;
+function lvRun(){
+  var code=lvTa.value,err=$('#wb-lv-err',pv),out=$('#wb-lv-out',pv),pre=$('#wb-lv-pre',pv);
+  var pr=exProgram(LIVE_SETUP,code,'html'),res=PHPSim.run(pr.p);
+  if(!res.ok){err.innerHTML='<div class="cres bad"><b>Error'+(res.line?' (línea '+Math.max(1,res.line-pr.off)+')':'')+'</b><p>'+esc(res.error)+'</p></div>'}else err.innerHTML='';
+  out.innerHTML=frame(res.out,'wb-lv-fr');fitFrame('wb-lv-fr');
+  pre.textContent=res.out;pre.hidden=!lvRaw;
+}
+lvTa.oninput=function(){S.lv=lvTa.value;save();clearTimeout(lvTimer);lvTimer=setTimeout(lvRun,180)};
+lvTa.onkeydown=function(e){if(e.key==='Tab'){e.preventDefault();var s=lvTa.selectionStart,en=lvTa.selectionEnd;lvTa.value=lvTa.value.slice(0,s)+'    '+lvTa.value.slice(en);lvTa.selectionStart=lvTa.selectionEnd=s+4;lvTa.oninput()}};
+var lbx=$('#wb-lv-ex',pv);
+LIVE_EX.forEach(function(x){var b=el('button','pill',x[0]);b.type='button';b.onclick=function(){lvTa.value=x[1];lvTa.oninput()};lbx.appendChild(b)});
+$('#wb-lv-raw',pv).onclick=function(){lvRaw=!lvRaw;this.textContent=lvRaw?'Ocultar el HTML generado':'Ver el HTML generado';$('#wb-lv-pre',pv).hidden=!lvRaw};
+lvTa.value=S.lv||LIVE_EX[0][1];lvRun();
 
 /* ---------- PRACTICA ---------- */
 var pp=panel('practica');
