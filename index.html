@@ -144,6 +144,7 @@ code{font-family:var(--mono);font-size:.92em}
 .qprog{font-size:13px;color:var(--muted);margin-bottom:8px;font-variant-numeric:tabular-nums}
 .qmeta{margin-bottom:8px}
 .qt{font:500 16px/1.45 var(--body);margin:0 0 10px}
+.qimg{margin:0 0 12px}.qimg img{display:block;max-width:100%;height:auto;border-radius:10px;border:1px solid var(--line-strong);background:#111}.qimg figcaption{font-size:13px;color:var(--muted,#666);margin-top:6px}.two .qimg{margin:0}
 .qk{font:400 13px/1.6 var(--mono);background:var(--code-bg);border-radius:10px;padding:10px 12px;margin:0 0 12px;white-space:pre-wrap;overflow-wrap:anywhere}
 .opts{display:flex;flex-direction:column;gap:8px}
 .opt{display:flex;gap:10px;align-items:flex-start;text-align:left;font:400 14px/1.45 var(--body);padding:10px 12px;border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);color:var(--ink);cursor:pointer}
@@ -184,6 +185,13 @@ code{font-family:var(--mono);font-size:.92em}
 <div class="sum"><div class="bar" role="progressbar" aria-label="Ejercicios sin fallos"><i id="bar"></i></div><span id="count"></span></div>
 <nav class="tabs" id="tabs" aria-label="Servicios"></nav>
 <div id="panels"></div>
+</section>
+<section id="view-seg" hidden>
+<a class="crumb" href="#inicio">← Asignaturas</a>
+<h2>Seguridad y Alta disponibilidad · prácticas</h2>
+<div class="sum"><div class="bar" role="progressbar" aria-label="Preguntas acertadas"><i id="seg-bar"></i></div><span id="seg-sum"></span></div>
+<nav class="tabs" id="seg-tabs" aria-label="Secciones"></nav>
+<div id="seg-panels"></div>
 </section>
 <section id="view-bd" hidden>
 <a class="crumb" href="#inicio">← Asignaturas</a>
@@ -687,9 +695,9 @@ var CARDS=[
 ];
 var sg=$('#subjects');
 CARDS.forEach(function(c){
-  var on=c[0]==='b8'||c[0]==='b2',isBd=c[0]==='b2',a=el(on?'a':'div','subj '+(on?'on':'off'));
-  if(on)a.href=isBd?'#bd':'#sri';else a.setAttribute('aria-disabled','true');
-  a.innerHTML='<div class="ban '+c[0]+'"></div><div class="tx"><h3>'+esc(c[1])+'</h3><span class="sub">2º ASIR Vespertino</span>'+(on?(isBd?'<span class="badge">Test de optimización SQL</span><span class="sub" id="bd-card-count"></span>':'<span class="badge">Parte práctica disponible</span><span class="sub" id="sri-card-count"></span>'):'<span class="badge">Próximamente</span>')+'</div>';
+  var on=c[0]==='b8'||c[0]==='b2'||c[0]==='b7',isBd=c[0]==='b2',isSeg=c[0]==='b7',a=el(on?'a':'div','subj '+(on?'on':'off'));
+  if(on)a.href=isSeg?'#seg':isBd?'#bd':'#sri';else a.setAttribute('aria-disabled','true');
+  a.innerHTML='<div class="ban '+c[0]+'"></div><div class="tx"><h3>'+esc(c[1])+'</h3><span class="sub">2º ASIR Vespertino</span>'+(on?(isSeg?'<span class="badge">Estudio y ejercicios con imágenes</span><span class="sub" id="seg-card-count"></span>':isBd?'<span class="badge">Test de optimización SQL</span><span class="sub" id="bd-card-count"></span>':'<span class="badge">Parte práctica disponible</span><span class="sub" id="sri-card-count"></span>'):'<span class="badge">Próximamente</span>')+'</div>';
   sg.appendChild(a);
 });
 
@@ -697,8 +705,8 @@ var lastView='';
 function route(){
   var h=(location.hash||'#inicio').slice(1);
   if(h==='sri')h='sri-dns';
-  var inSri=h.indexOf('sri-')===0,inBd=h==='bd'||h.indexOf('bd-')===0,view=inSri?'sri':inBd?'bd':'inicio';
-  $('#view-inicio').hidden=inSri||inBd;$('#view-sri').hidden=!inSri;$('#view-bd').hidden=!inBd;
+  var inSri=h.indexOf('sri-')===0,inBd=h==='bd'||h.indexOf('bd-')===0,inSeg=h==='seg'||h.indexOf('seg-')===0,view=inSri?'sri':inBd?'bd':inSeg?'seg':'inicio';
+  $('#view-inicio').hidden=inSri||inBd||inSeg;$('#view-seg').hidden=!inSeg;$('#view-sri').hidden=!inSri;$('#view-bd').hidden=!inBd;
   if(inSri){
     var id=h.slice(4);if(!$('#panel-'+id))id='dns';
     $$('.panel').forEach(function(p){p.hidden=(p.id!=='panel-'+id)});
@@ -994,6 +1002,344 @@ function route(){
   if(h!=='bd'&&h.indexOf('bd-')!==0)return;
   var id=h.slice(3);if(!$('#bdp-'+id))id='resumen';
   $$('#bd-panels .panel').forEach(function(p){p.hidden=(p.id!=='bdp-'+id)});
+  $$('a',tabs).forEach(function(a){a.classList.toggle('on',a.getAttribute('data-t')===id)});
+}
+window.addEventListener('hashchange',route);
+start('Todas');newExam();refresh();route();
+})();
+
+</script>
+<script>
+var SQ=[];
+function S(c,img,q,o,e){SQ.push({c:c,img:img||'',q:q,o:o,e:e})}
+var A='Cifrado simétrico',B='Cifrado híbrido',C='Firma y PKI',D='Forense de disco',R='Forense de RAM',X='ExifTool';
+var IMGALT={
+s_clave:'Terminal Kali: openssl rand -hex 32 > clave.txt y cat clave.txt',s_iv:'Terminal Kali: openssl rand -hex 16 > iv.txt y cat iv.txt',s_cifrar:'Terminal Kali: openssl enc -aes-256-cbc con -K y -iv, ls -l y cat de mensaje.enc',s_descifrar:'Terminal Kali: openssl enc -d -aes-256-cbc y cat de mensaje_descifrado.txt',s_diff:'Terminal Kali: diff y sha256sum de mensaje.txt y mensaje_descifrado.txt',s_clavefalsa:'Terminal Kali: descifrado con clave falsa y error bad decrypt',s_ivfalso:'Terminal Kali: descifrado con IV falso y texto parcialmente corrupto',
+h_net:'PowerShell: docker network create crypto-net y docker network ls',h_inspect:'PowerShell: docker network inspect crypto-net',h_ping:'Terminal kali-b: ping kali-a falla y ping kali-b responde',h_ssh:'Terminal kali-a: service ssh status, start y scp',h_genkey:'Terminal kali-b: openssl genpkey RSA 2048 y openssl rsa -pubout',h_cp:'Terminal kali-b: cp publica_B.pem /recursos y ls',h_scppub:'Terminal kali-a: scp de publica_B.pem desde kali-b',h_prep:'Terminal kali-a: echo mensaje, rand -hex 32 clave_aes.txt y rand -hex 16 iv.txt',h_enc:'Terminal kali-a: openssl enc aes-256-cbc y openssl pkeyutl -encrypt -pubin',h_scpsend:'Terminal kali-a: scp archivo.enc clave_aes.enc iv.txt a alumno-b',h_wrongkey:'Terminal kali-b: pkeyutl -decrypt con privada_incorrecta.pem y error',h_decrypt:'Terminal kali-b: pkeyutl -decrypt con privada_B.pem',h_ivbad:'Terminal kali-b: cat mensaje_iv_incorrecto.txt',h_ls:'Terminal kali-b: ls -l con los archivos de la práctica',
+f_genkey:'Terminal kali-a: genpkey de privada_CA.pem y chmod 600',f_lsl:'Terminal kali-a: ls -l privada_CA.pem',f_ca:'Terminal kali-a: openssl req -new -x509 con datos del DN',f_text:'Terminal kali-a: openssl x509 -text -noout de certificado_CA.pem',f_csr:'Terminal kali-a: openssl req -new -key privada_A.pem -out solicitud_A.csr',f_csrtext:'Terminal kali-a: openssl req -in solicitud_A.csr -text -noout',f_verify:'Terminal kali-a: openssl verify -CAfile ../ca/certificado_CA.pem certificado_A.pem',f_sign:'Terminal kali-a: openssl dgst -sha256 -sign privada_A.pem -out firma.sig',f_lsb:'Terminal kali-b: ls -l practica_pki',f_pubkey:'Terminal kali-b: openssl x509 -pubkey -noout y cat publica_A.pem',f_verified:'Terminal kali-b: openssl dgst -verify con Verified OK',f_tamper:'Terminal kali-b: documento modificado y Verification failure',f_noca:'Terminal kali-b: openssl verify sin -CAfile y error 20',f_ok:'Terminal kali-b: openssl verify con -CAfile y OK',
+p_attrib:'PowerShell: attrib y attrib +h sobre .registro_oculto.txt',p_listvol:'DiskPart: list volume',p_detail:'DiskPart: select volume E y detail volume',p_readonly:'DiskPart: select disk 1 y attributes disk set readonly',p_readonly2:'DiskPart: attributes disk con solo lectura Sí',p_delete:'Explorador: aviso de eliminar 2 elementos de forma permanente',p_recycle:'Papelera de reciclaje con bienvenida e inventario',p_verify:'FTK Imager: Drive/Image Verify Results con hashes',
+d_boot:'FTK Imager: sector de arranque en hexadecimal con NTFS',d_tree:'FTK Imager: árbol de evidencia y archivos del volumen NTFS',d_recycle:'FTK Imager: contenido de $RECYCLE.BIN con ficheros $I y $R',d_export:'FTK Imager: Export Results 1 file exported',d_csv:'FTK Imager: contenido de un CSV recuperado de la Papelera',d_cartel:'FTK Imager: vista de la imagen cartel.png',d_png:'FTK Imager: vista hexadecimal de cartel.png',d_hidden:'FTK Imager: .registro_oculto.txt dentro de 04_SISTEMA',d_hidtrue:'FTK Imager: DOS Attributes con Hidden True',d_hidfalse:'FTK Imager: DOS Attributes con Hidden False',
+r_capture:'FTK Imager: ventana Memory Capture',r_hash:'PowerShell: Get-FileHash SHA256 de memoria_ram.mem',r_info:'Volatility: salida de windows.info',r_pslist:'Volatility: cabecera de windows.pslist',r_userinit:'Volatility: filas de pslist con userinit.exe y explorer.exe',r_pstree:'Volatility: salida de windows.pstree',r_netscan:'Volatility: windows.netscan solo con cabecera',r_netstat:'Volatility: windows.netstat con conexiones LISTENING'
+};
+
+S(A,'s_clave',"¿Por qué se genera la clave con rand -hex 32?",["Porque AES-256 necesita 256 bits y 256 / 8 = 32 bytes","Porque el bloque de AES es de 32 bytes","Porque 32 es el tamaño del IV","Porque -hex siempre produce 32 caracteres"],"La clave AES-256 tiene 256 bits = 32 bytes. En hexadecimal se escriben como 64 caracteres.");
+S(A,'s_clave',"¿Qué contiene clave.txt tras ese comando?",["32 bytes aleatorios escritos en hexadecimal: la clave AES-256","El mensaje cifrado","El hash SHA-256 del mensaje","El IV de 128 bits"],"openssl rand genera bytes aleatorios. Con -hex los muestra en hexadecimal y > los guarda en el fichero.");
+S(A,'s_iv',"¿Para qué sirve este comando?",["Genera un IV de 16 bytes (128 bits) y lo guarda en iv.txt","Genera la clave AES de 16 bytes","Cifra el archivo iv.txt","Calcula el hash del mensaje"],"rand -hex 16 son 16 bytes aleatorios: el vector de inicialización del modo CBC.");
+S(A,'s_iv',"¿Por qué el IV tiene 16 bytes si la clave es de 256 bits?",["Porque el IV tiene el tamaño del bloque de AES (128 bits), sea cual sea la clave","Porque el resto se rellena automáticamente","Porque AES-256 usa dos IV de 16 bytes","Porque el IV siempre es la mitad de la clave"],"AES siempre trabaja con bloques de 128 bits. En CBC el IV debe ser igual que un bloque, independientemente de que la clave sea de 128, 192 o 256 bits.");
+S(A,'s_iv',"¿El IV debe mantenerse secreto?",["No: puede viajar en claro, pero hay que conservarlo para descifrar","Sí, igual que la clave","Sí, y además hay que cifrarlo con RSA siempre","No hace falta guardarlo: se recalcula solo"],"Lo secreto es la clave. El IV aporta aleatoriedad al primer bloque y debe ser el mismo al descifrar.");
+S(A,'s_cifrar',"¿Qué hace el primer comando de la captura?",["Cifra mensaje.txt con AES-256-CBC y genera mensaje.enc","Descifra mensaje.enc","Genera la clave y el IV","Calcula el hash de mensaje.txt"],"enc -aes-256-cbc cifra: lee -in mensaje.txt, escribe -out mensaje.enc y usa la clave (-K) y el IV (-iv).");
+S(A,'s_cifrar',"En ese comando, ¿qué indica -K (con K mayúscula)?",["La clave en hexadecimal","El IV","El archivo de entrada","El tamaño del bloque"],"-K es la clave directa en hexadecimal; -iv es el IV. En cambio -k minúscula sería una contraseña.");
+S(A,'s_cifrar',"¿Qué hace $(cat clave.txt) dentro del comando?",["Se sustituye por el contenido de clave.txt y se pasa como valor de -K","Crea un archivo nuevo","Cifra clave.txt","Borra clave.txt"],"La shell ejecuta primero cat clave.txt y coloca su salida en el comando.");
+S(A,'s_cifrar',"¿Por qué cat mensaje.enc muestra símbolos ilegibles?",["Porque es un fichero binario cifrado, no texto","Porque el IV está mal","Porque falta el -d","Porque el mensaje era demasiado largo"],"El resultado del cifrado son bytes binarios, que el terminal no puede mostrar como texto. No se puede leer el original sin la clave y el IV.");
+S(A,'s_cifrar',"mensaje.enc pesa 64 bytes, múltiplo de 16. ¿Por qué?",["El cifrado en bloques añade relleno (padding) hasta completar bloques de 16 bytes","Porque el IV se guarda dentro","Porque la clave ocupa 64 bytes","Porque ls -l redondea"],"AES cifra bloques de 16 bytes y el último se rellena. Por eso el tamaño cifrado es múltiplo de 16.");
+S(A,'s_descifrar',"¿Qué cambia respecto al comando de cifrar?",["Se añade -d y se invierten entrada y salida: mensaje.enc entra, el texto sale","Se cambia el algoritmo","Se usa otra clave","Se quita el IV"],"-d indica descifrado (decrypt). Se usan la misma clave y el mismo IV.");
+S(A,'s_diff',"diff no muestra nada y los dos SHA-256 coinciden. ¿Qué demuestra?",["Que el archivo recuperado es idéntico al original","Que el archivo no está cifrado","Que la clave es incorrecta","Que el IV es secreto"],"Si no hay diferencias y los hashes son iguales, el descifrado devolvió exactamente el mismo contenido (integridad).");
+S(A,'s_clavefalsa',"¿Qué ocurre en esta captura?",["bad decrypt: con una clave distinta no se puede descifrar","El descifrado funciona con otra clave","Falta instalar openssl","El IV es demasiado corto"],"Con una clave incorrecta el padding no cuadra y OpenSSL da bad decrypt. Sin la clave original no se recupera el mensaje.");
+S(A,'s_clavefalsa',"¿Cómo se ha creado clave_falsa.txt?",["Con otro openssl rand -hex 32","Copiando clave.txt","Con openssl enc -d","Con sha256sum"],"Es otra clave aleatoria de 32 bytes, distinta a la original.");
+S(A,'s_ivfalso',"Clave correcta e IV incorrecto: ¿qué se obtiene?",["Sin error, pero el primer bloque sale corrupto y el resto se lee","Un error bad decrypt siempre","El mensaje perfecto","Un archivo vacío"],"En la captura se ve texto raro al principio y «á protegido utilizando AES-256-CBC.» legible.");
+S(A,'s_ivfalso',"¿Por qué solo se estropea el principio del mensaje?",["En CBC el IV solo interviene en el primer bloque; los demás usan el bloque cifrado anterior","Porque el IV es la mitad de la clave","Porque el terminal corta el texto","Porque el hash falla"],"Por eso hay que conservar el mismo IV: sin él el primer bloque no se recupera.");
+S(A,'',"¿Qué información hace falta para descifrar mensaje.enc?",["La misma clave y el mismo IV usados al cifrar","Solo la clave","Solo el IV","Solo el nombre del archivo"],"Clave + IV + algoritmo y modo (AES-256-CBC).");
+S(A,'',"¿Qué significa AES-256-CBC?",["AES: algoritmo simétrico; 256: bits de la clave; CBC: modo de operación encadenado por bloques","AES: algoritmo asimétrico; 256: tamaño del bloque; CBC: certificado","Cifrado de flujo con clave de 256 bytes","Hash de 256 bits con CBC"],"El bloque de AES son 128 bits. CBC = Cipher Block Chaining y necesita IV.");
+S(A,'',"¿Qué comando de la práctica comprueba que dos ficheros son idénticos sin comparar su contenido?",["sha256sum fichero1 fichero2 (y comparar los hashes)","openssl enc -d","ls -l","cat clave.txt"],"Si el SHA-256 coincide, el contenido es el mismo.");
+
+S(B,'h_net',"¿Qué hace docker network create crypto-net?",["Crea una red virtual (bridge) definida por el usuario para conectar los contenedores","Crea el contenedor kali-a","Instala SSH","Genera las claves RSA"],"Devuelve el ID de la red. Después aparece en docker network ls con driver bridge.");
+S(B,'h_net',"En docker network ls, ¿qué driver tiene crypto-net?",["bridge","host","null","overlay"],"Es una red bridge local, igual que otras redes de usuario.");
+S(B,'h_inspect',"¿Qué muestra docker network inspect?",["Los detalles de la red: driver, subred 172.19.0.0/16 y puerta de enlace 172.19.0.1","Los archivos de los contenedores","Las claves RSA","Los usuarios creados"],"Subred y gateway los asigna Docker automáticamente.");
+S(B,'h_ping',"ping kali-a falla (Name or service not known) pero ping kali-b responde. ¿Qué indica?",["Docker solo resuelve el nombre de contenedores en marcha conectados a la red; en ese momento kali-a no lo estaba","ping no funciona en Kali","La red crypto-net no existe","kali-b tiene SSH instalado"],"Dentro de una red definida por el usuario Docker ofrece DNS interno por nombre. kali-b respondió con 172.19.0.2.");
+S(B,'h_ssh',"service ssh status dice «sshd is not running... failed!». ¿Qué haces?",["Como root, service ssh start","Instalar openssl","Crear la red","Borrar el contenedor"],"Al reiniciar un contenedor puede ser necesario volver a arrancar el servicio SSH.");
+S(B,'h_ssh',"El primer scp falla con «No such file or directory». ¿Por qué?",["El archivo estaba en /recursos y se ejecutó desde otro directorio","El destino no existe","SSH no está instalado","La contraseña es incorrecta"],"Tras cd recursos/ el mismo scp funciona y muestra 100 % de transferencia.");
+S(B,'h_ssh',"¿Qué puerto y protocolo usa scp?",["TCP 22, sobre SSH","UDP 53","TCP 80","TCP 445"],"SCP usa SSH como canal seguro.");
+S(B,'h_genkey',"¿Qué hacen estos dos comandos?",["Generan la clave privada RSA de 2048 bits y extraen la pública","Cifran el mensaje con AES","Firman un documento","Crean un certificado"],"genpkey crea privada_B.pem. rsa -pubout deriva publica_B.pem.");
+S(B,'h_genkey',"¿Quién genera el par de claves RSA y por qué?",["El receptor (kali-b), porque es quien debe poder descifrar","El emisor (kali-a)","Docker","Los dos a la vez"],"B publica su clave pública y guarda la privada. A cifrará con la pública de B.");
+S(B,'h_cp',"¿Qué se está haciendo con cp publica_B.pem /recursos/?",["Copiar la clave pública a la carpeta compartida con Windows para poder moverla","Enviarla por SCP","Cifrarla con RSA","Borrar la clave privada"],"/recursos es el bind mount con el ordenador anfitrión.");
+S(B,'h_scppub',"Desde kali-a se ejecuta scp alumno-b@kali-b:/recursos/publica_B.pem . ¿Qué hace?",["Descarga la clave pública de B al directorio actual","Envía la clave privada a B","Cifra la clave pública","Crea un usuario"],"El punto final significa «directorio actual».");
+S(B,'h_scppub',"¿Es un problema que publica_B.pem viaje por la red?",["No: la clave pública no es secreta","Sí: es la clave más delicada","Solo si no se usa SCP","Sí: permite descifrar el mensaje"],"La que nunca debe salir de kali-b es privada_B.pem.");
+S(B,'h_prep',"¿Qué crea cada comando en kali-a?",["mensaje.txt, la clave AES de 32 bytes y el IV de 16 bytes","La clave RSA, el IV y el certificado","Solo el mensaje","Dos IV y una clave"],"Son los ingredientes del cifrado AES-256-CBC.");
+S(B,'h_enc',"¿Qué cifra cada uno de los dos comandos?",["El primero cifra el mensaje con AES; el segundo cifra la clave AES con la clave pública de B","El primero cifra la clave y el segundo el mensaje","Los dos cifran el mensaje","Los dos usan RSA"],"AES cifra los datos y RSA protege la clave AES (cifrado híbrido).");
+S(B,'h_enc',"¿Qué opciones indican cifrado RSA con la clave pública de B?",["-encrypt -pubin -inkey publica_B.pem","-K clave_aes.txt -iv iv.txt","-d -aes-256-cbc","-pubout -in privada_B.pem"],"pkeyutl -encrypt con -pubin indica que la clave de entrada (-inkey) es pública.");
+S(B,'h_enc',"El enunciado pide -pkeyopt rsa_padding_mode:oaep en el segundo comando y aquí no está. ¿Qué pasa si falta?",["Se usa el relleno por defecto (PKCS#1 v1.5) y no OAEP","El comando falla siempre","Se cifra con AES","Se usa SHA-256 automáticamente"],"OAEP es un esquema de relleno más seguro para RSA. Conviene incluirlo.");
+S(B,'h_scpsend',"¿Qué tres archivos se envían a B?",["archivo.enc, clave_aes.enc e iv.txt","clave_aes.txt, iv.txt y privada_B.pem","publica_B.pem, mensaje.txt e iv.txt","mensaje.txt, clave_aes.txt e iv.txt"],"clave_aes.txt (sin proteger) nunca se envía. Aquí el mensaje cifrado se llamó archivo.enc.");
+S(B,'h_scpsend',"clave_aes.enc pesa 256 bytes. ¿Por qué?",["Porque RSA de 2048 bits produce un resultado de 2048 bits = 256 bytes","Porque la clave AES son 256 bytes","Porque OAEP añade 256 bytes","Porque iv.txt mide 256 bytes"],"RSA-2048 genera salidas de 256 bytes, aunque lo cifrado sea más pequeño.");
+S(B,'h_scpsend',"iv.txt pesa 33 bytes. ¿Por qué?",["32 caracteres hexadecimales (16 bytes) más el salto de línea","Porque el IV son 33 bytes","Porque scp añade un byte","Porque está cifrado"],"16 bytes en hex = 32 caracteres. El salto de línea es el byte 33.");
+S(B,'h_wrongkey',"Intentan descifrar con privada_incorrecta.pem y sale «No such file or directory». ¿Qué ha pasado?",["Esa clave se generó en kali-a y no existe en kali-b: la prueba no llegó a probar el descifrado","RSA falla siempre con claves distintas","Falta -pkeyopt","La clave está caducada"],"Para la prueba hay que generar la clave incorrecta en kali-b. Entonces el descifrado falla porque no corresponde a publica_B.pem.");
+S(B,'h_decrypt',"¿Qué hace este comando en kali-b?",["Recupera la clave AES: descifra clave_aes.enc con privada_B.pem","Cifra el mensaje","Genera una clave pública","Envía archivos a kali-a"],"El resultado es clave_aes_recuperada.txt.");
+S(B,'h_ivbad',"¿Qué muestra cat mensaje_iv_incorrecto.txt?",["El primer bloque corrupto y el resto legible: el IV falso solo afecta al inicio en CBC","El mensaje perfecto","Un error de OpenSSL","Un archivo vacío"],"Por eso el receptor necesita el mismo IV.");
+S(B,'h_ls',"¿Qué significan los permisos -rw------- de privada_B.pem?",["Solo el propietario puede leerla y escribirla (chmod 600)","Cualquiera puede leerla","Es ejecutable","Es pública"],"Protege la clave privada. Las demás tienen rw-rw-r--.");
+S(B,'h_ls',"¿Qué archivo NO debería salir nunca de kali-b?",["privada_B.pem","publica_B.pem","clave_aes.enc","iv.txt"],"La privada es lo único que permite recuperar la clave AES.");
+S(B,'',"¿Por qué no se usa RSA directamente para cifrar todo el archivo?",["Es lento y tiene un límite de tamaño de datos","Porque RSA no cifra","Porque necesita IV","Porque solo sirve para firmar"],"Por eso AES cifra el archivo y RSA solo la pequeña clave AES.");
+S(B,'',"¿Qué función cumple OAEP?",["Es un esquema de relleno que añade aleatoriedad y seguridad al cifrado RSA","Calcula el hash del mensaje","Transfiere archivos","Genera el IV"],"Se indica con -pkeyopt rsa_padding_mode:oaep.");
+S(B,'',"¿Con qué clave cifra A la clave AES y con cuál la recupera B?",["A cifra con la pública de B; B recupera con su privada","A cifra con su privada; B con su pública","A cifra con la privada de B","Las dos operaciones usan la pública de A"],"Solo la privada de B puede descifrar lo cifrado con su pública.");
+S(B,'',"¿Para qué sirve SHA-256 al final de la práctica?",["Para comprobar que el mensaje descifrado es idéntico al original","Para cifrar la clave","Para generar el IV","Para transferir los archivos"],"Los hashes de mensaje.txt y mensaje_descifrado.txt deben coincidir.");
+S(B,'',"¿Qué diferencia hay entre clave_aes.txt y clave_aes.enc?",["El primero es la clave AES en claro; el segundo está cifrado con RSA","El primero es público; el segundo, privado","Son iguales","El primero es el IV"],"clave_aes.txt no se envía sin proteger.");
+S(B,'',"¿Qué función tiene la carpeta /recursos en la práctica?",["Es un bind mount para intercambiar archivos con Windows; no forma parte del intercambio criptográfico","Guarda las claves privadas","Es el destino de SCP obligatorio","Almacena los certificados"],"El trabajo se hace en /home/alumno-a y /home/alumno-b.");
+
+S(C,'f_genkey',"¿Qué hacen estos dos comandos?",["Crean la clave privada RSA de la CA y la protegen con chmod 600","Crean el certificado de la CA","Firman un documento","Piden un certificado a Alice"],"genpkey genera privada_CA.pem; chmod 600 deja solo al propietario acceder.");
+S(C,'f_lsl',"¿Por qué debe protegerse especialmente privada_CA.pem?",["Quien la tenga puede emitir certificados haciéndose pasar por la CA","Porque contiene el certificado público","Porque es muy grande","Porque la usa Bob para validar"],"Es la clave que firma todos los certificados de la CA.");
+S(C,'f_ca',"¿Qué crea este comando?",["El certificado raíz autofirmado de la CA, válido 3650 días","La CSR de Alice","El certificado de Alice","La firma de un documento"],"req -new -x509 con -key privada_CA.pem produce certificado_CA.pem.");
+S(C,'f_ca',"¿Qué opción hace que el certificado sea autofirmado?",["-x509","-new","-sha256","-days 3650"],"-x509 genera un certificado en lugar de una solicitud (CSR).");
+S(C,'f_ca',"Los datos que pide (Country, Organization, Common Name...) forman...",["El DN (Distinguished Name) del Subject","La clave privada","La firma","El número de serie"],"En la CA: C=ES, O=ASIR, OU=CA del aula, CN=CA-ASIR.");
+S(C,'f_text',"Compara Subject e Issuer. ¿Qué observas?",["Son iguales: es un certificado raíz autofirmado","Son distintos: lo firma otra CA","Solo Issuer tiene datos","Subject está vacío"],"La CA se firma a sí misma. En el certificado de Alice el Issuer será CA-ASIR.");
+S(C,'f_text',"Not Before 2026 y Not After 2036. ¿Qué indica?",["El periodo de validez de 10 años (3650 días)","La fecha de creación del documento","La caducidad de la clave privada","El número de serie"],"Validity define desde y hasta cuándo es válido.");
+S(C,'f_text',"¿Qué comando muestra el contenido del certificado?",["openssl x509 -in certificado_CA.pem -text -noout","openssl req -new","openssl dgst -sign","openssl genpkey"],"x509 -text -noout lo imprime en formato legible.");
+S(C,'f_csr',"¿Qué crea este comando?",["Una solicitud de certificado (CSR) de Alice","El certificado de Alice","La clave pública de la CA","Una firma digital"],"solicitud_A.csr contiene la identidad y la clave pública de Alice, firmadas con su clave privada.");
+S(C,'f_csrtext',"¿Aparece la clave privada de Alice en la CSR?",["No: solo su identidad, su clave pública y una firma","Sí, completa","Sí, cifrada","Solo el módulo privado"],"Una CSR nunca contiene la clave privada.");
+S(C,'f_csrtext',"¿Qué le falta a la CSR para ser un certificado?",["Emisor (Issuer), número de serie, validez y la firma de la CA","El Subject","La clave pública","El algoritmo RSA"],"Lo añade la CA al emitirlo con openssl x509 -req.");
+S(C,'f_verify',"¿Qué comprueba este comando y qué indica el OK?",["Que certificado_A.pem está firmado por la CA indicada con -CAfile","Que la firma del documento es válida","Que la clave privada está protegida","Que el documento no ha cambiado"],"Valida el certificado, no el documento.");
+S(C,'f_sign',"¿Qué hace dgst -sha256 -sign privada_A.pem -out firma.sig documento.txt?",["Calcula el hash SHA-256 del documento y lo firma con la clave privada de Alice","Cifra el documento","Verifica la firma","Crea el certificado de Alice"],"La firma se hace con la clave privada. Se verifica con la pública.");
+S(C,'f_lsb',"firma.sig pesa 256 bytes. ¿Por qué?",["Una firma RSA de 2048 bits ocupa 256 bytes","Porque el documento mide 256 bytes","Porque incluye el certificado","Porque SHA-256 son 256 bytes"],"El tamaño de la firma depende de la clave RSA, no del documento.");
+S(C,'f_lsb',"¿Qué ha recibido Bob?",["documento.txt, firma.sig, certificado_A.pem y certificado_CA.pem","privada_A.pem y privada_CA.pem","solicitud_A.csr y privada_A.pem","Solo documento.txt"],"Nunca las claves privadas.");
+S(C,'f_pubkey',"¿Qué hace x509 -in certificado_A.pem -pubkey -noout > publica_A.pem?",["Extrae la clave pública de Alice del certificado","Genera la clave privada","Firma el documento","Valida la CA"],"La clave pública necesaria para verificar la firma está dentro del certificado.");
+S(C,'f_verified',"¿Qué significa Verified OK?",["La firma coincide con el documento y la clave pública de Alice","El certificado está firmado por la CA","El documento está cifrado","La CA es de confianza"],"Se ha usado dgst -sha256 -verify publica_A.pem -signature firma.sig documento.txt.");
+S(C,'f_tamper',"Bob modifica documento.txt y verifica de nuevo. ¿Qué pasa?",["Verification failure: el hash ya no coincide con la firma, falla la integridad","Sigue siendo válido","Falla el certificado de la CA","Se regenera la firma"],"Cualquier cambio después de firmar invalida la firma.");
+S(C,'f_noca',"openssl verify certificado_A.pem sin -CAfile da error 20. ¿Qué significa?",["unable to get local issuer certificate: OpenSSL no conoce ni confía en la CA que lo firmó","La firma del documento es falsa","El certificado ha caducado","La clave privada no existe"],"La CA del aula es privada y no está en el almacén de confianza.");
+S(C,'f_ok',"Con -CAfile certificado_CA.pem vuelve a salir OK. ¿Qué demuestra?",["Que al indicar la CA como raíz de confianza, el certificado de Alice se valida","Que el documento es auténtico","Que la CA es una CA pública","Que Bob tiene la clave privada de la CA"],"Una cosa es la validez criptográfica y otra confiar en la CA.");
+S(C,'',"¿Qué diferencia hay entre openssl verify y openssl dgst -verify?",["verify valida el certificado y su cadena; dgst -verify comprueba la firma del documento","Son iguales","verify comprueba el documento; dgst -verify el certificado","Los dos usan la clave privada"],"Bob hace las dos comprobaciones.");
+S(C,'',"Si el documento cambia después de firmarse, ¿qué comprobación falla?",["La verificación de la firma (dgst -verify)","La validación del certificado","Las dos","Ninguna"],"El certificado seguiría siendo válido.");
+S(C,'',"Si el documento no cambia pero Bob no confía en la CA, ¿qué puede fallar?",["La validación del certificado (verify)","La verificación de la firma","El hash SHA-256","El IV"],"Sin raíz de confianza no se puede validar la cadena.");
+S(C,'',"De estos archivos, ¿cuáles envía Alice a Bob?",["documento.txt, firma.sig y certificado_A.pem","privada_A.pem y documento.txt","solicitud_A.csr y privada_CA.pem","Solo firma.sig"],"La privada de Alice nunca abandona su control.");
+S(C,'',"¿Qué relaciona un certificado digital?",["Una identidad con una clave pública, avalada por la firma de una CA","Un documento con su hash","Una clave privada con una contraseña","Un IV con una clave"],"Firma digital = integridad y autoría; certificado = identidad + clave pública; PKI = cadena de confianza.");
+
+S(D,'p_attrib',"¿Qué ocurre entre el primer y el último attrib?",["Se activa el atributo Hidden: la salida pasa de «A» a «A H»","Se borra el archivo","Se cifra el archivo","Se quita el atributo de archivo"],"attrib +h oculta el archivo. La A es Archive y la H, Hidden.");
+S(D,'p_attrib',"¿Qué hace el signo + en attrib +h?",["Añade el atributo","Lo quita","Lo comprueba","Lo copia"],"attrib -h lo elimina.");
+S(D,'p_delete',"Se borran dos archivos con Mayús + Supr y este aviso. ¿Van a la Papelera?",["No: se eliminan sin pasar por la Papelera","Sí, siempre","Sí, pero cifrados","Se mueven a otro disco"],"Los datos pueden seguir en el espacio no asignado hasta que se sobrescriban.");
+S(D,'p_recycle',"¿Qué contiene la Papelera tras la práctica?",["bienvenida e inventario, con ubicación original E:\\01_DOCUMENTOS","Los archivos de 05_PARA_ELIMINAR","El disco completo","Nada"],"Los de 05_PARA_ELIMINAR se borraron de forma permanente.");
+S(D,'p_listvol',"¿Para qué sirve list volume en DiskPart?",["Para ver los volúmenes y sus letras de unidad","Para borrar volúmenes","Para formatear","Para crear la imagen E01"],"E es el Volumen 5, NTFS, 2030 MB.");
+S(D,'p_detail',"¿Qué averiguas con select volume E y detail volume?",["A qué disco físico pertenece E: (Disco 1, 2 GB)","El contenido del volumen","La contraseña del disco","Los archivos eliminados"],"Después se selecciona ese disco.");
+S(D,'p_readonly',"¿Para qué se ejecuta attributes disk set readonly?",["Para poner el disco en solo lectura y protegerlo antes de adquirirlo","Para borrar el disco","Para cambiarle la letra","Para cifrarlo"],"Evita escrituras ordinarias.");
+S(D,'p_readonly2',"En attributes disk, «Solo lectura: Sí» indica...",["Que el atributo de solo lectura está aplicado al disco","Que el disco está dañado","Que está oculto","Que está cifrado"],"Se quita con attributes disk clear readonly.");
+S(D,'p_readonly2',"¿Es DiskPart readonly equivalente a un bloqueador de escritura por hardware?",["No: protege de escrituras ordinarias de Windows, pero no garantiza todas las vías","Sí, es idéntico","Sí, pero solo con NTFS","No, porque no usa discos"],"Un bloqueador de hardware está diseñado para impedir escrituras en el dispositivo.");
+S(D,'p_verify',"Verify result: Match en MD5 y SHA1. ¿Qué indica?",["Que el hash calculado coincide con el almacenado: la imagen es íntegra","Que la imagen está cifrada","Que se ha borrado el disco","Que falta el hash"],"Se compara el hash calculado con el guardado en la imagen.");
+S(D,'d_boot',"En el sector de arranque aparecen los bytes 4E 54 46 53 («NTFS»). ¿Qué indica?",["Que el volumen usa el sistema de archivos NTFS","Que es una imagen PNG","Que el archivo está oculto","Que hay un virus"],"Es una forma de identificar el sistema de archivos en FTK Imager.");
+S(D,'d_tree',"¿Qué es [root] en el árbol de evidencia?",["El directorio raíz del volumen","El usuario administrador","La papelera","El espacio libre"],"Desde [root] se exploran carpetas y archivos.");
+S(D,'d_tree',"¿Qué puede contener [unallocated space]?",["Restos de archivos eliminados","Solo ceros siempre","El sistema operativo","Las claves RSA"],"Es el espacio no asignado del sistema de archivos.");
+S(D,'d_tree',"¿Qué es la $MFT?",["La Master File Table: registros con nombre, atributos, fechas y ubicación de cada archivo","Una tabla en hexadecimal sin más información","La Papelera","El sector de arranque"],"Un registro de archivo eliminado puede permanecer en la MFT hasta que se reutilice.");
+S(D,'d_recycle',"En $RECYCLE.BIN aparecen $I... y $R.... ¿Qué son?",["$R contiene los datos; $I guarda ruta original, tamaño y fecha de eliminación","$I contiene los datos; $R la fecha","Son virus","Son archivos de sistema vacíos"],"Los pares $I/$R permiten reconstruir qué se borró.");
+S(D,'d_export',"¿Qué ha hecho FTK Imager en esta captura?",["Exportar un archivo de la evidencia a una carpeta (Export Files...)","Borrar el archivo","Cifrar la imagen","Crear una imagen E01"],"1 file(s) exported successfully, 206 bytes copied.");
+S(D,'d_csv',"Se ve el contenido de un CSV de la Papelera dentro de FTK. ¿Qué demuestra?",["Que se puede ver y recuperar un archivo eliminado sin salir de la evidencia","Que el CSV estaba cifrado","Que la imagen está dañada","Que el archivo era ejecutable"],"También se puede exportar.");
+S(D,'d_cartel',"¿Qué estás haciendo en esta captura?",["Visualizar la imagen cartel.png en el panel de vista","Ejecutando el PNG","Editando la imagen","Capturando la RAM"],"FTK permite ver imágenes y también su contenido en hexadecimal.");
+S(D,'d_png',"La vista hexadecimal empieza por 89 50 4E 47 0D 0A 1A 0A. ¿Qué es?",["La firma (magic number) de un archivo PNG","Una clave AES","El IV","Un hash"],"Los primeros bytes identifican el tipo real aunque cambie la extensión.");
+S(D,'d_hidden',"¿Por qué FTK Imager muestra .registro_oculto.txt aunque el Explorador pueda ocultarlo?",["Porque lee la estructura NTFS de la imagen directamente y no aplica la opción de ocultar de Windows","Porque el punto inicial lo hace visible","Porque el archivo no tiene atributos","Porque está cifrado"],"El atributo Hidden es un atributo DOS/NTFS, no depende del punto en el nombre.");
+S(D,'d_hidtrue',"¿Qué significa Hidden = True en DOS Attributes?",["Que el archivo tiene activado el atributo oculto","Que está borrado","Que es de solo lectura","Que es del sistema"],"Es el atributo activado con attrib +h.");
+S(D,'d_hidfalse',"Hidden = False y Archive = False. ¿Qué indica?",["El archivo no está oculto","El archivo está oculto","El archivo está eliminado","El archivo es PNG"],"Compáralo con el archivo oculto de 04_SISTEMA.");
+S(D,'',"¿Qué es el formato E01?",["Un formato de imagen forense (Expert Witness) con compresión, metadatos del caso y hashes","Un formato de imagen PNG","Un cifrado de disco","Un tipo de partición"],"Se guarda como C:\\Evidencia\\...E01.");
+
+S(R,'r_capture',"¿Qué hace esta ventana de FTK Imager?",["Captura la memoria RAM a un archivo .mem","Crea una imagen E01 de un disco","Calcula un hash","Instala Volatility"],"Destino C:\\Evidencia\\RAM\\memoria_ram.mem.");
+S(R,'r_hash',"¿Para qué sirve Get-FileHash ... -Algorithm SHA256?",["Para obtener el SHA-256 de la evidencia y poder comprobar su integridad","Para cifrar la memoria","Para listar procesos","Para instalar Python"],"Se anota en el informe junto con la evidencia.");
+S(R,'r_info',"¿Qué plugin muestra esta información?",["windows.info","windows.pslist","windows.netscan","windows.pstree"],"Muestra Kernel Base, DTB, Is64Bit, número de procesadores y SystemTime.");
+S(R,'r_info',"¿Qué indica Is64Bit = True?",["Que el sistema es de 64 bits","Que hay 64 procesos","Que la memoria es de 64 MB","Que hay 64 hilos"],"KeNumberProcessors = 4.");
+S(R,'r_info',"¿Qué indica KeNumberProcessors = 4?",["4 procesadores lógicos","4 procesos","4 GB de RAM","4 usuarios"],"Es un dato del sistema.");
+S(R,'r_info',"¿Qué refleja SystemTime?",["La fecha y hora del sistema registradas en la captura","La hora de la instalación","La fecha del archivo .mem","La hora de Volatility"],"En esta captura: 2026-11-19 17:29:43 UTC.");
+S(R,'r_info',"¿Para qué necesita Volatility conocer las estructuras del kernel?",["Para interpretar los datos en bruto de la memoria (símbolos)","Para cifrar la memoria","Para conectarse a internet","Para crear la imagen"],"Descarga/usa símbolos como ntkrnlmp.pdb.");
+S(R,'r_pslist',"¿Qué plugin y qué columnas muestra?",["windows.pslist: PID, PPID, ImageFileName, CreateTime y ExitTime","windows.info: Kernel Base y DTB","windows.netscan: Proto y LocalAddr","windows.pstree: rutas únicamente"],"Cada fila es un proceso.");
+S(R,'r_pslist',"¿Qué diferencia hay entre CreateTime y ExitTime?",["CreateTime: cuándo empezó el proceso; ExitTime: cuándo terminó, si consta","Son iguales","CreateTime es la fecha del archivo","ExitTime es la hora de captura"],"Si ExitTime aparece, el proceso ya había finalizado.");
+S(R,'r_userinit',"¿Quién es el proceso padre de explorer.exe?",["userinit.exe (PID 5516)","winlogon.exe (PID 856)","OneDrive.exe (PID 5188)","System (PID 4)"],"explorer.exe tiene PID 5568 y PPID 5516.");
+S(R,'r_userinit',"¿Qué significan las columnas PID y PPID?",["PID: identificador del proceso; PPID: identificador del proceso padre","PID: puerto; PPID: protocolo","PID: hilo; PPID: proceso","PID: IP; PPID: puerto"],"Así se reconstruyen relaciones padre-hijo.");
+S(R,'r_pstree',"¿Qué diferencia a pstree de pslist?",["pstree muestra la jerarquía padre-hijo y, si puede, rutas y argumentos","Son idénticos","pstree solo muestra la red","pslist muestra la ruta de cada archivo"],"Los asteriscos indican la profundidad.");
+S(R,'r_pstree',"¿Cuál de estos procesos NO es hijo directo de explorer.exe (PID 5568)?",["smss.exe","OneDrive.exe","FTK Imager.exe","SnippingTool.exe"],"smss.exe cuelga de System (PID 4).");
+S(R,'r_pstree',"userinit.exe tiene ExitTime y explorer.exe sigue activo. ¿Qué enseña eso?",["Que un proceso puede seguir en el árbol aunque su padre ya haya terminado","Que explorer.exe no es legítimo","Que hay un malware","Que Volatility falla"],"Userinit termina tras lanzar la shell.");
+S(R,'r_pstree',"¿Por qué ayuda ver la ruta de un ejecutable?",["Porque indica desde dónde se lanzó y ayuda a interpretar su función o legitimidad","Porque da la IP","Porque da el hash","Porque da la contraseña"],"Un nombre conocido en una ruta rara sería sospechoso.");
+S(R,'r_pstree',"¿Se puede afirmar que un proceso es malicioso solo por su nombre?",["No: hay que contrastar ruta, padre, firma y comportamiento","Sí, siempre","Sí, si el nombre es raro","Solo con pslist"],"Por ejemplo, osf64.exe es una herramienta forense legítima.");
+S(R,'r_netscan',"windows.netscan sale solo con cabecera. ¿Qué significa?",["No ha recuperado conexiones con ese plugin en esta captura","El comando está mal escrito","No hay procesos","La RAM está cifrada"],"Se puede contrastar con windows.netstat.");
+S(R,'r_netstat',"¿Qué significa LISTENING?",["El equipo tiene un puerto a la escucha esperando conexiones","La conexión está establecida","El puerto está bloqueado","El proceso ha terminado"],"ESTABLISHED indica una conexión TCP ya establecida.");
+S(R,'r_netstat',"¿Qué proceso escucha en el puerto local 445?",["System (PID 4)","msedge.exe","OneDrive.exe","explorer.exe"],"El 445 se asocia con SMB.");
+S(R,'r_netstat',"10.0.2.15 es una dirección...",["IPv4 privada, típica de la red NAT de VirtualBox","IPv6 pública","De un servidor DNS","De Internet"],"Es compatible con un entorno virtualizado, pero no lo demuestra por sí sola.");
+S(R,'',"¿Por qué es importante relacionar conexiones y PID?",["Para saber qué proceso las abrió y valorar si es normal","Para borrar procesos","Para cifrar el tráfico","Para obtener contraseñas"],"Una conexión sin proceso asociado dice poco.");
+S(R,'',"¿Se puede conocer el contenido de una comunicación HTTPS solo con la salida de netscan o netstat?",["No: solo se ven IP, puertos, estados y procesos","Sí, completo","Sí, con pslist","Solo si es el puerto 443"],"El puerto 443 sugiere HTTPS, pero no demuestra la página visitada.");
+
+S(X,'',"En exiftool -a -G1 -s foto.jpg, ¿qué hace cada opción?",["-a muestra duplicados, -G1 indica el grupo y -s usa nombres cortos","-a archiva, -G1 graba, -s sobrescribe","-a ajusta, -G1 genera, -s firma","Ninguna tiene efecto"],"Mostrar el grupo ayuda a distinguir metadatos internos y del sistema de archivos.");
+S(X,'',"¿Por qué se calcula el SHA-256 antes de analizar las evidencias?",["Para poder demostrar después que no se han modificado","Para cifrarlas","Para reducir su tamaño","Para borrar metadatos"],"sha256sum -c hashes_iniciales.txt debe dar OK para todos los archivos.");
+S(X,'',"Se copia plano.png como plano.jpg. ¿Qué dirá ExifTool de FileType?",["PNG: cambiar la extensión no cambia el formato real","JPEG","PDF","WAV"],"El tipo real lo determina el contenido, no el nombre.");
+S(X,'',"Un PDF se creó el 15 de marzo y se modificó el 17. ¿Qué se puede concluir solo con ExifTool?",["Que hay dos fechas en los metadatos, pero no qué cambió ni quién lo cambió","Que se alteró el contenido","Que es falso","Que el autor es culpable"],"Los metadatos son modificables y requieren corroboración.");
+S(X,'',"¿Qué comando muestra solo los metadatos GPS?",["exiftool -GPS:All fotografia.jpg","exiftool -a fotografia.jpg","exiftool -ver","sha256sum fotografia.jpg"],"-n muestra las coordenadas en formato decimal.");
+S(X,'',"¿Con qué archivos se debe trabajar en la práctica?",["Con copias, conservando los originales sin cambios","Con los originales","Con archivos borrados","Con versiones comprimidas"],"Los metadatos forman parte de la evidencia.");
+
+</script>
+<script>
+(function(){
+var KEY='asir-seg-v1',S={};
+try{S=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){S={}}
+S.r=S.r||{};S.best=S.best||0;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function $(s,r){return(r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function im(k,cap){return '<figure class="qimg"><a href="img/seg/'+k+'.jpg" target="_blank" rel="noopener"><img src="img/seg/'+k+'.jpg" alt="'+esc(IMGALT[k]||'')+'" loading="lazy"></a>'+(cap?'<figcaption>'+cap+'</figcaption>':'')+'</figure>'}
+SQ.forEach(function(q,i){q.id=i});
+var N=SQ.length,CATS=[];
+SQ.forEach(function(q){if(CATS.indexOf(q.c)<0)CATS.push(q.c)});
+var EXAM_N=Math.min(40,N);
+var tabs=$('#seg-tabs'),panels=$('#seg-panels');
+var TABS=[['estudio','Estudio'],['practica','Ejercicios con imagen'],['simulacro','Simulacro de '+EXAM_N]];
+TABS.forEach(function(t){var a=el('a','',t[1]);a.href='#seg-'+t[0];a.setAttribute('data-t',t[0]);tabs.appendChild(a)});
+function panel(id){var p=el('section','panel');p.id='segp-'+id;p.hidden=true;panels.appendChild(p);return p}
+
+/* ---------- ESTUDIO ---------- */
+var pr=panel('estudio'),h='';
+function flow(a){var s='<div class="flow">';a.forEach(function(x,i){s+=(i?'<span class="fa">→</span>':'')+'<div class="fb"><b>'+x[0]+'</b><small>'+x[1]+'</small></div>'});return s+'</div>'}
+function tbl(head,rows){var s='<div class="tw"><table><thead><tr>';head.forEach(function(x){s+='<th>'+x+'</th>'});s+='</tr></thead><tbody>';rows.forEach(function(r){s+='<tr>';r.forEach(function(c,i){s+='<td>'+(i===0?'<code>'+c+'</code>':c)+'</td>'});s+='</tr>'});return s+'</tbody></table></div>'}
+function rules(a){return '<ul class="rules">'+a.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>'}
+function warn(a){return '<div class="fbk bad" style="margin-top:12px"><b>Ojo con tu práctica:</b><ul class="rules">'+a.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div>'}
+
+h+='<div class="card"><h3>Mapa: qué usar y cuándo</h3>'+tbl(['Necesito…','Uso…','Clave'],[
+['Cifrar un archivo rápido','AES (simétrico)','La misma clave cifra y descifra'],
+['Enviar esa clave sin que la vean','RSA (asimétrico)','Cifro con la pública del receptor'],
+['Demostrar quién firma y que no cambió','Firma digital','Firmo con mi privada, verifican con mi pública'],
+['Saber que la clave pública es de Alice','Certificado (CA)','La CA firma identidad + clave pública'],
+['Probar que una evidencia no cambió','Hash SHA-256 / MD5','Mismo hash = mismo contenido']])+
+rules(['<b>Simétrico</b>: 1 clave, rápido, el problema es compartirla. <b>Asimétrico</b>: par público/privado, lento, resuelve el reparto.','La clave privada nunca se envía ni se comparte.'])+'</div>';
+
+h+='<div class="card"><h3>1. Cifrado simétrico: AES-256-CBC</h3>'+flow([['rand -hex 32','clave 32 bytes'],['rand -hex 16','IV 16 bytes'],['enc -aes-256-cbc','cifra'],['enc -d','descifra'],['diff / sha256sum','compara']])+
+tbl(['Elemento','Qué es'],[['-K','clave en hexadecimal (256 bits = 32 bytes)'],['-iv','vector de inicialización: 16 bytes = tamaño de bloque AES (128 bits)'],['-in / -out','archivo de entrada / salida'],['-d','descifrar (decrypt)'],['$(cat clave.txt)','sustituye por el contenido del fichero']])+
+'<div class="two">'+im('s_clavefalsa','<b>Clave incorrecta</b> → <code>bad decrypt</code>')+im('s_ivfalso','<b>IV incorrecto</b> → solo se estropea el primer bloque')+'</div>'+
+rules(['El IV <b>no es secreto</b>, pero hay que usar el mismo para descifrar.','El tamaño del IV (16 bytes) no depende de la clave: depende del bloque de AES (128 bits).','Cifrado en bloques con relleno: el archivo cifrado es múltiplo de 16 bytes.','Mismo SHA-256 antes y después = descifrado correcto.'])+
+warn(['Si en tu informe explicas el IV de 16 bytes con otra razón, corrígelo: es el tamaño del <b>bloque</b> de AES.'])+'</div>';
+
+h+='<div class="card"><h3>2. Cifrado híbrido: RSA + AES</h3>'+flow([['B','genera par RSA'],['B → A','clave pública (scp)'],['A','cifra archivo con AES'],['A','cifra clave AES con RSA'],['A → B','3 archivos (scp)'],['B','descifra clave, luego archivo']])+
+tbl(['Comando','Qué hace'],[['genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048','crea la privada (la hace B)'],['rsa -pubout / pkey -pubout','extrae la pública'],['pkeyutl -encrypt -pubin -inkey publica_B.pem','cifra la clave AES con la pública de B'],['pkeyutl -decrypt -inkey privada_B.pem','B recupera la clave AES'],['scp origen usuario@host:/ruta','copia por SSH (TCP 22)'],['chmod 600','solo el propietario lee/escribe']])+
+'<div class="two">'+im('h_enc','Dos cifrados: AES al archivo, RSA a la clave')+im('h_ls','Permisos: privada_B.pem es <code>-rw-------</code>')+'</div>'+
+rules(['Se envían: archivo cifrado, <b>clave_aes.enc</b> e <b>iv.txt</b>. Nunca la clave AES en claro ni la privada.','RSA-2048 produce 256 bytes: por eso clave_aes.enc pesa 256.','No se cifra todo con RSA: es lento y con límite de tamaño.','OAEP = relleno seguro para RSA (<code>-pkeyopt rsa_padding_mode:oaep</code>).','Docker: red <code>crypto-net</code> (bridge, 172.19.0.0/16), contenedores se ven por nombre. Si SSH falla: <code>service ssh start</code>.'])+
+warn(['Tus capturas cifran y descifran <b>sin</b> <code>-pkeyopt rsa_padding_mode:oaep</code>, aunque el enunciado habla de OAEP: añádelo en los dos comandos.','La prueba de la «clave privada incorrecta» falló porque el archivo no existía en kali-b, no porque la clave no coincidiera. Genera la falsa en kali-b y verás el fallo real de descifrado.'])+'</div>';
+
+h+='<div class="card"><h3>3. Firma digital y certificados (PKI)</h3>'+flow([['CA','clave + certificado raíz'],['Alice','clave + CSR'],['CA','emite certificado'],['Alice','firma el documento'],['Bob','valida cert y firma']])+
+tbl(['Comando','Qué hace'],[['req -new -x509 -days 3650','certificado raíz autofirmado de la CA'],['req -new -key … -out solicitud_A.csr','solicitud de certificado (sin clave privada)'],['x509 -req -CA … -CAkey …','la CA emite el certificado de Alice'],['x509 -text -noout','muestra el certificado'],['dgst -sha256 -sign privada_A.pem','firma el hash del documento'],['x509 -pubkey -noout','extrae la clave pública del certificado'],['dgst -sha256 -verify publica_A.pem -signature firma.sig doc','verifica la firma'],['verify -CAfile CA.pem cert.pem','valida el certificado contra la CA']])+
+'<div class="two">'+im('f_text','En la CA: <b>Subject = Issuer</b> (autofirmado)')+im('f_tamper','Documento modificado → <code>Verification failure</code>')+'</div>'+
+'<div class="two">'+im('f_noca','Sin -CAfile → error 20 «unable to get local issuer certificate»')+im('f_ok','Con -CAfile → <code>OK</code>')+'</div>'+
+tbl(['Comprobación','Qué demuestra','Falla si…'],[['openssl verify','el certificado lo firmó la CA de confianza','no conoces la CA o no es de confianza'],['dgst -verify','el documento no cambió y lo firmó esa clave','alguien modificó el documento']])+
+warn(['Falta en tu informe la captura de la emisión (<code>x509 -req</code>) y del certificado de Alice: es la parte más preguntada.'])+'</div>';
+
+h+='<div class="card"><h3>4. Forense de disco: preparar y analizar evidencia</h3>'+flow([['Hash','de la evidencia'],['Solo lectura','diskpart / bloqueador'],['Imagen','FTK Imager E01'],['Verificar','MD5/SHA1 Match'],['Analizar','árbol, Papelera, MFT']])+
+'<div class="two">'+im('p_attrib','<code>attrib +h</code> activa el atributo oculto (A → A H)')+im('p_readonly2','<code>attributes disk</code>: solo lectura Sí')+'</div>'+
+tbl(['Elemento NTFS','Qué es'],[['$MFT','tabla maestra: un registro por archivo (nombre, atributos, fechas, ubicación)'],['$RECYCLE.BIN','Papelera; $I = metadatos (ruta, fecha), $R = contenido'],['[unallocated space]','espacio no asignado: puede conservar archivos borrados'],['$BadClus, $Secure, $UpCase','archivos de sistema NTFS'],['[orphan]','archivos cuyo directorio padre se perdió']])+
+'<div class="two">'+im('d_recycle','Pares $I / $R en la Papelera')+im('d_png','Firma PNG: <code>89 50 4E 47 0D 0A 1A 0A</code>')+'</div>'+
+rules(['Mayús+Supr elimina sin pasar por la Papelera; el dato puede seguir en disco.','Hidden es un <b>atributo NTFS/DOS</b> (attrib +h), no depende del punto en el nombre. FTK muestra Hidden True/False.','La firma (magic number) identifica el tipo real aunque cambie la extensión.','FTK: Create Disk Image → Logical Drive → E01 → datos del caso → Verify (hash calculado = almacenado).'])+
+warn(['DiskPart «readonly» protege de escrituras ordinarias; <b>no equivale</b> a un bloqueador de escritura por hardware. No lo pongas como «bloqueo Ok» sin matizar.','Si el informe dice etiqueta EVIDENCIA y diskpart muestra «Nuevo vol», cuadra ambos datos.','El Hidden no son «archivos con punto al principio»: es el atributo NTFS.'])+'</div>';
+
+h+='<div class="card"><h3>5. Forense de RAM: Volatility 3</h3>'+flow([['FTK Imager','Capture Memory → .mem'],['Get-FileHash','SHA256'],['windows.info','sistema'],['pslist / pstree','procesos'],['netstat','conexiones']])+
+tbl(['Plugin','Muestra'],[['windows.info','Kernel Base, DTB, Is64Bit, procesadores, SystemTime'],['windows.pslist','PID, PPID, nombre, hilos, CreateTime, ExitTime'],['windows.pstree','jerarquía padre-hijo con rutas y argumentos'],['windows.netscan / netstat','conexiones: protocolo, IP:puerto, estado, PID']])+
+'<div class="two">'+im('r_userinit','explorer.exe (PID 5568) ← PPID 5516 = userinit.exe')+im('r_netstat','LISTENING = puerto a la escucha')+'</div>'+
+rules(['PID = proceso; PPID = su padre. pstree dibuja el árbol (los asteriscos marcan profundidad).','ESTABLISHED = conexión activa; LISTENING = espera conexiones. 445 = SMB (proceso System).','10.0.2.15 = IP privada típica de la red NAT de VirtualBox.','Un nombre no basta para decir «malicioso»: contrasta ruta, padre y comportamiento.','userinit.exe termina tras lanzar explorer.exe: un hijo puede sobrevivir a su padre.'])+
+warn(['La fecha del sistema del volcado es <b>2026-11-19 17:29:43 UTC</b> (windows.info), no la que anotaste.','«Todos los procesos tienen padre activo: Sí» es incorrecto: algunos padres ya terminaron (ExitTime).','pslist y pstree no son «lo mismo»: la información es parecida, pero pstree muestra la jerarquía.','Tu captura de netscan salió vacía; usa netstat para citar conexiones.'])+'</div>';
+
+h+='<div class="card"><h3>6. Metadatos con ExifTool</h3>'+tbl(['Idea','Detalle'],[['exiftool -a -G1 -s','todo, con grupo y nombres cortos'],['-GPS:All','solo etiquetas GPS'],['sha256sum -c','comprueba que las evidencias no cambiaron'],['FileType','lo decide el contenido, no la extensión'],['Fechas','son metadatos editables: corroborar con otras fuentes']])+'<p class="lead" style="margin:10px 0 0">Trabaja con copias y conserva los originales intactos.</p></div>';
+pr.innerHTML=h;
+
+/* ---------- PRACTICA ---------- */
+var pp=panel('practica');
+pp.innerHTML='<div class="card"><h3>Mira la captura y contesta</h3><p class="lead" style="margin:0 0 12px">Elige un bloque. Verás la explicación al momento.</p><div class="pills" id="seg-cats"></div><div id="seg-q"></div></div>';
+var cur={pool:[],i:0,cat:'Todas',answered:false};
+function pools(cat){
+  if(cat==='Todas')return SQ.slice();
+  if(cat==='Falladas')return SQ.filter(function(q){return S.r[q.id]===0});
+  return SQ.filter(function(q){return q.c===cat});
+}
+var cbox=$('#seg-cats',pp);
+['Todas'].concat(CATS).concat(['Falladas']).forEach(function(c){
+  var b=el('button','pill'+(c==='Todas'?' on':''),c);b.type='button';b.setAttribute('data-c',c);
+  b.onclick=function(){start(c)};cbox.appendChild(b);
+});
+function qHtml(q,order,state){
+  var h='<div class="qmeta"><span class="tag">'+esc(q.c)+'</span></div>'+(q.img?im(q.img):'')+'<p class="qt">'+esc(q.q)+'</p><div class="opts">';
+  order.forEach(function(oi,p){
+    var cls='opt';
+    if(state&&state.show){if(oi===0)cls+=' ok';else if(state.pick===p)cls+=' bad'}
+    else if(state&&state.pick===p)cls+=' sel';
+    h+='<button type="button" class="'+cls+'" data-p="'+p+'"><i>'+String.fromCharCode(65+p)+'</i><span>'+esc(q.o[oi])+'</span></button>';
+  });
+  return h+'</div>';
+}
+function start(cat){
+  var list=pools(cat);
+  cur.cat=cat;
+  $$('.pill',cbox).forEach(function(b){b.classList.toggle('on',b.getAttribute('data-c')===cat)});
+  var box=$('#seg-q',pp);
+  if(!list.length){box.innerHTML='<p class="lead">'+(cat==='Falladas'?'No tienes preguntas falladas. Buen trabajo.':'No hay preguntas en este bloque.')+'</p>';return}
+  cur.pool=shuf(list);cur.i=0;show();
+}
+function show(){
+  var box=$('#seg-q',pp),q=cur.pool[cur.i];
+  cur.order=shuf(q.o.map(function(_,i){return i}));cur.answered=false;
+  box.innerHTML='<div class="qprog">Pregunta '+(cur.i+1)+' de '+cur.pool.length+'</div><div id="sqbody">'+qHtml(q,cur.order,null)+'</div><div class="fbk" id="sfbk" aria-live="polite"></div><div class="r-btns"><button type="button" class="btn primary" id="sqnext" hidden>Siguiente</button></div>';
+  $$('.opt',box).forEach(function(b){b.onclick=function(){answer(+b.getAttribute('data-p'))}});
+  $('#sqnext',box).onclick=function(){cur.i++;if(cur.i>=cur.pool.length){done()}else show()};
+}
+function answer(p){
+  if(cur.answered)return;cur.answered=true;
+  var q=cur.pool[cur.i],ok=cur.order[p]===0;
+  S.r[q.id]=ok?1:0;save();refresh();
+  $('#sqbody').innerHTML=qHtml(q,cur.order,{show:true,pick:p});
+  var f=$('#sfbk');f.className='fbk '+(ok?'good':'bad');
+  f.innerHTML='<b>'+(ok?'Correcto.':'No es esa.')+'</b> '+esc(q.e);
+  var n=$('#sqnext');n.hidden=false;n.textContent=cur.i+1>=cur.pool.length?'Terminar':'Siguiente';n.focus();
+}
+function done(){
+  var box=$('#seg-q',pp),ok=cur.pool.filter(function(q){return S.r[q.id]===1}).length;
+  box.innerHTML='<p class="lead">Has terminado este bloque: '+ok+' de '+cur.pool.length+' acertadas en la última respuesta de cada una.</p><div class="r-btns"><button type="button" class="btn primary" id="sagain">Repetir bloque</button><button type="button" class="btn" id="sfails">Solo falladas</button></div>';
+  $('#sagain',box).onclick=function(){start(cur.cat)};
+  $('#sfails',box).onclick=function(){start('Falladas')};
+}
+
+/* ---------- SIMULACRO ---------- */
+var ps=panel('simulacro');
+var ex={list:[],orders:[],ans:[],i:0,sure:false,over:false};
+function newExam(){
+  ex.list=shuf(SQ).slice(0,EXAM_N);
+  ex.orders=ex.list.map(function(q){return shuf(q.o.map(function(_,i){return i}))});
+  ex.ans=ex.list.map(function(){return -1});
+  ex.i=0;ex.sure=false;ex.over=false;drawEx();
+}
+function drawEx(){
+  if(ex.over)return;
+  var h='<div class="card"><div class="exh"><h3>Simulacro de '+EXAM_N+' preguntas</h3><span class="qprog" id="sexc"></span></div>';
+  h+='<div class="grid" id="sexg"></div><div id="sexq"></div><div class="r-btns"><button type="button" class="btn" id="sexprev">Anterior</button><button type="button" class="btn" id="sexnext">Siguiente</button><button type="button" class="btn primary" id="sexend">Terminar y corregir</button></div><div class="r-msg" id="sexmsg" aria-live="polite"></div></div>';
+  ps.innerHTML=h;
+  var g=$('#sexg',ps);
+  ex.list.forEach(function(_,k){var b=el('button','gn',String(k+1));b.type='button';b.onclick=function(){ex.i=k;drawEx()};g.appendChild(b)});
+  paintEx();
+  $('#sexprev',ps).onclick=function(){if(ex.i>0){ex.i--;drawEx()}};
+  $('#sexnext',ps).onclick=function(){if(ex.i<EXAM_N-1){ex.i++;drawEx()}};
+  $('#sexend',ps).onclick=finish;
+}
+function paintEx(){
+  var q=ex.list[ex.i];
+  $('#sexc',ps).textContent='Pregunta '+(ex.i+1)+' de '+EXAM_N+' · '+ex.ans.filter(function(a){return a>=0}).length+' contestadas';
+  $$('.gn',ps).forEach(function(b,k){b.classList.toggle('on',k===ex.i);b.classList.toggle('dn',ex.ans[k]>=0)});
+  $('#sexq',ps).innerHTML=qHtml(q,ex.orders[ex.i],{pick:ex.ans[ex.i]});
+  $$('.opt',$('#sexq',ps)).forEach(function(b){b.onclick=function(){ex.ans[ex.i]=+b.getAttribute('data-p');ex.sure=false;$('#sexmsg',ps).textContent='';paintEx()}});
+  $('#sexprev',ps).disabled=ex.i===0;$('#sexnext',ps).disabled=ex.i===EXAM_N-1;
+}
+function finish(){
+  var un=ex.ans.filter(function(a){return a<0}).length,m=$('#sexmsg',ps);
+  if(un>0&&!ex.sure){ex.sure=true;m.className='r-msg bad';m.textContent='Te faltan '+un+' preguntas sin contestar. Pulsa otra vez para corregir igualmente.';return}
+  ex.over=true;
+  var ok=0,bad=[];
+  ex.list.forEach(function(q,k){var good=ex.ans[k]>=0&&ex.orders[k][ex.ans[k]]===0;if(good)ok++;else bad.push(k);S.r[q.id]=good?1:0});
+  var nota=Math.round(ok*100/EXAM_N)/10;
+  if(nota>S.best)S.best=nota;save();refresh();
+  var h='<div class="card"><h3>Resultado</h3><p class="big">'+ok+' de '+EXAM_N+' · nota '+nota.toFixed(1).replace('.',',')+' sobre 10</p><p class="lead" style="margin:0 0 12px">Sin penalización por fallo. Tu mejor nota: '+S.best.toFixed(1).replace('.',',')+'.</p><div class="r-btns"><button type="button" class="btn primary" id="sexnew">Nuevo simulacro</button></div></div>';
+  if(bad.length){
+    h+='<div class="card"><h3>Revisa tus '+bad.length+' fallos</h3>';
+    bad.forEach(function(k){
+      var q=ex.list[k],o=ex.orders[k],mine=ex.ans[k]>=0?q.o[o[ex.ans[k]]]:'Sin contestar';
+      h+='<div class="rev">'+(q.img?im(q.img):'')+'<p class="qt">'+(k+1)+'. '+esc(q.q)+'</p><p class="rv bad">Tu respuesta: '+esc(mine)+'</p><p class="rv good">Correcta: '+esc(q.o[0])+'</p><p class="rx">'+esc(q.e)+'</p></div>';
+    });
+    h+='</div>';
+  }
+  ps.innerHTML=h;$('#sexnew',ps).onclick=newExam;
+  try{window.scrollTo(0,0)}catch(e){}
+}
+function refresh(){
+  var ok=SQ.filter(function(q){return S.r[q.id]===1}).length;
+  var c=$('#seg-card-count');if(c)c.textContent=ok+' de '+N+' preguntas acertadas';
+  var s=$('#seg-sum');if(s)s.textContent=ok+' de '+N+' acertadas'+(S.best?' · mejor simulacro '+S.best.toFixed(1).replace('.',','):'');
+  var bar=$('#seg-bar');if(bar)bar.style.width=Math.round(ok*100/N)+'%';
+}
+function route(){
+  var h=(location.hash||'').slice(1);
+  if(h!=='seg'&&h.indexOf('seg-')!==0)return;
+  var id=h.slice(4);if(!$('#segp-'+id))id='estudio';
+  $$('#seg-panels .panel').forEach(function(p){p.hidden=(p.id!=='segp-'+id)});
   $$('a',tabs).forEach(function(a){a.classList.toggle('on',a.getAttribute('data-t')===id)});
 }
 window.addEventListener('hashchange',route);
