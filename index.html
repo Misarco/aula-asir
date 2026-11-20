@@ -187,6 +187,12 @@ code{font-family:var(--mono);font-size:.92em}
 <nav class="tabs" id="tabs" aria-label="Servicios"></nav>
 <div id="panels"></div>
 </section>
+<section id="view-nube" hidden>
+<a class="crumb" href="#inicio">← Asignaturas</a>
+<h2>Arquitectura Cloud · prácticas de AWS</h2>
+<nav class="tabs" id="nb-tabs" aria-label="Secciones"></nav>
+<div id="nb-panels"></div>
+</section>
 <section id="view-seg" hidden>
 <a class="crumb" href="#inicio">← Asignaturas</a>
 <h2>Seguridad y Alta disponibilidad · prácticas</h2>
@@ -696,9 +702,9 @@ var CARDS=[
 ];
 var sg=$('#subjects');
 CARDS.forEach(function(c){
-  var on=c[0]==='b8'||c[0]==='b2'||c[0]==='b7',isBd=c[0]==='b2',isSeg=c[0]==='b7',a=el(on?'a':'div','subj '+(on?'on':'off'));
-  if(on)a.href=isSeg?'#seg':isBd?'#bd':'#sri';else a.setAttribute('aria-disabled','true');
-  a.innerHTML='<div class="ban '+c[0]+'"></div><div class="tx"><h3>'+esc(c[1])+'</h3><span class="sub">2º ASIR Vespertino</span>'+(on?(isSeg?'<span class="badge">Estudio y ejercicios con imágenes</span><span class="sub" id="seg-card-count"></span>':isBd?'<span class="badge">Test de optimización SQL</span><span class="sub" id="bd-card-count"></span>':'<span class="badge">Parte práctica disponible</span><span class="sub" id="sri-card-count"></span>'):'<span class="badge">Próximamente</span>')+'</div>';
+  var on=c[0]==='b8'||c[0]==='b2'||c[0]==='b7'||c[0]==='b3',isBd=c[0]==='b2',isSeg=c[0]==='b7',isNube=c[0]==='b3',a=el(on?'a':'div','subj '+(on?'on':'off'));
+  if(on)a.href=isNube?'#nube':isSeg?'#seg':isBd?'#bd':'#sri';else a.setAttribute('aria-disabled','true');
+  a.innerHTML='<div class="ban '+c[0]+'"></div><div class="tx"><h3>'+esc(c[1])+'</h3><span class="sub">2º ASIR Vespertino</span>'+(on?(isNube?'<span class="badge">Prácticas de AWS: estudio y ejercicios con imágenes</span>':isSeg?'<span class="badge">Estudio y ejercicios con imágenes</span><span class="sub" id="seg-card-count"></span>':isBd?'<span class="badge">Test de optimización SQL</span><span class="sub" id="bd-card-count"></span>':'<span class="badge">Parte práctica disponible</span><span class="sub" id="sri-card-count"></span>'):'<span class="badge">Próximamente</span>')+'</div>';
   sg.appendChild(a);
 });
 
@@ -706,8 +712,8 @@ var lastView='';
 function route(){
   var h=(location.hash||'#inicio').slice(1);
   if(h==='sri')h='sri-dns';
-  var inSri=h.indexOf('sri-')===0,inBd=h==='bd'||h.indexOf('bd-')===0,inSeg=h==='seg'||h.indexOf('seg-')===0,view=inSri?'sri':inBd?'bd':inSeg?'seg':'inicio';
-  $('#view-inicio').hidden=inSri||inBd||inSeg;$('#view-seg').hidden=!inSeg;$('#view-sri').hidden=!inSri;$('#view-bd').hidden=!inBd;
+  var inSri=h.indexOf('sri-')===0,inBd=h==='bd'||h.indexOf('bd-')===0,inSeg=h==='seg'||h.indexOf('seg-')===0,inNube=h==='nube'||h.indexOf('nb-')===0,view=inSri?'sri':inBd?'bd':inSeg?'seg':inNube?'nube':'inicio';
+  $('#view-inicio').hidden=inSri||inBd||inSeg||inNube;$('#view-seg').hidden=!inSeg;$('#view-nube').hidden=!inNube;$('#view-sri').hidden=!inSri;$('#view-bd').hidden=!inBd;
   if(inSri){
     var id=h.slice(4);if(!$('#panel-'+id))id='dns';
     $$('.panel').forEach(function(p){p.hidden=(p.id!=='panel-'+id)});
@@ -1425,6 +1431,579 @@ function route(){
   if(h!=='seg'&&h.indexOf('seg-')!==0)return;
   var id=h.slice(4);if(!$('#segp-'+id))id='estudio';
   $$('#seg-panels .panel').forEach(function(p){p.hidden=(p.id!=='segp-'+id)});
+  $$('a',tabs).forEach(function(a){a.classList.toggle('on',a.getAttribute('data-t')===id)});
+}
+window.addEventListener('hashchange',route);
+start('Todas');newExam();refresh();route();
+})();
+
+</script>
+<script>
+var NQ=[];
+function S(c,img,q,o,e){NQ.push({c:c,img:img||'',q:q,o:o,e:e})}
+var E='EC2 y claves',W='Servidores web',R='SSH y RDP',V='VPC y red',B='EBS',F='EFS',T='S3 e IAM',Z='Comparativas';
+var NIMGALT={
+a_install:'Amazon Linux: sudo dnf install httpd -y',a_start:'Amazon Linux: sudo systemctl start httpd',a_status:'Amazon Linux: systemctl status httpd con active (running)',a_enable:'Amazon Linux: sudo systemctl enable httpd',a_web:'Navegador con la página ASIR - Linux servida por Apache',w_install:'PowerShell: Install-WindowsFeature -name web-server -includemanagementtools',w_web:'Navegador con la página ASIR Windows Server servida por IIS',
+ssh_cmd:'PowerShell: ssh Administrator@IP hacia Windows Server',ssh_ok:'Sesión SSH abierta en Windows Server con prompt de Administrator',ssh_fw:'PowerShell: Set-NetFirewallRule OpenSSH-Server-In-TCP -Profile Public',
+v_sgref:'Regla de entrada HTTP puerto 80 con origen otro grupo de seguridad',v_curl:'Terminal Linux: hostname -I y curl http a la IP privada de Windows',v_ami_menu:'Consola EC2: Acciones, Imagen y plantillas, Crear imagen',v_ami:'Consola EC2: crear imagen AMI-LINUX-ASIR',v_vpc:'Consola VPC: crear VPC-ASIR con CIDR 10.0.0.0/16',v_subnetpick:'Crear subred: elegir entre la VPC predeterminada 172.31.0.0/16 y VPC-ASIR 10.0.0.0/16',v_subnet:'Crear subred SUBNET-PUBLICA-ASIR con CIDR 10.0.1.0/24',v_igw:'Crear gateway de Internet IGW-ASIR',v_attach:'Conectar la gateway de Internet a la VPC',v_route:'Tabla de rutas: local 10.0.0.0/16 y 0.0.0.0/0 hacia la gateway de Internet',
+e_list:'Lista de instancias EC2-LINUX-01 y EC2-LINUX-02 en la misma VPC',e_ping:'Terminal: ping de EC2-LINUX-01 a EC2-LINUX-02 con 0 % de pérdida',e_sg:'Crear grupo de seguridad efs-sg con regla NFS puerto 2049',e_mounts:'EFS: destinos de montaje disponibles por zona de disponibilidad',e_mtsg:'EFS: destino de montaje con el grupo de seguridad efs-sg',e_mount1:'Terminal: mount | grep datos-compartidos con tipo nfs4',e_df1:'Terminal EC2-LINUX-01: df -h con /datos-web de 2 GB y /datos-compartidos de 8 EB',e_df2:'Terminal EC2-LINUX-02: df -h con /datos-compartidos',e_w1:'Terminal EC2-LINUX-01: crea prueba.txt en /datos-compartidos con tee',e_r2:'Terminal EC2-LINUX-02: cat de prueba.txt',e_r1:'Terminal EC2-LINUX-01: cat de prueba2.txt',e_ls:'Terminal EC2-LINUX-02: ls -l de /datos-compartidos con dos archivos',
+s_create:'Crear bucket S3: región, tipo de bucket y espacio de nombres global',s_block:'Crear bucket: Bloquear todo el acceso público activado y control de versiones desactivado',s_folder:'S3: crear carpeta sitios-web',s_folders:'S3: carpetas ciberseguridad, desarrollo y sistemas',s_menu:'Consola EC2: Acciones, Seguridad, Modificar rol de IAM',s_role:'Modificar rol de IAM con LabInstanceProfile',s_sts:'Terminal: aws sts get-caller-identity con assumed-role LabRole',s_ls:'Terminal: aws --version y aws s3 ls',s_find:'Terminal: find /datos-web -type f',s_broken:'Navegador: página web con la imagen rota',s_denied:'Navegador: error XML AccessDenied al abrir el objeto de S3',s_bpa_dlg:'Editar bloqueo de acceso público: ventana de confirmación',s_bpa_off:'Bloquear todo el acceso público: Desactivado',s_policy:'Política de bucket JSON con s3:GetObject y Principal *',s_svg:'Imagen de cabecera cargada directamente desde S3',s_page:'Página web mostrando la imagen servida desde S3'
+};
+
+/* ---------- EC2 y claves ---------- */
+S(E,'',"¿Qué es una instancia EC2?",["Un servidor virtual que se ejecuta en la infraestructura de AWS","Un disco virtual para guardar archivos","Un servicio para almacenar objetos","Una red privada aislada"],"EC2 (Elastic Compute Cloud) es capacidad de cómputo: CPU, RAM, disco, sistema operativo y red.");
+S(E,'',"¿Qué determina el tipo de instancia (por ejemplo t3.micro)?",["La CPU virtual, la memoria RAM y las características de red","El sistema operativo","La región","El tamaño del disco EBS"],"El tipo fija vCPU, RAM y red. El disco es otro recurso (EBS).");
+S(E,'',"¿Qué es una vCPU?",["Un procesador lógico virtual que AWS pone a disposición de la instancia","Un procesador físico dedicado a tu máquina","Un núcleo del PC del alumno","Un tipo de disco SSD"],"AWS usa virtualización: la vCPU es la unidad de proceso que ve el sistema operativo.");
+S(E,'',"Una EC2 se queda corta de memoria. ¿Qué haces y cómo se llama?",["Cambiar a un tipo con más RAM, normalmente parando antes la instancia: escalabilidad vertical (scale up)","Crear otra EC2 igual y repartir carga: escalabilidad vertical","Añadir un volumen EBS: escalabilidad horizontal","Cambiar la región: scale out"],"Vertical = más recursos a la misma máquina (también se puede bajar: scale down).");
+S(E,'',"¿Por qué no elegimos una instancia de 16 vCPU y 64 GiB para practicar SSH?",["Sobredimensionar también cuesta: hay que ajustar los recursos a la necesidad","Porque AWS no permite tipos grandes","Porque SSH no funciona en máquinas grandes","Porque la red se ralentiza"],"Dimensionar según necesidades es una idea clave de arquitectura cloud.");
+S(E,'',"¿Qué es una AMI?",["La imagen que se usa como punto de partida para crear instancias","Un volumen que guarda los datos","Una regla de firewall","El par de claves de acceso"],"Amazon Machine Image: sistema operativo y configuración a partir de los que se lanza la EC2.");
+S(E,'',"¿Para qué sirve un par de claves en EC2?",["Para autenticarte: en Linux entras por SSH con la .pem y en Windows sirve para descifrar la contraseña de Administrator","Para cifrar los volúmenes EBS","Para abrir puertos en el grupo de seguridad","Para elegir la región"],"La clave privada (.pem) no se comparte ni se publica.");
+S(E,'',"En un laboratorio de AWS Academy, ¿qué NO debes hacer con la clave vockey?",["Eliminarla para recrearla: es un recurso gestionado por el entorno","Descargarla","Usarla para SSH","Seleccionarla al lanzar la EC2"],"En el Learner Lab vockey la gestiona el laboratorio.");
+S(E,'',"¿Qué es un Security Group?",["Un firewall virtual que controla el tráfico de entrada y salida de las instancias","Un grupo de usuarios IAM","Una subred","Una copia de seguridad"],"Se compone de reglas: tipo, protocolo, puerto y origen.");
+S(E,'',"Regla de entrada: RDP, TCP, 3389, origen «Mi IP». ¿Qué permite?",["Conexiones de escritorio remoto solo desde tu IP pública","Conexiones RDP desde cualquier IP","Tráfico web desde Internet","Conexiones SSH desde tu IP"],"Se limita para no exponer un servicio de administración a cualquiera.");
+S(E,'',"¿Por qué para RDP se usa «Mi IP» y para HTTP puede usarse 0.0.0.0/0?",["RDP es de administración y no debe verlo cualquiera; un servidor web público existe para recibir peticiones de Internet","Porque HTTP es más seguro que RDP","Porque 0.0.0.0/0 no funciona con RDP","Porque HTTP usa UDP"],"Mínimo acceso necesario: cada servicio se abre solo a quien debe usarlo.");
+S(E,'',"¿Qué indica el estado pending de una instancia?",["AWS está preparando y arrancando la instancia; luego pasará a running","La instancia está detenida","La instancia ha sido terminada","Falla la autenticación"],"En Windows, aunque esté running, puede tardar unos minutos en terminar de inicializarse.");
+S(E,'',"¿Cómo obtienes la contraseña de Administrator en una EC2 Windows?",["Conectar, Cliente RDP, Obtener contraseña y subir la clave privada .pem para descifrarla","Se envía por correo","Es siempre «Administrator»","Se genera con aws configure"],"El usuario es Administrator y la clave inicial se descifra con la .pem.");
+S(E,'',"¿Qué puerto usa RDP y qué puerto usa SSH?",["RDP: TCP 3389; SSH: TCP 22","RDP: TCP 22; SSH: TCP 3389","RDP: UDP 53; SSH: TCP 80","RDP: TCP 443; SSH: TCP 21"],"Son los puertos que hay que abrir en el Security Group.");
+S(E,'',"¿Qué ocurre con el nombre ASIR-LINUX-01 que pones al crear la instancia?",["Se guarda como una etiqueta (tag) para identificar el recurso","Es el nombre del sistema operativo","Es el nombre del grupo de seguridad","Cambia el hostname y la IP"],"La clave de la etiqueta es Name.");
+S(E,'',"¿Qué debes comprobar antes de lanzar una instancia respecto a la región?",["Que sea la correcta, porque los recursos quedan asociados a ella","Nada: las instancias no dependen de la región","Que coincida con la zona horaria del PC","Que sea la misma que tu IP"],"Las VPC y otros recursos también son regionales.");
+S(E,'',"¿Para qué sirve una IP pública en una EC2 de práctica?",["Para conectarte desde tu PC a través de Internet","Para que dos instancias se comuniquen entre sí dentro de la VPC","Para cifrar el tráfico","Para montar EFS"],"La comunicación interna usa la IP privada.");
+
+/* ---------- Servidores web ---------- */
+S(W,'a_install',"¿Qué hace este comando en Amazon Linux 2023?",["Instala Apache (paquete httpd) con el gestor dnf","Arranca el servicio Apache","Crea la página index.html","Abre el puerto 80 en AWS"],"dnf es el gestor de paquetes de Amazon Linux 2023; -y acepta automáticamente.");
+S(W,'a_start',"¿Qué hace este comando?",["Arranca ahora el servicio httpd, pero no lo deja activado para el próximo arranque","Instala httpd","Lo habilita al arrancar","Muestra su estado"],"start inicia el servicio; enable lo hace arrancar automáticamente.");
+S(W,'a_enable',"¿Qué diferencia hay entre systemctl start httpd y systemctl enable httpd?",["start lo arranca ahora; enable hace que arranque automáticamente con el sistema","start lo instala; enable lo abre al exterior","Son iguales","enable lo arranca ahora; start lo hace permanente"],"En la captura enable crea el enlace en multi-user.target.wants.");
+S(W,'a_status',"En la captura aparece «active (running)» y «disabled; preset: disabled». ¿Qué significa?",["El servicio está funcionando ahora pero aún no está habilitado para arrancar solo","El servicio está parado","El servicio está habilitado y parado","El servicio ha fallado"],"Por eso después se ejecuta systemctl enable httpd.");
+S(W,'a_status',"¿Qué comando muestra este estado del servicio?",["systemctl status httpd","systemctl enable httpd","dnf install httpd","curl localhost"],"Muestra PID, memoria, CGroup y últimos logs.");
+S(W,'a_web',"El navegador muestra la página al usar la IP pública. ¿Qué tiene que estar abierto en el Security Group?",["HTTP, TCP 80","RDP, TCP 3389","SSH, TCP 22","NFS, TCP 2049"],"Sin esa regla de entrada, la petición no llegaría al servidor.");
+S(W,'a_web',"¿En qué carpeta se guarda la página por defecto de Apache en Amazon Linux?",["/var/www/html","C:\\inetpub\\wwwroot","/etc/httpd","/datos-compartidos"],"La práctica usa tee para escribir index.html en /var/www/html.");
+S(W,'w_install',"¿Qué hace este comando?",["Instala el rol Web Server (IIS) con sus herramientas de administración","Instala Apache","Abre el puerto 80","Instala OpenSSH Server"],"Es la forma de PowerShell; la gráfica es Server Manager, Add Roles and Features.");
+S(W,'w_web',"¿Qué servicio web está respondiendo en esta captura?",["IIS, el servidor web de Microsoft en Windows Server","Apache en Linux","Nginx","OpenSSH"],"IIS = Internet Information Services.");
+S(W,'w_web',"¿Cuál es la carpeta por defecto de IIS?",["C:\\inetpub\\wwwroot","/var/www/html","C:\\Windows","C:\\Program Files"],"Allí se sustituye index.html.");
+S(W,'',"¿Qué diferencia hay entre Roles, Features y Capabilities en Windows Server?",["Roles: funciones principales (IIS, DNS, DHCP); Features: funcionalidades adicionales; Capabilities: componentes opcionales (OpenSSH)","Son sinónimos","Roles: componentes opcionales; Capabilities: funciones principales","Features son los usuarios y Roles los permisos"],"IIS es un rol; OpenSSH Server es una capacidad opcional.");
+S(W,'',"¿IIS es un rol o una capacidad?",["Un rol","Una capacidad","Una característica del kernel","Un tipo de instancia"],"OpenSSH Server, en cambio, es una capacidad.");
+S(W,'',"¿Qué comando lista las capacidades de Windows y cuál lista los roles?",["Get-WindowsCapability -Online y Get-WindowsFeature","Get-Service y Get-NetTCPConnection","Get-ComputerInfo y ipconfig","dnf list y systemctl"],"Se puede filtrar: Where-Object Name -like 'OpenSSH*'.");
+S(W,'',"¿Qué comprueba Get-NetTCPConnection -LocalPort 80 -State Listen?",["Si hay algo escuchando en el puerto TCP 80","Si el puerto está abierto en el Security Group","Si Internet llega a la instancia","Si IIS está instalado"],"Es parte del diagnóstico local del servicio.");
+S(W,'',"Si desde Windows http://localhost funciona pero desde tu PC no, ¿qué revisas primero?",["El Security Group (regla HTTP 80) y el firewall","Que IIS esté instalado","El nombre de la instancia","La versión de PowerShell"],"Funciona localmente: el servicio está bien; falla el camino de red.");
+S(W,'',"¿Para qué sirve Test-NetConnection IP_PÚBLICA -Port 80 ejecutado desde tu PC?",["Comprobar si desde tu equipo llegas al puerto 80 del servidor","Instalar IIS","Cambiar el Security Group","Ver la IP privada"],"Diferencia así un problema de servicio de uno de red.");
+S(W,'',"¿Qué hace curl http://IP_PÚBLICA cuando responde StatusCode 200?",["Pide la página y 200 OK indica que el servidor respondió correctamente","Instala el servicio","Abre el puerto","Genera un error 404"],"200 = OK en HTTP.");
+S(W,'',"¿Por qué Linux y Windows no usan el mismo servicio web en la práctica?",["Cada sistema usa su servidor habitual: Apache (httpd) en Linux e IIS en Windows","Porque Apache no existe para Windows","Porque IIS solo funciona en AWS","Porque HTTP es distinto"],"Ambos usan HTTP en TCP 80; cambia el software.");
+S(W,'',"¿Qué diferencia hay entre HTTP y HTTPS?",["HTTPS es HTTP cifrado con TLS y usa TCP 443; HTTP usa TCP 80","HTTPS usa UDP","HTTP es más seguro","Usan el mismo puerto"],"En la práctica solo se abre el puerto 80.");
+
+/* ---------- SSH y RDP ---------- */
+S(R,'ssh_cmd',"¿Qué hace este comando?",["Abre una sesión SSH en el Windows Server como Administrator","Abre un escritorio remoto RDP","Copia un archivo","Instala OpenSSH"],"Para que funcione, OpenSSH Server debe estar instalado y escuchando en el 22, y el puerto abierto en el Security Group.");
+S(R,'ssh_fw',"¿Qué hace Set-NetFirewallRule -Name \"OpenSSH-Server-In-TCP\" -Profile Public?",["Aplica la regla del firewall de Windows para SSH también al perfil de red Public","Abre el puerto 22 en el Security Group de AWS","Desinstala OpenSSH","Cierra el puerto 22"],"Windows detecta la red de la instancia como Public, así que la regla de OpenSSH debe aplicarse a ese perfil.");
+S(R,'ssh_fw',"Si SSH no conecta aunque el Security Group abre el 22, ¿qué otra capa puedes revisar?",["El firewall de Windows (regla OpenSSH-Server-In-TCP y su perfil)","La clave vockey","El tipo de instancia","El volumen EBS"],"Hay dos firewalls: el Security Group de AWS y el del sistema operativo.");
+S(R,'ssh_ok',"El prompt dice administrator@EC2AMAZ-… C:\\Users\\Administrator>. ¿Qué demuestra?",["Que estás dentro del Windows de AWS administrándolo en remoto, no tu PC local","Que usas el Windows de tu PC","Que el servidor está apagado","Que estás en Linux"],"Se comprueba con hostname, ipconfig o Get-ComputerInfo.");
+S(R,'',"¿Qué diferencia hay entre acceder a una EC2 por SSH y por RDP?",["SSH da una consola de texto (TCP 22); RDP da escritorio gráfico (TCP 3389)","SSH es gráfico y RDP es de texto","Los dos usan el 3389","SSH solo se usa en Windows"],"Linux suele administrarse por SSH y Windows por RDP, aunque Windows también admite SSH.");
+S(R,'',"¿Cómo se entra por SSH a una instancia Amazon Linux?",["ssh -i clave.pem ec2-user@IP_PUBLICA","rdp ec2-user@IP","scp clave.pem IP","mstsc IP"],"El usuario por defecto en Amazon Linux es ec2-user.");
+S(R,'',"¿Con qué programa te conectas por RDP desde un PC Windows?",["mstsc (Conexión a Escritorio remoto)","ssh","curl","aws s3 ls"],"Introduces la IP pública, el usuario Administrator y la contraseña descifrada.");
+S(R,'',"¿Qué comprueba Get-Service sshd?",["Si el servicio OpenSSH Server está funcionando","Si IIS está instalado","Si el puerto 22 está abierto en AWS","La IP pública"],"Se completa con Get-NetTCPConnection -LocalPort 22 -State Listen.");
+S(R,'',"¿Por qué conviene restringir SSH a «Mi IP» en vez de 0.0.0.0/0?",["Porque reduce la exposición de un servicio de administración a Internet","Porque 0.0.0.0/0 bloquea SSH","Porque AWS lo obliga","Porque mejora la velocidad"],"0.0.0.0/0 significa cualquier IPv4 del mundo.");
+
+/* ---------- VPC y red ---------- */
+S(V,'v_vpc',"¿Qué estás creando en esta captura?",["Una VPC (red aislada en AWS) con el bloque 10.0.0.0/16","Una subred","Un grupo de seguridad","Una AMI"],"VPC-ASIR: Solo la VPC, CIDR 10.0.0.0/16, sin IPv6.");
+S(V,'v_vpc',"¿Qué es una VPC?",["Una red virtual privada y aislada dentro de AWS donde se despliegan los recursos","Un servidor web","Un tipo de volumen","Un servicio de DNS"],"Virtual Private Cloud. Es un recurso regional.");
+S(V,'v_vpc',"El bloque 10.0.0.0/16 de la VPC y la subred 10.0.1.0/24 ¿qué relación tienen?",["La subred es un trozo (256 IPs) dentro del rango de la VPC","Son redes independientes","La subred es mayor que la VPC","Deben tener el mismo CIDR"],"El CIDR de la subred debe estar dentro del de la VPC.");
+S(V,'v_subnetpick',"¿Qué muestran las dos opciones del desplegable?",["La VPC predeterminada (172.31.0.0/16) y VPC-ASIR (10.0.0.0/16): son redes diferentes","Dos subredes","Dos grupos de seguridad","Dos regiones"],"Estar en la misma cuenta no implica que haya comunicación privada entre ellas.");
+S(V,'v_subnet',"¿Qué crea esta pantalla?",["La subred SUBNET-PUBLICA-ASIR (10.0.1.0/24) dentro de VPC-ASIR en una zona de disponibilidad","La VPC","La tabla de rutas","El Security Group"],"Una subred pertenece a una única zona de disponibilidad.");
+S(V,'v_igw',"¿Para qué sirve un Internet Gateway?",["Conecta la VPC con Internet (entrada y salida)","Cifra el tráfico","Asigna IP privadas","Reparte carga"],"Es un router virtual: conecta la VPC a Internet.");
+S(V,'v_attach',"¿Por qué hay que «Conectar a la VPC» el Internet Gateway tras crearlo?",["Porque al crearlo está sin asociar y no sirve hasta enlazarlo con una VPC","Porque se borra solo","Porque se crea en otra región","Porque cambia el CIDR"],"Si no está asociado, la VPC no se comunica con Internet.");
+S(V,'v_route',"¿Qué significa la Ruta 2 (0.0.0.0/0 → igw-…)?",["Todo el tráfico que no es de la VPC sale a Internet por la gateway","Tráfico local de la VPC","Bloquea Internet","Envía todo a otra VPC"],"0.0.0.0/0 es la ruta por defecto: «cualquier destino».");
+S(V,'v_route',"¿Qué es la Ruta 1 (10.0.0.0/16 → local)?",["La ruta que permite la comunicación dentro de la propia VPC","La salida a Internet","La ruta hacia EFS","La ruta de la AMI"],"Se crea automáticamente en la tabla de rutas.");
+S(V,'v_route',"Una subred es «pública» cuando...",["Su tabla de rutas tiene una ruta a un Internet Gateway","Tiene IPs que empiezan por 10","Tiene muchos hosts","No tiene Security Group"],"Una subred sin esa ruta es privada.");
+S(V,'v_sgref',"En el origen de la regla HTTP aparece sg-… en vez de una IP. ¿Qué significa?",["Solo permite HTTP desde las instancias asociadas a ese Security Group","Permite HTTP desde Internet","Bloquea HTTP","Es la IP del servidor"],"Así no se abre el servicio a todo Internet.");
+S(V,'v_sgref',"¿Por qué usar un Security Group como origen y no 0.0.0.0/0?",["Porque abre el servicio solo a las instancias necesarias, no a todo Internet","Porque 0.0.0.0/0 no admite HTTP","Porque es más rápido","Porque no se necesita puerto"],"Principio de mínimo privilegio.");
+S(V,'v_curl',"¿Qué demuestra este curl a una IP 172.31.x.x?",["Que dos instancias se comunican por IP privada dentro de la VPC si el Security Group lo permite","Que Windows tiene IP pública","Que IIS está caído","Que SSH funciona"],"La respuesta es la página de IIS.");
+S(V,'v_curl',"¿Qué hace hostname -I?",["Muestra las direcciones IP de la máquina Linux","Cambia el nombre del equipo","Muestra la IP pública","Lista los puertos abiertos"],"Equivale a ver la IP privada con ip addr.");
+S(V,'v_curl',"¿Por qué la comunicación entre las dos máquinas usa la IP privada y no la pública?",["Porque es tráfico interno de la VPC: no sale a Internet","Porque la pública no existe","Porque la pública es más segura","Porque curl no admite públicas"],"La pública se usa para administrar desde tu PC.");
+S(V,'v_ami_menu',"¿Qué estás haciendo en este menú?",["Crear una imagen (AMI) a partir de una instancia ya configurada","Terminar la instancia","Cambiar el tipo de instancia","Crear un volumen"],"Acciones, Imagen y plantillas, Crear imagen.");
+S(V,'v_ami',"¿Por qué «Reiniciar instancia» aparece marcado al crear la AMI?",["Para que los datos estén en reposo y la copia sea consistente","Para cambiar la IP","Para que cueste menos","Para borrar el volumen"],"Garantiza la coherencia de los datos al tomar las instantáneas.");
+S(V,'v_ami',"En «Volúmenes de instancia» aparece un EBS de 8 GiB. ¿Qué indica?",["Que la AMI incluye el volumen del sistema como EBS","Que usa S3","Que usa EFS","Que no tiene disco"],"Las AMI respaldadas por EBS usan snapshots del volumen.");
+S(V,'',"¿Se puede mover una EC2 ya creada a otra VPC cambiando su red?",["No: su interfaz de red está asociada a una subred y VPC; hay que crear una AMI y lanzar una nueva","Sí, editando la subred","Sí, reiniciando","Sí, con un snapshot de la VPC"],"Por eso se diseña la red antes de desplegar instancias.");
+S(V,'',"¿Qué conserva una AMI y qué se decide al desplegar la nueva instancia?",["La AMI conserva sistema y configuración; la red (VPC, subred, SG, IP) se elige al desplegar","La AMI conserva la red; la configuración se elige después","Conserva solo el SO","Conserva las IP públicas"],"Así se rediseña la arquitectura sin perder el trabajo hecho.");
+S(V,'',"¿Un Security Group pertenece a una instancia o a una VPC?",["A una VPC: se puede asociar a distintas instancias de esa VPC","A una instancia concreta","A una región cualquiera","A una AMI"],"Al desplegar en VPC-ASIR hay que crear SG nuevos en esa VPC.");
+S(V,'',"¿Qué diferencia hay entre un Security Group y una Network ACL?",["El Security Group protege instancias; la Network ACL filtra a nivel de subred","El Security Group filtra a nivel de subred y la ACL a nivel de instancia","Son lo mismo","La ACL es solo de S3"],"En el material de VPC aparecen como servicios del mismo panel.");
+S(V,'',"¿Por qué es buena práctica eliminar recursos que ya no se usan?",["Porque detener no elimina todo ni evita todo el consumo: volúmenes, Elastic IP y SG antiguos pueden quedar","Porque AWS los borra solo","Porque ocupan la VPC","Porque rompen la AMI"],"Antes de borrar, se comprueba que el nuevo despliegue funciona.");
+S(V,'',"¿Qué recursos antiguos conviene revisar tras la limpieza?",["Instancias antiguas, volúmenes EBS sin usar, Elastic IP y Security Groups de prácticas anteriores","Solo las AMI nuevas","Solo la VPC predeterminada","Solo los logs"],"En la nube hay que saber identificar, administrar y eliminar.");
+
+/* ---------- EBS ---------- */
+S(B,'',"¿Qué es Amazon EBS?",["Almacenamiento en bloques: un disco virtual que usa una EC2","Almacenamiento de objetos","Un sistema de archivos compartido","Un servicio de red"],"EC2 es el cómputo y EBS el almacenamiento: recursos distintos.");
+S(B,'',"¿Ya usabas EBS antes de estudiarlo?",["Sí: el volumen raíz de cada EC2 guarda el sistema operativo","No: se introduce después","Solo en Windows","Solo con S3"],"Amazon Linux y Windows Server arrancan desde un EBS raíz.");
+S(B,'',"¿Cuál es el punto de montaje del sistema principal en Linux y en Windows?",["/ en Linux y C:\\ en Windows","C:\\ en Linux y / en Windows","/datos en ambos","D:\\ en ambos"],"El EBS raíz contiene el sistema operativo.");
+S(B,'',"Para asociar un volumen EBS a una EC2, ¿qué deben compartir?",["La misma zona de disponibilidad (AZ)","Solo la misma región","El mismo nombre","El mismo Security Group"],"No basta con que estén en la misma región.");
+S(B,'',"¿Qué tipo de volumen se usa en la práctica y en qué se basa?",["General Purpose SSD (gp3), basado en SSD y de propósito general","Magnético en frío","S3 Standard","EFS Elastic"],"gp3 es adecuado para cargas generales.");
+S(B,'e_df1',"En df -h, /dev/nvme1n1 de 2 GB montado en /datos-web, ¿qué es?",["Un volumen EBS adicional con su sistema de archivos montado","El volumen raíz","El EFS","Un bucket S3"],"El raíz es /dev/nvme0n1p1 montado en /.");
+S(B,'',"Creas un EBS nuevo y lo asocias. ¿Puedes guardar archivos ya?",["No: hay que crear el sistema de archivos y montarlo","Sí, inmediatamente","Sí, si es SSD","Solo en Windows"],"Cadena: dispositivo, partición (opcional), sistema de archivos, punto de montaje.");
+S(B,'',"¿Qué comando de Linux permite ver el nuevo dispositivo de bloques?",["lsblk","df -h /datos","mount -t efs","aws s3 ls"],"Después se crea XFS y se monta, por ejemplo, en /datos-web.");
+S(B,'',"¿Qué diferencia hay entre MBR/GPT y XFS/ext4/NTFS?",["MBR y GPT son esquemas de particionado; XFS, ext4 y NTFS son sistemas de archivos","Todos son sistemas de archivos","Todos son tablas de particiones","MBR es un sistema de archivos"],"No hay que confundir EBS (bloques), GPT (particiones), XFS (sistema de archivos) y / (punto de montaje).");
+S(B,'',"¿Qué diferencia principal hay entre MBR y GPT?",["GPT es más moderno, admite discos mayores y más particiones y se asocia a UEFI","MBR es más moderno","GPT solo admite 4 particiones","No hay diferencias"],"MBR es el esquema tradicional.");
+S(B,'',"Montas un EBS con mount. ¿Se monta solo tras reiniciar?",["No: para que sea persistente hay que configurarlo en /etc/fstab","Sí, siempre","Sí, si es gp3","Solo si es raíz"],"Un montaje manual no persiste tras el reinicio.");
+S(B,'',"En /etc/fstab, ¿es mejor identificar el sistema de archivos por UUID o por nombre de dispositivo?",["Por UUID, porque el nombre del dispositivo puede cambiar entre arranques","Por nombre, porque nunca cambia","Da igual","Por IP"],"No conviene depender solo del nombre de dispositivo.");
+S(B,'',"Paras una EC2. ¿Qué pasa con los datos de su volumen EBS?",["Se conservan: EBS es almacenamiento persistente","Se borran","Pasan a S3","Pasan a EFS"],"Conservar los datos no es lo mismo que estar montado.");
+S(B,'',"¿Qué significa «Delete on termination»?",["Si el volumen se elimina al terminar la instancia; el raíz suele tenerlo activado","Si el volumen se cifra al parar","Si el volumen se copia a S3","Si la AMI se borra"],"Por eso «los EBS nunca desaparecen» no es del todo correcto.");
+S(B,'',"¿Qué es un snapshot de EBS?",["Una copia, en un momento dado, del contenido de un volumen que sirve para restaurarlo o crear volúmenes","Una AMI","Un volumen duplicado en vivo","Una regla de firewall"],"Los snapshots son incrementales tras el primero.");
+S(B,'',"¿Qué diferencia hay entre una AMI y un snapshot de EBS?",["La AMI es la plantilla para lanzar EC2; el snapshot es la copia del almacenamiento de un volumen","Son lo mismo","El snapshot lanza instancias","La AMI guarda solo datos"],"Las AMI respaldadas por EBS usan snapshots: por eso se relacionan.");
+S(B,'',"¿Qué significa que los snapshots sean incrementales?",["Tras el primero, se guardan los bloques que han cambiado","Cada uno copia siempre todo","Solo guardan archivos nuevos","Se borran solos"],"Para el usuario cada snapshot es un punto de recuperación.");
+
+/* ---------- EFS ---------- */
+S(F,'',"¿Qué es Amazon EFS?",["Un sistema de archivos compartido al que pueden acceder varias EC2","Un disco para una sola EC2","Un almacén de objetos","Un servicio de DNS"],"Elastic File System.");
+S(F,'',"¿Qué protocolo usa EFS y qué puerto?",["NFS, TCP 2049","SMB, TCP 445","FTP, TCP 21","HTTP, TCP 80"],"Por eso el Security Group del EFS permite NFS 2049.");
+S(F,'',"¿Qué es NFS?",["Un protocolo para acceder a un sistema de archivos remoto a través de la red","Un sistema de archivos como XFS","Un tipo de disco","Un servicio de AWS"],"NFS es habitual en Linux/Unix; SMB en Windows.");
+S(F,'',"¿Qué diferencia hay entre XFS, NFS y EFS?",["XFS es un sistema de archivos; NFS es un protocolo de red; EFS es un servicio de AWS","Los tres son protocolos","Los tres son servicios de AWS","XFS es un servicio y EFS un protocolo"],"EFS usa NFS para acceder a los archivos.");
+S(F,'',"¿Por qué la práctica de EFS usa dos EC2 Linux y no una Windows?",["Porque EFS está basado en NFS y no es el equivalente natural de un recurso compartido SMB de Windows","Porque Windows no tiene red","Porque EFS no funciona con IIS","Porque Windows no se puede montar nunca"],"Lo más limpio es trabajar con dos clientes Linux.");
+S(F,'e_list',"Las dos EC2-LINUX están en la misma VPC. ¿Por qué importa?",["Para que puedan comunicarse por IP privada y usar los destinos de montaje de EFS de esa VPC","Para tener la misma IP pública","Para compartir disco EBS","Para tener la misma AMI"],"EFS se crea en la misma VPC.");
+S(F,'e_ping',"¿Qué demuestra este ping entre instancias y qué hizo falta en el Security Group?",["Que se comunican por IP privada; hizo falta permitir ICMP (ping) entre ellas","Que hay Internet","Que EFS está montado","Que ambas son Windows"],"4 enviados, 4 recibidos, 0 % de pérdida.");
+S(F,'e_sg',"¿Qué regla crea efs-sg?",["NFS (TCP 2049) con origen el grupo de seguridad de las instancias","SSH desde Mi IP","HTTP desde 0.0.0.0/0","RDP desde Mi IP"],"Solo las instancias de ese grupo pueden acceder al EFS.");
+S(F,'e_mounts',"¿Qué es un destino de montaje (mount target) de EFS?",["Un punto de acceso de red al EFS creado por zona de disponibilidad de la VPC","Un volumen EBS","Un bucket","Una AMI"],"Cada uno está en una subred y tiene su propio Security Group.");
+S(F,'e_mtsg',"¿Por qué el destino de montaje usa el grupo efs-sg?",["Para que el tráfico NFS 2049 hacia el EFS esté controlado por ese grupo","Para abrir SSH","Para elegir la región","Para elegir la AMI"],"Si el SG no permite NFS, el montaje falla.");
+S(F,'e_mount1',"¿Qué muestra mount | grep datos-compartidos?",["Que /datos-compartidos es un sistema nfs4 montado, o sea, EFS accedido por red","Que es un disco EBS","Que es un bucket","Que es una partición XFS"],"Aparece type nfs4 y 127.0.0.1 por el montaje mediante la herramienta de EFS, que usa un túnel local.");
+S(F,'e_df1',"En esta captura, ¿qué diferencia ves entre /datos-web y /datos-compartidos?",["/datos-web es un EBS de 2 GB; /datos-compartidos es EFS, un sistema de archivos de capacidad enorme (8 EB) accedido por red","Los dos son EBS","Los dos son EFS","/datos-web es S3"],"EFS crece automáticamente: df muestra 8.0E.");
+S(F,'e_df2',"La segunda instancia también muestra 127.0.0.1:/ en /datos-compartidos. ¿Qué significa?",["Que ambas están montando el mismo sistema de archivos EFS","Que cada una tiene su propio disco","Que hay dos EFS","Que es un volumen local"],"Por eso comparten archivos.");
+S(F,'e_w1',"¿Qué hace echo \"…\" | sudo tee /datos-compartidos/prueba.txt?",["Escribe el texto y lo guarda como archivo en el EFS, mostrándolo también por pantalla","Lee el archivo","Borra el archivo","Monta EFS"],"Se usa tee con sudo porque la redirección normal no tendría permisos.");
+S(F,'e_r2',"El archivo creado en EC2-LINUX-01 se lee desde EC2-LINUX-02. ¿Qué demuestra?",["Que las dos instancias ven los mismos archivos: el almacenamiento es compartido","Que EBS se ha copiado","Que hay replicación manual","Que el archivo está en S3"],"Con EBS, un volumen normal no ofrece esto.");
+S(F,'e_r1',"Se crea prueba2.txt en LINUX-02 y se lee en LINUX-01. ¿Qué añade?",["Que la compartición funciona en los dos sentidos","Que solo LINUX-01 escribe","Que EFS es de solo lectura","Que hay conflicto"],"Ambas instancias leen y escriben.");
+S(F,'e_ls',"¿Qué archivos aparecen en /datos-compartidos?",["prueba.txt y prueba2.txt, creados desde instancias diferentes","Solo prueba.txt","Los de /datos-web","Los de S3"],"Es el contenido del EFS.");
+S(F,'',"Dos servidores web Apache necesitan servir los mismos archivos. ¿Qué almacenamiento encaja mejor?",["EFS","Un EBS por servidor","S3 montado como disco","Instance store"],"Un archivo en EFS desde EC2-01 también está en EC2-02.");
+
+/* ---------- S3 e IAM ---------- */
+S(T,'s_create',"¿Qué debe cumplir el nombre de un bucket de S3?",["Seguir las reglas de AWS y ser único globalmente","Ser igual al de la instancia","Ser único solo en tu VPC","Empezar por s3-"],"Conviene un nombre específico, por ejemplo asir-web-grupo-identificador.");
+S(T,'s_create',"¿Qué es un bucket?",["El contenedor en el que se almacenan los objetos de S3","Un tipo de volumen","Una carpeta de Linux","Una subred"],"Un objeto tiene datos, metadatos y una clave (key).");
+S(T,'s_block',"En el bucket recién creado está activado «Bloquear todo el acceso público». ¿Qué implica?",["Que los objetos no son públicos por defecto aunque estén en S3","Que cualquiera puede leer","Que el bucket está vacío","Que está cifrado con KMS"],"Subir un archivo no equivale a hacerlo público.");
+S(T,'s_block',"El control de versiones aparece en «Desactivar». ¿Qué ocurriría al habilitarlo?",["Se conservarían diferentes versiones de un mismo objeto","El bucket sería público","Los objetos se borrarían solos","Se cifraría el bucket"],"Sirve para recuperar un objeto modificado por error. No es obligatorio.");
+S(T,'s_folder',"¿Las «carpetas» de S3 son directorios reales?",["No: es un modelo de bucket y objetos con claves; la consola las presenta como carpetas","Sí, igual que en EBS","Sí, con permisos Linux","Sí, con NTFS"],"Una clave como sitios-web/sistemas/imagenes/servidor.jpg organiza por prefijos.");
+S(T,'s_folders',"¿Qué ves en esta captura?",["Tres prefijos (carpetas) dentro del bucket: ciberseguridad, desarrollo y sistemas","Tres buckets","Tres volúmenes","Tres instancias"],"La estructura replica la de /datos-web.");
+S(T,'s_menu',"Acciones, Seguridad, Modificar rol de IAM. ¿Para qué?",["Asociar un rol IAM a la instancia para que acceda a S3 sin guardar claves","Cambiar el tipo de instancia","Crear un bucket","Abrir un puerto"],"En Learner Lab se usa el rol del entorno (LabRole).");
+S(T,'s_role',"¿Qué estás haciendo aquí?",["Asociando el perfil de instancia con LabRole a la EC2","Creando un usuario","Creando un bucket","Cambiando de región"],"El perfil de instancia entrega credenciales temporales a la EC2.");
+S(T,'s_sts',"¿Qué hace aws sts get-caller-identity y qué significa assumed-role/LabRole?",["Muestra con qué identidad actúa la CLI; assumed-role indica que usa las credenciales temporales del rol","Lista los buckets","Crea un rol","Instala la CLI"],"Es la comprobación antes de trabajar con S3.");
+S(T,'s_ls',"¿Qué hace aws s3 ls sin más parámetros?",["Lista los buckets a los que tienes acceso","Lista los objetos de un bucket concreto","Sube un archivo","Borra el bucket"],"Para un bucket: aws s3 ls s3://NOMBRE/.");
+S(T,'s_ls',"¿Para qué sirve aws --version antes de instalar nada?",["Comprobar si la CLI ya está instalada, algo habitual en Amazon Linux","Comprobar las credenciales","Listar buckets","Actualizar la CLI"],"Si sale aws-cli/2.x ya está disponible.");
+S(T,'s_find',"¿Qué hace find /datos-web -type f?",["Lista todos los archivos (no directorios) del árbol /datos-web","Borra archivos","Copia a S3","Monta el volumen"],"Sirve para saber qué se va a subir a S3.");
+S(T,'s_broken',"La página carga pero la imagen de cabecera sale rota tras apuntarla a S3. ¿Qué causa es la más probable?",["El objeto no es público: S3 devuelve AccessDenied","La instancia está parada","Falta Apache","Falta el puerto 22"],"Subir a S3 no hace público el objeto.");
+S(T,'s_denied',"¿Qué indica este XML con AccessDenied?",["Que S3 responde, pero el objeto no se puede leer públicamente","Que el bucket no existe","Que no hay Internet","Que la CLI no tiene credenciales"],"Es una respuesta de S3 por autorización, no un fallo de red.");
+S(T,'s_bpa_dlg',"¿Qué te advierte esta ventana?",["Que cambiar el bloqueo de acceso público afecta a todo el bucket y puede hacer públicos algunos objetos","Que se borrará el bucket","Que se cobra más","Que se cambiará de región"],"Hay que escribir «confirmar».");
+S(T,'s_bpa_off',"Con Block Public Access desactivado, ¿ya es público el contenido?",["No: solo se permite que una política lo haga público; hace falta una bucket policy","Sí, todo es público","Sí, solo las carpetas","No, aunque haya política"],"Son dos decisiones distintas.");
+S(T,'s_policy',"¿Qué permite esta bucket policy?",["Que cualquiera (Principal *) lea (s3:GetObject) los objetos bajo sitios-web/","Que cualquiera escriba en el bucket","Que solo LabRole lea","Que se liste el bucket"],"Resource termina en sitios-web/*: solo ese prefijo es público.");
+S(T,'s_policy',"¿Por qué la política limita el Resource a sitios-web/* y no a todo el bucket?",["Principio de mínimo privilegio: solo se publica lo necesario","Porque el * no se admite en el bucket","Porque lo exige AWS","Para ahorrar costes"],"Evita exponer otros objetos.");
+S(T,'s_svg',"Tras la política, la URL del objeto muestra la imagen. ¿Qué ha cambiado?",["Ahora la política permite la lectura pública de ese objeto","El objeto se movió a EBS","La instancia se reinició","Se cambió el rol IAM"],"Antes devolvía AccessDenied.");
+S(T,'s_page',"¿Qué demuestra esta página?",["Que no todo el contenido de una aplicación tiene que estar en el EBS del servidor web","Que EFS está montado","Que S3 es un disco","Que Apache está en S3"],"La HTML está en EC2 y la imagen se sirve desde S3.");
+S(T,'',"¿Qué contiene un objeto de S3?",["Datos y metadatos, identificado por una clave dentro del bucket","Solo un archivo sin metadatos","Un sistema de archivos","Una partición"],"S3 no se presenta a la EC2 como disco de bloques.");
+S(T,'',"¿Qué diferencia hay entre durabilidad y disponibilidad?",["Durabilidad: probabilidad de conservar los datos; disponibilidad: poder acceder al servicio cuando se necesita","Son lo mismo","Durabilidad es velocidad y disponibilidad es coste","Disponibilidad es probabilidad de no perder datos"],"S3 Standard está diseñado para 11 nueves de durabilidad.");
+S(T,'',"¿Para qué sirven las clases de almacenamiento de S3?",["Adaptar el almacenamiento al patrón de acceso, disponibilidad y coste","Dar más velocidad a la CLI","Cambiar la región","Cifrar el bucket"],"Por ejemplo Standard, Intelligent-Tiering, Standard-IA, One Zone-IA o Glacier.");
+S(T,'',"¿Qué clase de S3 usa la práctica?",["S3 Standard","Glacier Deep Archive","One Zone-IA","Intelligent-Tiering"],"Es la clase general.");
+S(T,'',"¿Para qué sirven las Lifecycle Rules?",["Automatizar acciones sobre objetos según su antigüedad, como cambiar de clase o expirar","Cifrar objetos","Dar permisos IAM","Crear carpetas"],"Almacenamiento administrado con políticas y automatización.");
+S(T,'',"¿Qué diferencia hay entre «Unable to locate credentials» y «AccessDenied»?",["Primero: la CLI no tiene identidad; segundo: AWS sabe quién eres pero no tienes permiso","Son lo mismo","Primero: sin permiso; segundo: sin identidad","Primero: bucket inexistente"],"En la práctica, si salta lo primero hay que comprobar que la EC2 tiene LabRole.");
+S(T,'',"¿Qué es mejor para dar permisos a una EC2 sobre S3: guardar claves de acceso en el servidor o asociarle un rol IAM?",["Asociarle un rol IAM: da credenciales temporales y evita claves permanentes","Guardar las claves en un archivo","Las dos son iguales","Compartir las claves del root"],"Es lo recomendado en arquitecturas reales.");
+S(T,'',"¿Por qué no se usa aws configure con claves en la EC2 de la práctica?",["Porque la instancia tiene un rol IAM que ya aporta credenciales temporales","Porque no existe el comando","Porque S3 no admite claves","Porque la CLI no está instalada"],"Instalar la CLI no da permisos automáticamente.");
+S(T,'',"¿Qué diferencia hay entre aws s3 cp --recursive y aws s3 sync?",["cp copia lo indicado; sync mantiene sincronizados el origen y el destino copiando lo que cambia","Son idénticos","sync solo descarga","cp borra el destino"],"sync es útil para mantener un directorio local alineado con un bucket.");
+S(T,'',"En la estructura aws SERVICIO OPERACIÓN, ¿qué significa aws ec2 describe-instances?",["Servicio ec2, operación describe-instances","Operación ec2, servicio describe","Programa ec2","Opción describe"],"aws help, aws s3 help y aws s3 cp help dan ayuda.");
+S(T,'',"¿Qué es la CLI y qué es un SDK?",["La CLI se usa con comandos en terminal; un SDK son librerías para usar AWS desde un programa","Son lo mismo","La CLI es una librería y el SDK una terminal","Ambas son interfaces gráficas"],"Ambas usan internamente las APIs de AWS.");
+S(T,'',"¿Cuál es el flujo completo para subir un archivo de EC2 a S3 en la práctica?",["EC2 → rol IAM → AWS CLI → API de AWS → S3","EC2 → EFS → S3","EC2 → RDP → S3","EC2 → AMI → S3"],"Es lo importante antes de empezar la parte práctica.");
+
+/* ---------- Comparativas ---------- */
+S(Z,'',"Necesitas un disco para una EC2. ¿EBS, EFS o S3?",["EBS","EFS","S3","Ninguno"],"EBS = bloques: disco de una instancia.");
+S(Z,'',"Necesitas archivos compartidos entre varias EC2 Linux. ¿EBS, EFS o S3?",["EFS","EBS","S3 montado como disco","Una AMI"],"Sistema de archivos compartido por NFS.");
+S(Z,'',"Necesitas almacenar imágenes, documentos, copias o logs como objetos. ¿Qué eliges?",["S3","EBS","EFS","Una AMI"],"Almacén de objetos accesible por HTTP, API, CLI o SDK.");
+S(Z,'',"¿Qué modelo de almacenamiento es EBS, cuál EFS y cuál S3?",["EBS: bloques; EFS: archivos; S3: objetos","EBS: archivos; EFS: bloques; S3: objetos","EBS: objetos; EFS: bloques; S3: archivos","Los tres son bloques"],"No se trata de cuál es «mejor»: resuelven necesidades distintas.");
+S(Z,'',"¿Cómo se accede típicamente a cada uno? (EBS / EFS / S3)",["Desde una EC2 / varias EC2 mediante NFS / HTTP, API, CLI o SDK","NFS / EC2 / HTTP","HTTP / EC2 / NFS","SMB / NFS / SSH"],"Es la fila «Acceso típico» de la comparativa.");
+S(Z,'',"¿Cómo se organiza cada uno? (EBS / EFS / S3)",["Particiones y sistema de archivos / directorios y archivos / buckets, objetos y prefijos","Buckets / particiones / directorios","Directorios / buckets / particiones","Todos en carpetas"],"Cada modelo tiene su propia estructura.");
+S(Z,'',"¿Puede un volumen EBS normal compartirse a la vez entre dos EC2 como un recurso de archivos?",["No es su uso habitual: para compartir archivos se usa EFS","Sí, es su función principal","Sí, con S3","Sí, con una AMI"],"EBS se comporta como disco de una instancia.");
+S(Z,'',"¿Por qué no se usa S3 como disco de la EC2?",["Porque es almacenamiento de objetos: no se presenta como dispositivo de bloques ni se formatea","Porque es demasiado lento siempre","Porque no tiene durabilidad","Porque solo almacena texto"],"En S3 creas el bucket, subes objetos y accedes a ellos.");
+S(Z,'',"¿Por qué no se usa EFS desde una EC2 Windows con NFS como equivalente de un recurso SMB?",["Porque EFS se basa en NFS, no es el equivalente natural de un recurso compartido SMB de Windows","Porque Windows no tiene red","Porque EFS no es un servicio de AWS","Porque Windows no admite HTTP"],"Por eso la práctica usa dos clientes Linux.");
+S(Z,'',"Una página web tiene imágenes y PDF que no cambian. ¿Dónde puede guardarlas para no ocupar el disco del servidor?",["En S3","En el volumen raíz","En una AMI","En el Security Group"],"No todo el contenido tiene por qué residir en el EBS del servidor web.");
+S(Z,'',"¿Qué diferencia hay entre un snapshot de EBS y copiar archivos a S3?",["El snapshot copia el volumen en un momento dado; S3 guarda objetos que tú subes","Son iguales","S3 copia bloques","El snapshot copia solo archivos"],"Son modelos distintos de almacenamiento y de copia.");
+S(Z,'',"¿Qué es mejor para servir contenido estático público: dejarlo en EBS o en S3?",["Depende: S3 evita ocupar el servidor y escala como almacén de objetos, pero hay que configurar permisos con cuidado","EBS siempre","S3 siempre y sin permisos","EFS siempre"],"La práctica lo hace con una bucket policy limitada al prefijo.");
+S(Z,'',"¿Qué diferencia hay entre IP pública e IP privada de una EC2?",["La pública sirve para llegar desde Internet; la privada para comunicarse dentro de la VPC","La privada llega desde Internet","Son lo mismo","La pública solo se usa en Windows"],"Se ven en Detalles/Redes: Private IPv4 y Public IPv4.");
+S(Z,'',"¿Qué diferencia hay entre administrar una EC2 por consola web de AWS y por CLI?",["La consola es gráfica en el navegador; la CLI usa comandos en terminal","La CLI es gráfica","La consola solo vale para S3","No hay diferencia"],"Con aws s3 ls evitas entrar en la consola.");
+S(Z,'',"¿Qué diferencia hay entre una AMI y una instancia?",["La AMI es la plantilla; la instancia es el servidor en ejecución creado a partir de ella","Son lo mismo","La instancia es la plantilla","La AMI es un disco de datos"],"Una AMI conserva el trabajo de una máquina configurada.");
+S(Z,'',"¿Qué es mejor para recuperar datos tras borrar un archivo por error en S3?",["Habilitar el control de versiones del bucket","Parar la instancia","Cambiar de VPC","Usar un Security Group"],"Conserva varias versiones del mismo objeto.");
+S(Z,'',"¿Por qué un Security Group es «stateful»? ¿Qué significa en la práctica?",["La respuesta a un tráfico permitido de entrada vuelve sin otra regla de salida","Guarda archivos","Cifra tráfico","Solo permite UDP"],"Por eso para el curl entre instancias basta una regla de entrada en el destino.");
+
+(function(){var F={
+0:["Un disco virtual persistente que se asocia a una máquina","Un servicio que almacena objetos en buckets con claves","Una red virtual aislada con sus propias subredes"],
+1:["El sistema operativo, el disco y la región de la máquina","La zona de disponibilidad y el tamaño del volumen raíz","El grupo de seguridad y el par de claves asociados"],
+2:["Un procesador físico reservado en exclusiva para tu máquina","Un núcleo del ordenador del alumno que ejecuta la consola","Una unidad de disco SSD que acelera la instancia"],
+3:["Crear otra EC2 igual y repartir la carga entre ambas: escalabilidad vertical","Añadir un volumen EBS a la instancia: escalabilidad horizontal","Cambiar la instancia de región para ganar memoria: scale out"],
+4:["Porque AWS no permite elegir tipos grandes en cuentas de prueba","Porque SSH deja de funcionar en máquinas con tanta memoria","Porque una máquina grande ralentiza la red de la VPC"],
+5:["Un volumen de bloques donde se guardan los datos de la aplicación","Una regla de firewall que controla el tráfico de la instancia","El par de claves que se usa para conectarse a la máquina"],
+6:["Para cifrar los volúmenes EBS y proteger los datos del servidor","Para abrir los puertos 22 y 3389 en el grupo de seguridad","Para elegir la región y la zona donde se lanza la instancia"],
+7:["Descargarla para guardarla de forma segura en tu equipo","Usarla para conectarte por SSH a las instancias Linux","Seleccionarla como par de claves al lanzar la EC2"],
+8:["Un grupo de usuarios IAM con permisos sobre las instancias","Una subred que agrupa las instancias de una misma zona","Una copia de seguridad de la configuración de la instancia"],
+9:["Conexiones de escritorio remoto desde cualquier IP de Internet","Tráfico web HTTP desde cualquier equipo de la red","Conexiones SSH por el puerto 22 solo desde tu IP pública"],
+10:["Porque HTTP es un protocolo más seguro que RDP y no necesita límite","Porque 0.0.0.0/0 no funciona con reglas de tipo RDP","Porque HTTP usa UDP y no se puede filtrar por origen"],
+11:["La instancia está detenida y no consume recursos de cómputo","La instancia ha sido terminada y se eliminará pronto","Falla la autenticación con el par de claves"],
+12:["AWS la envía por correo al propietario de la cuenta al lanzar la instancia","Es siempre la misma para todas las instancias: «Administrator»","Se genera ejecutando aws configure desde tu equipo"],
+14:["Es el nombre del sistema operativo que se instala en la máquina","Es el nombre del grupo de seguridad asociado a la instancia","Cambia el nombre del equipo (hostname) y su IP privada"],
+15:["Nada: las instancias no dependen de la región elegida","Que coincida con la zona horaria de tu ordenador","Que sea la misma región desde la que te conectas por IP"],
+17:["Arranca el servicio Apache para que empiece a atender peticiones","Crea la página index.html en la carpeta web de la instancia","Abre el puerto 80 en el grupo de seguridad de AWS"],
+18:["Instala el paquete httpd usando el gestor de paquetes dnf","Lo habilita para que arranque siempre al iniciar el sistema","Muestra el estado del servicio y sus últimos registros"],
+19:["start instala el paquete y enable lo abre al exterior en el firewall","Son equivalentes: ambos arrancan y habilitan el servicio","enable lo arranca ahora y start lo deja permanente tras reiniciar"],
+20:["El servicio está parado y habrá que arrancarlo con systemctl start","El servicio está habilitado al arranque pero ahora mismo detenido","El servicio ha fallado al iniciar y necesita reinstalarse"],
+24:["Instala el servidor web Apache en la máquina Windows","Abre el puerto 80 del firewall de Windows para el servicio web","Instala el servidor OpenSSH como capacidad opcional de Windows"],
+25:["Apache, el servidor web habitual en Linux","Nginx funcionando como proxy inverso","OpenSSH, el servicio de acceso remoto"],
+27:["Son tres nombres distintos para lo mismo: las funciones del servidor","Roles: componentes opcionales; Capabilities: funciones principales del servidor","Features son los usuarios del sistema y Roles los permisos de cada uno"],
+29:["Get-Service y Get-NetTCPConnection, respectivamente","Get-ComputerInfo e ipconfig, respectivamente","dnf list installed y systemctl list-units, respectivamente"],
+31:["Que IIS esté instalado y que el servicio W3SVC arranque","El nombre de la instancia y la etiqueta Name","La versión de PowerShell y del sistema operativo"],
+32:["Instalar el rol IIS en el servidor desde PowerShell","Cambiar las reglas del Security Group de la instancia","Mostrar la IP privada de la instancia de Windows"],
+33:["Instala el servicio web en el servidor remoto","Abre el puerto 80 en el Security Group automáticamente","Genera un error 404 porque no encuentra la página"],
+34:["Porque Apache no existe para Windows y IIS no funciona en Linux","Porque IIS solo funciona dentro de AWS y Apache fuera de él","Porque HTTP es un protocolo distinto en cada sistema operativo"],
+35:["HTTPS usa UDP y HTTP usa TCP; el resto es igual","HTTP es la versión cifrada y por eso es más segura","Los dos usan el mismo puerto y solo cambia el nombre"],
+36:["Abre un escritorio remoto RDP gráfico contra el servidor","Copia un archivo al Windows Server con SCP","Instala el servidor OpenSSH en el Windows Server"],
+37:["Abre el puerto 22 en el Security Group de AWS","Desinstala el servidor OpenSSH de la máquina Windows","Cierra el puerto 22 del firewall de Windows"],
+38:["La clave vockey del laboratorio y sus permisos","El tipo de instancia elegido al lanzar la EC2","El volumen EBS raíz y su sistema de archivos"],
+39:["Que estás usando el Windows de tu PC en local","Que el servidor está apagado y no responde","Que estás conectado a una máquina Linux"],
+40:["SSH da escritorio gráfico por el 3389 y RDP consola de texto por el 22","Los dos protocolos usan el puerto 3389 y solo cambia el cliente","SSH solo se puede usar contra servidores Windows"],
+41:["rdp ec2-user@IP_PUBLICA_LINUX","scp -i clave.pem ec2-user@IP_PUBLICA_LINUX","mstsc /v:IP_PUBLICA_LINUX"],
+42:["ssh Administrator@IP (cliente de línea de comandos)","curl http://IP para abrir el escritorio","aws s3 ls para abrir el escritorio remoto"],
+43:["Si el rol IIS está instalado en la máquina Windows","Si el puerto 22 está abierto en el Security Group de AWS","Cuál es la IP pública de la instancia"],
+44:["Porque 0.0.0.0/0 bloquea el SSH por completo","Porque AWS obliga a usar siempre una IP concreta","Porque mejora la velocidad de la conexión SSH"],
+45:["Una subred de 256 direcciones dentro de otra VPC","Un grupo de seguridad con reglas de entrada y salida","Una imagen AMI a partir de una instancia"],
+46:["Un servidor web que atiende peticiones HTTP en AWS","Un tipo de volumen de bloques para las instancias","Un servicio de nombres de dominio (DNS) de AWS"],
+47:["Son redes independientes sin relación entre sus rangos","La subred es mayor que la VPC y la contiene","Deben tener exactamente el mismo bloque CIDR"],
+48:["Dos subredes de la misma VPC con distinta zona","Dos grupos de seguridad con reglas diferentes","Dos regiones de AWS disponibles para la cuenta"],
+49:["La VPC completa con su bloque 10.0.0.0/16","La tabla de rutas con la salida a Internet","El grupo de seguridad de la subred pública"],
+50:["Cifra el tráfico entre las instancias de la VPC","Asigna direcciones IP privadas a las instancias","Reparte la carga entre varias instancias EC2"],
+51:["Porque se borra solo pasado un tiempo si no se usa","Porque se crea por defecto en otra región distinta","Porque al conectarlo cambia el CIDR de la VPC"],
+52:["El tráfico local entre las instancias de la propia VPC","Bloquea cualquier acceso desde y hacia Internet","Envía todo el tráfico a otra VPC de la cuenta"],
+53:["La salida de las instancias hacia Internet por el IGW","La ruta que lleva el tráfico hacia el sistema EFS","La ruta de acceso a las imágenes AMI de la región"],
+54:["Tiene direcciones IP que empiezan por 10.0","Tiene muchos hosts y un CIDR muy grande","No tiene ningún Security Group asociado"],
+55:["Permite HTTP desde cualquier equipo de Internet","Bloquea todo el tráfico HTTP de entrada a la instancia","Es la dirección IP del servidor de destino"],
+56:["Porque 0.0.0.0/0 no admite reglas de tipo HTTP","Porque con un grupo como origen la conexión es más rápida","Porque así no hace falta indicar ningún puerto"],
+57:["Que la máquina Windows tiene también una IP pública","Que IIS está caído y no devuelve ninguna página","Que el acceso SSH entre las dos máquinas funciona"],
+58:["Cambia el nombre del equipo y reinicia la red","Muestra la IP pública que usa Internet para llegar","Lista los puertos que están abiertos en la máquina"],
+59:["Porque la IP pública no existe en las instancias","Porque la IP pública es menos segura que la privada","Porque curl no admite direcciones públicas"],
+60:["Terminar la instancia y eliminar sus volúmenes","Cambiar el tipo de instancia a otro con más recursos","Crear un volumen EBS nuevo para la instancia"],
+61:["Para cambiar la IP privada de la instancia","Para que la copia sea más barata","Para eliminar el volumen original al terminar"],
+62:["Que el sistema usa S3 como almacenamiento principal","Que la imagen se guarda en un sistema EFS compartido","Que la imagen no incluye ningún disco"],
+63:["Sí, editando la subred desde la configuración de red de la instancia","Sí, basta con reiniciar la instancia en otra VPC","Sí, mediante un snapshot de la VPC de origen"],
+64:["La AMI conserva la red y la configuración se decide después","La AMI conserva solo el sistema operativo y no los servicios","La AMI conserva las direcciones IP públicas de la máquina"],
+65:["A una instancia concreta, y no se puede reutilizar en otras","A cualquier región, sin depender de una VPC","A una AMI, y viaja con ella al lanzar instancias"],
+66:["El Security Group filtra a nivel de subred y la ACL a nivel de instancia","Son exactamente lo mismo con distinto nombre","La Network ACL solo se usa con el servicio S3"],
+67:["Porque AWS elimina automáticamente los recursos que no se usan","Porque los recursos antiguos ocupan espacio de direcciones en la VPC","Porque los recursos antiguos rompen las AMI nuevas"],
+68:["Solo las AMI nuevas que se han creado en la práctica","Solo la VPC predeterminada de la cuenta","Solo los registros (logs) de las instancias"],
+69:["Almacenamiento de objetos que se organiza en buckets","Un sistema de archivos compartido por varias instancias","Un servicio de red para conectar las subredes"],
+70:["No: es un concepto que solo se introduce después en el curso","Solo en las instancias Windows, que usan un disco especial","Solo cuando se usa también S3 como almacén"],
+73:["Magnético en frío (HDD), pensado para datos poco accedidos","S3 Standard, un almacén de objetos de propósito general","EFS Elastic, un sistema de archivos compartido"],
+74:["El volumen raíz del sistema, montado en /","El sistema EFS compartido de la práctica siguiente","Un bucket S3 montado como un directorio"],
+75:["Sí, inmediatamente: el volumen ya trae sistema de archivos","Sí, si el volumen es de tipo SSD","Solo en Windows, que lo formatea automáticamente"],
+77:["Todos son sistemas de archivos que se pueden montar","Todos son tablas de particiones del disco","MBR es un sistema de archivos y XFS una tabla de particiones"],
+78:["MBR es el más moderno y admite discos mayores","GPT solo admite cuatro particiones y discos pequeños","No hay diferencias: son dos nombres del mismo esquema"],
+79:["Sí, siempre: el montaje se guarda automáticamente","Sí, si el volumen es de tipo gp3","Solo si el volumen es el raíz"],
+80:["Por nombre de dispositivo, porque nunca cambia entre arranques","Da igual: los dos métodos son siempre equivalentes","Por la dirección IP de la instancia"],
+81:["Se borran siempre al parar la instancia","Pasan automáticamente a S3 como copia","Se trasladan al sistema EFS de la VPC"],
+82:["Si el volumen se cifra automáticamente al parar la instancia","Si el volumen se copia a S3 al terminar la instancia","Si la AMI se borra al eliminar el volumen"],
+83:["Una AMI completa con sistema operativo para lanzar instancias","Un volumen duplicado y sincronizado en tiempo real","Una regla del firewall que protege el volumen"],
+84:["Son lo mismo: dos nombres para la copia de una instancia","El snapshot lanza instancias y la AMI copia solo datos","La AMI guarda solo los datos y no el sistema operativo"],
+85:["Cada snapshot copia siempre el volumen entero","Solo se guardan los archivos nuevos, no los bloques","Se borran solos tras unas horas sin uso"],
+86:["Un disco de bloques asociado a una sola instancia EC2","Un almacén de objetos con buckets y claves","Un servicio de nombres de dominio de AWS"],
+88:["Un sistema de archivos local como XFS o ext4","Un tipo de disco SSD que usa EBS","Un servicio de almacenamiento de AWS"],
+89:["Los tres son protocolos de red para compartir archivos","Los tres son servicios de almacenamiento de AWS","XFS es un servicio de AWS y EFS un protocolo de red"],
+90:["Porque una instancia Windows no tiene conectividad de red con EFS","Porque EFS no funciona con servidores web como IIS","Porque Windows no puede montar ningún recurso de red"],
+91:["Para tener la misma dirección IP pública las dos","Para compartir un único disco EBS entre ellas","Para que ambas usen la misma AMI al lanzarse"],
+92:["Que las instancias tienen acceso a Internet","Que el sistema EFS ya está montado en las dos","Que las dos instancias son Windows Server"],
+93:["SSH, TCP 22, con origen «Mi IP»","HTTP, TCP 80, con origen 0.0.0.0/0","RDP, TCP 3389, con origen «Mi IP»"],
+94:["Un volumen EBS asociado a cada instancia","Un bucket de S3 con los archivos del EFS","Una AMI con el cliente NFS preinstalado"],
+95:["Para abrir el puerto SSH hacia el sistema de archivos","Para elegir en qué región se crea el sistema EFS","Para escoger la AMI con la que se lanzan las instancias"],
+96:["Que es un disco EBS formateado con XFS","Que es un bucket de S3 montado como directorio","Que es una partición local del volumen raíz"],
+97:["Los dos son volúmenes EBS, uno de ellos de capacidad enorme","Los dos son sistemas EFS con distinto punto de montaje","/datos-web es un bucket S3 y /datos-compartidos un EBS"],
+98:["Que cada instancia tiene su propio disco local con ese nombre","Que hay dos sistemas EFS distintos, uno por instancia","Que es un volumen local de cada máquina"],
+99:["Lee el archivo y lo muestra sin modificarlo","Borra el archivo del sistema de archivos compartido","Monta el sistema EFS en esa carpeta"],
+100:["Que el volumen EBS de la primera se ha copiado a la segunda","Que hay una replicación manual programada entre ambas","Que el archivo está guardado en un bucket de S3"],
+102:["Solo prueba.txt, porque la otra no llegó a escribir","Los archivos que hay en /datos-web del volumen EBS","Los objetos que hay guardados en el bucket de S3"],
+105:["Un tipo de volumen de bloques para las instancias","Una carpeta de Linux donde se montan los discos","Una subred dentro de una VPC de la cuenta"],
+106:["Que cualquiera puede leer los objetos del bucket","Que el bucket está vacío y no admite subir objetos","Que el bucket está cifrado con claves de KMS"],
+107:["El bucket pasaría a ser público para toda la cuenta","Los objetos se borrarían automáticamente cada día","El bucket se cifraría con una clave nueva"],
+108:["Sí, son directorios reales como los de un volumen EBS","Sí, con permisos de Linux sobre cada carpeta","Sí, con un sistema de archivos NTFS interno"],
+109:["Tres buckets distintos dentro de la cuenta","Tres volúmenes EBS asociados a la instancia","Tres instancias EC2 con distintas webs"],
+110:["Cambiar el tipo de instancia de la EC2 por otro mayor","Crear un bucket nuevo para guardar los datos","Abrir un puerto en el grupo de seguridad"],
+111:["Creando un usuario IAM con claves de acceso permanentes","Creando un bucket de S3 para la práctica","Cambiando la región de la instancia"],
+112:["Lista los buckets de S3 a los que tienes acceso","Crea un rol IAM nuevo para la instancia","Instala la herramienta AWS CLI en el equipo"],
+114:["Comprobar las credenciales con las que se conecta la CLI","Listar los buckets de S3 de la cuenta","Actualizar la CLI a la última versión disponible"],
+115:["Borra todos los archivos del directorio indicado","Copia los archivos del directorio a un bucket de S3","Monta el volumen en el directorio indicado"],
+116:["La instancia está parada y no responde a peticiones","Falta instalar Apache en la instancia","Falta abrir el puerto 22 en el Security Group"],
+117:["Que el bucket no existe en la región indicada","Que no hay conexión a Internet en tu equipo","Que la CLI no tiene credenciales configuradas"],
+118:["Que se borrará el bucket con todos sus objetos","Que se cobrará una tarifa mayor por el almacenamiento","Que el bucket se cambiará de región"],
+119:["Sí: todo el contenido del bucket pasa a ser público","Sí, aunque solo las carpetas y no los objetos","No: seguiría privado incluso con una política que lo permita"],
+120:["Que cualquiera pueda escribir objetos en todo el bucket","Que solo el rol LabRole pueda leer los objetos","Que cualquiera pueda listar el contenido del bucket"],
+121:["Porque el asterisco no se admite al nombrar el bucket","Porque lo exige AWS en cualquier política de bucket","Porque limitar el recurso reduce el coste del almacenamiento"],
+122:["El objeto se ha movido al volumen EBS de la instancia","La instancia EC2 se ha reiniciado","Se ha cambiado el rol IAM de la instancia"],
+123:["Que el sistema EFS está montado en el servidor web","Que S3 funciona como un disco más de la instancia","Que Apache se ejecuta dentro del bucket de S3"],
+124:["Solo un archivo sin metadatos ni clave","Un sistema de archivos con sus carpetas","Una partición de disco con su tabla"],
+125:["Son lo mismo: dos formas de llamar a la velocidad del servicio","Durabilidad es la velocidad y disponibilidad es el coste","Disponibilidad es la probabilidad de no perder datos"],
+126:["Dar más velocidad a los comandos de la CLI","Cambiar la región en la que está el bucket","Cifrar el contenido del bucket de forma automática"],
+128:["Cifrar los objetos con claves rotativas","Dar permisos IAM a los usuarios del bucket","Crear carpetas nuevas dentro del bucket"],
+129:["Son lo mismo: ambos significan que falta el permiso","Primero: sin permiso; segundo: sin identidad de la CLI","Primero: el bucket no existe; segundo: la CLI no está instalada"],
+130:["Guardar las claves de acceso en un archivo del servidor","Las dos opciones son igual de seguras","Compartir las claves del usuario raíz con la instancia"],
+131:["Porque el comando aws configure no existe en Amazon Linux","Porque S3 no admite autenticación con claves de acceso","Porque la CLI no está instalada en la instancia"],
+132:["Son idénticos: los dos copian siempre todo el contenido","sync solo descarga desde S3 y nunca sube","cp borra el destino antes de copiar"],
+134:["Son lo mismo: dos nombres de la misma herramienta","La CLI es una librería de código y el SDK una terminal","Ambas son interfaces gráficas del navegador"],
+140:["NFS / una EC2 / HTTP, API, CLI o SDK","HTTP / varias EC2 por NFS / una EC2","SMB / NFS / SSH"],
+141:["Buckets / particiones / directorios y archivos","Directorios y archivos / buckets y objetos / particiones","Todo se organiza en carpetas con permisos"],
+142:["Sí, es su función principal y no necesita otro servicio","Sí, siempre que se monte a través de S3","Sí, usando una AMI compartida entre las dos"],
+143:["Porque es demasiado lento para cualquier uso con instancias","Porque no ofrece durabilidad suficiente para los datos","Porque solo es capaz de almacenar archivos de texto"],
+144:["Porque una instancia Windows no tiene conectividad de red","Porque EFS no es un servicio de almacenamiento de AWS","Porque Windows no admite el protocolo HTTP"],
+146:["Son iguales: los dos guardan objetos subidos por el usuario","S3 copia bloques de un volumen y el snapshot objetos","El snapshot copia solo los archivos que cambian"],
+147:["Siempre EBS, porque es más rápido que cualquier otro","Siempre S3, sin tener que configurar permisos","Siempre EFS, porque es el único compartido"],
+148:["La privada llega desde Internet y la pública solo dentro de la VPC","Son la misma dirección con dos nombres distintos","La pública solo se usa en instancias Windows"],
+149:["La CLI es gráfica y la consola se usa solo con comandos","La consola solo sirve para trabajar con S3","No hay diferencia: son la misma herramienta"],
+150:["Son lo mismo: la plantilla y el servidor son un único recurso","La instancia es la plantilla y la AMI el servidor","La AMI es un disco de datos asociado a la instancia"],
+152:["Que guarda en disco el estado de cada archivo del servidor","Que cifra el tráfico de las instancias de forma automática","Que solo permite tráfico UDP entre instancias"]
+};
+Object.keys(F).forEach(function(i){var q=NQ[+i];if(q&&F[i].length===q.o.length-1)q.o=[q.o[0]].concat(F[i])})})();
+
+</script>
+<script>
+(function(){
+var KEY='asir-nube-v1',S={};
+try{S=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){S={}}
+S.r=S.r||{};S.best=S.best||0;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function $(s,r){return(r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function im(k,cap){return '<figure class="qimg"><a href="img/nube/'+k+'.jpg" target="_blank" rel="noopener"><img src="img/nube/'+k+'.jpg" alt="'+esc(NIMGALT[k]||'')+'" loading="lazy"></a>'+(cap?'<figcaption>'+cap+'</figcaption>':'')+'</figure>'}
+NQ.forEach(function(q,i){q.id=i});
+var N=NQ.length,CATS=[];
+NQ.forEach(function(q){if(CATS.indexOf(q.c)<0)CATS.push(q.c)});
+var EXAM_N=Math.min(40,N);
+var tabs=$('#nb-tabs'),panels=$('#nb-panels');
+var TABS=[['estudio','Estudio'],['practica','Ejercicios con imagen'],['simulacro','Simulacro de '+EXAM_N]];
+TABS.forEach(function(t){var a=el('a','',t[1]);a.href='#nb-'+t[0];a.setAttribute('data-t',t[0]);tabs.appendChild(a)});
+function panel(id){var p=el('section','panel');p.id='nbp-'+id;p.hidden=true;panels.appendChild(p);return p}
+
+function flow(a){var s='<div class="flow">';a.forEach(function(x,i){s+=(i?'<span class="fa">→</span>':'')+'<div class="fb"><b>'+x[0]+'</b><small>'+x[1]+'</small></div>'});return s+'</div>'}
+function tbl(head,rows){var s='<div class="tw"><table><thead><tr>';head.forEach(function(x){s+='<th>'+x+'</th>'});s+='</tr></thead><tbody>';rows.forEach(function(r){s+='<tr>';r.forEach(function(c,i){s+='<td>'+(i===0?'<code>'+c+'</code>':c)+'</td>'});s+='</tr>'});return s+'</tbody></table></div>'}
+function rules(a){return '<ul class="rules">'+a.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>'}
+function two(a,b2){return '<div class="two">'+a+b2+'</div>'}
+function steps(a){var s='';a.forEach(function(x,i){s+='<div class="stp"><b>'+(i+1)+'. '+x[0]+'</b>'+(x[1]?'<code class="cm">'+x[1]+'</code>':'')+'<p>'+x[2]+'</p>'+(x[3]?im(x[3]):'')+'</div>'});return s}
+function sec(t,body){return '<div class="card"><h3>'+t+'</h3>'+body+'</div>'}
+
+var pr=panel('estudio');
+var BL=[];
+function blk(id,name,body){BL.push([id,name]);return '<div class="sb" data-b="'+id+'" hidden>'+body+'</div>'}
+var h='';
+h+=blk('mapa','Mapa y comparativas',
+sec('Los tres modelos de almacenamiento',tbl(['','EBS','EFS','S3'],[['Modelo','bloques','archivos','objetos'],['Se usa como','disco de una EC2','sistema de archivos compartido','almacén de objetos'],['Acceso típico','una EC2','varias EC2 por NFS (TCP 2049)','HTTP, API, CLI, SDK'],['Organización','particiones + sistema de archivos','directorios y archivos','buckets, objetos y prefijos'],['Ejemplo','disco de la EC2','archivos compartidos entre servidores','imágenes, documentos, copias']])+
+flow([['Necesito un DISCO','→ EBS'],['Archivos compartidos entre EC2','→ EFS'],['Guardar OBJETOS','→ S3']])+rules(['No hay uno «mejor»: resuelven necesidades distintas.']))+
+sec('Qué cambia entre pares de conceptos',tbl(['Comparación','Diferencia clave'],[
+['EC2 / EBS','EC2 = cómputo (CPU, RAM); EBS = almacenamiento'],['AMI / snapshot','AMI = plantilla para lanzar EC2; snapshot = copia de un volumen'],['AMI / instancia','AMI = plantilla; instancia = servidor en ejecución'],['IP pública / privada','pública: desde Internet; privada: dentro de la VPC'],['SSH / RDP','SSH: consola, TCP 22; RDP: escritorio, TCP 3389'],['HTTP / HTTPS','TCP 80 sin cifrar / TCP 443 con TLS'],['Security Group / NACL','instancia / subred'],['Durabilidad / disponibilidad','no perder los datos / poder acceder al servicio'],['Claves de acceso / rol IAM','claves permanentes en el servidor / credenciales temporales (preferible)'],['MBR-GPT / XFS-NTFS','particionado / sistema de archivos'],['NFS / SMB','compartir archivos: Linux / Windows'],['start / enable','arranca ahora / arranca siempre al iniciar'],['Subir a S3 / hacer público','son dos decisiones distintas']]))+
+sec('Chuleta de comandos',tbl(['Comando','Para qué'],[['sudo dnf install httpd -y','instala Apache (Amazon Linux 2023)'],['sudo systemctl start / enable / status httpd','arrancar / habilitar / ver estado'],['Install-WindowsFeature -Name Web-Server -IncludeManagementTools','instala IIS'],['Get-WindowsFeature / Get-WindowsCapability -Online','roles / capacidades'],['ssh -i clave.pem ec2-user@IP','entrar por SSH a Linux'],['mstsc','escritorio remoto de Windows'],['hostname -I / ipconfig','ver IP en Linux / Windows'],['curl http://IP','probar HTTP'],['lsblk, df -h, mount','dispositivos, uso, montajes'],['aws sts get-caller-identity','identidad de la CLI'],['aws s3 ls / cp / sync','listar / copiar / sincronizar']])))
+h+=blk('ec2','EC2 y acceso',
+sec('Piezas de una instancia',flow([['AMI','imagen de partida'],['Tipo','vCPU + RAM + red'],['Par de claves','autenticación'],['Red + SG','IP y puertos'],['EBS','disco']])+
+tbl(['Concepto','Qué es'],[['Instancia','servidor virtual en AWS (CPU, RAM, disco, SO, red)'],['AMI','imagen de partida para crear la instancia'],['Tipo (t3.micro…)','fija vCPU, RAM y red; se puede cambiar (escalabilidad vertical)'],['vCPU','procesador lógico virtual'],['Par de claves','.pem privada: SSH en Linux y descifrar la contraseña de Administrator en Windows'],['Security Group','firewall virtual: tipo, protocolo, puerto y origen'],['Estados','pending (arrancando) → running']])+
+rules(['Dimensionar según necesidad: sobredimensionar también cuesta.','Escalabilidad vertical = más recursos a la misma máquina (parando antes); scale down = menos.','El nombre de la instancia es una etiqueta (tag Name).']))+
+sec('Conectar',tbl(['','Linux','Windows'],[['SO de la práctica','Amazon Linux 2023','Windows Server'],['Acceso','SSH, TCP 22','RDP, TCP 3389'],['Cliente','ssh -i clave.pem ec2-user@IP','mstsc'],['Credencial','la .pem','Administrator + contraseña descifrada con la .pem'],['Origen en el SG','Mi IP','Mi IP']])+
+rules(['RDP/SSH solo desde «Mi IP»; HTTP puede estar abierto a 0.0.0.0/0 porque un web público existe para recibir peticiones.','Comprobar que es el servidor remoto: hostname, ipconfig, Get-ComputerInfo.']))+
+sec('SSH a Windows Server',steps([
+['Permitir SSH en la regla del firewall','Set-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -Profile Public','El firewall de Windows es otra capa además del Security Group; la red se detecta como Public.','ssh_fw'],
+['Conectar','ssh Administrator@IP_PUBLICA','Necesita OpenSSH Server (capacidad) instalado, servicio sshd en marcha y TCP 22 abierto en el SG.','ssh_cmd'],
+['Comprobar que estás dentro','prompt administrator@EC2AMAZ-…','Estás administrando el Windows de AWS, no el de tu PC.','ssh_ok']])+
+tbl(['Comprobación','Comando'],[['¿sshd funciona?','Get-Service sshd'],['¿escucha en el 22?','Get-NetTCPConnection -LocalPort 22 -State Listen'],['¿qué capacidades hay?','Get-WindowsCapability -Online | Where-Object Name -like "OpenSSH*"']])))
+h+=blk('web','Servidores web',
+sec('Idea',flow([['EC2','SSH / RDP'],['Servicio','Apache / IIS'],['SG','abrir HTTP 80'],['Navegador','http://IP_PUBLICA']])+
+tbl(['','Linux','Windows'],[['Servidor','Apache (httpd)','IIS'],['Instalar','sudo dnf install httpd -y','Install-WindowsFeature -Name Web-Server -IncludeManagementTools'],['Arrancar','systemctl start httpd; enable','el servicio W3SVC (World Wide Web Publishing)'],['Carpeta web','/var/www/html','C:\\inetpub\\wwwroot'],['Puerto','TCP 80','TCP 80']])+
+rules(['Roles = funciones principales (IIS, DNS, DHCP, AD DS). Features = funcionalidades adicionales. Capabilities = componentes opcionales (OpenSSH Client/Server). IIS es un rol; OpenSSH Server es una capacidad.']))+
+sec('Linux: Apache paso a paso',steps([
+['Instalar','sudo dnf install httpd -y','dnf es el gestor de paquetes de Amazon Linux 2023.','a_install'],
+['Arrancar','sudo systemctl start httpd','Inicia el servicio ahora.','a_start'],
+['Comprobar estado','systemctl status httpd','active (running); «disabled» indica que aún no arranca solo.','a_status'],
+['Habilitar','sudo systemctl enable httpd','Crea el enlace para arrancar con el sistema.','a_enable'],
+['Crear la página y abrir el 80','echo "<h1>ASIR - Linux</h1>…" | sudo tee /var/www/html/index.html','Y regla HTTP, TCP 80, 0.0.0.0/0 en el Security Group.'],
+['Probar','http://IP_PUBLICA_LINUX','Si responde, servicio + SG + red están bien.','a_web']]))+
+sec('Windows: IIS paso a paso',steps([
+['Instalar IIS','Install-WindowsFeature -Name Web-Server -IncludeManagementTools','Alternativa gráfica: Server Manager, Add Roles and Features, Web Server (IIS).','w_install'],
+['Probar en local y diagnosticar','http://localhost · Get-Service W3SVC · Get-NetTCPConnection -LocalPort 80 -State Listen · Test-NetConnection localhost -Port 80','Si funciona en local pero no desde tu PC: revisa SG y firewall.'],
+['Probar desde tu PC','Test-NetConnection IP -Port 80 · curl http://IP','StatusCode 200 = OK.'],
+['Cambiar la página','Set-Content C:\\inetpub\\wwwroot\\index.html "<h1>…</h1>"','Reemplaza la página por defecto.','w_web']])))
+h+=blk('vpc','VPC y red',
+sec('Idea',flow([['VPC','red aislada'],['Subred','trozo de la VPC en una AZ'],['IGW','salida a Internet'],['Ruta','0.0.0.0/0 → IGW'],['SG','quién entra']])+
+tbl(['','VPC predeterminada','VPC-ASIR'],[['CIDR','172.31.0.0/16','10.0.0.0/16'],['Subredes','las crea AWS','SUBNET-PUBLICA-ASIR 10.0.1.0/24']])+
+rules(['Son redes diferentes: estar en la misma cuenta no implica comunicación privada.','Las VPC son recursos regionales.','Subred pública = su tabla de rutas tiene ruta a un Internet Gateway.']))+
+sec('Crear la red paso a paso',steps([
+['Crear la VPC','VPC → Create VPC → Solo la VPC · VPC-ASIR · 10.0.0.0/16','Sin IPv6, tenencia predeterminada.','v_vpc'],
+['Elegir la VPC al crear la subred','Crear subred','Aparecen la predeterminada y VPC-ASIR.','v_subnetpick'],
+['Crear la subred','SUBNET-PUBLICA-ASIR · 10.0.1.0/24','Dentro del CIDR de la VPC; pertenece a una única AZ.','v_subnet'],
+['Crear el Internet Gateway','IGW-ASIR','Router virtual hacia Internet.','v_igw'],
+['Conectarlo a la VPC','Conectar a la VPC','Hasta que no se asocia, no sirve.','v_attach'],
+['Crear la ruta','0.0.0.0/0 → igw-…','Ruta 1 (local, 10.0.0.0/16) es interna y se crea sola.','v_route']]))+
+sec('Comunicación por IP privada y rediseño con AMI',steps([
+['Permitir HTTP entre instancias','Regla HTTP, TCP 80, origen = SG-LINUX','El origen es un Security Group, no 0.0.0.0/0: mínimo privilegio.','v_sgref'],
+['Probar con la IP privada','curl http://IP_PRIVADA_WINDOWS','Si IIS responde: las instancias hablan por IP privada dentro de la VPC.','v_curl'],
+['Problema','una EC2 no se mueve a otra VPC','Su interfaz de red está asociada a una subred y VPC.'],
+['Crear la AMI','Acciones → Imagen y plantillas → Crear imagen','Conserva SO, servicios y configuración.','v_ami_menu'],
+['Nombrar y guardar','AMI-LINUX-ASIR','Marcar reiniciar da una copia consistente. Incluye el EBS.','v_ami'],
+['Lanzar desde la AMI','Elegir VPC, subred, SG, IP pública y nueva clave','La AMI conserva la configuración; la red se decide al desplegar.']])+
+rules(['El Security Group pertenece a una VPC: al desplegar en VPC-ASIR se crean SG nuevos.','Limpieza: tras comprobar el nuevo despliegue, borra instancias antiguas, EBS sin usar, Elastic IP y SG de prácticas anteriores.'])))
+h+=blk('ebs','EBS',
+sec('Qué es',flow([['AWS','EBS'],['Dispositivo','de bloques'],['Partición','MBR/GPT'],['Sistema de archivos','XFS/ext4/NTFS'],['Punto de montaje','/datos-web']])+
+rules(['EBS = disco virtual de una EC2; EC2 = cómputo, EBS = almacenamiento.','Ya lo usas: el volumen raíz tiene Amazon Linux (montado en /) o Windows Server (C:\\).','Volúmenes adicionales = separar datos del sistema (segundo disco).','Un volumen EBS está en una AZ: para asociarlo, EC2 y volumen en la misma AZ (no basta la región).','Tipo de la práctica: General Purpose SSD (gp3).']))+
+sec('Del volumen a los archivos',tbl(['Comando / concepto','Para qué'],[['lsblk','ver el dispositivo nuevo'],['crear XFS','sistema de archivos'],['mount … /datos-web','montarlo en un directorio'],['/etc/fstab','montaje persistente (tras reiniciar)'],['UUID','mejor que el nombre del dispositivo']])+
+tbl(['No confundir','Qué es'],[['EBS','almacenamiento en bloques'],['GPT / MBR','esquema de particionado (GPT: más moderno, discos mayores, UEFI)'],['XFS / ext4 / NTFS','sistemas de archivos'],['/','punto de montaje']])+
+im('e_df1','df -h: <b>/datos-web</b> es un EBS de 2 GB (/dev/nvme1n1); el raíz es nvme0n1p1 en /'))+
+sec('Persistencia, borrado y copias',tbl(['Tema','Idea'],[['Parar la EC2','los datos del EBS permanecen'],['Montado ≠ conserva datos','conservar datos no implica estar montado'],['Delete on termination','el raíz suele eliminarse al terminar la instancia'],['Snapshot','copia en un momento dado; incrementales tras el primero'],['AMI vs snapshot','AMI = plantilla para lanzar; snapshot = copia del almacenamiento']])))
+h+=blk('efs','EFS',
+sec('Idea',flow([['EC2-01','monta /datos-compartidos'],['NFS 2049','por red'],['EFS','mismo sistema de archivos'],['EC2-02','ve los mismos archivos']])+
+rules(['EFS = sistema de archivos compartido; EBS = disco de una instancia.','NFS = protocolo para acceder a archivos remotos (Linux). SMB = Windows. Por eso la práctica usa dos Linux.','XFS es un sistema de archivos; NFS un protocolo; EFS un servicio de AWS.']))+
+sec('Práctica paso a paso',steps([
+['Dos EC2 Linux en la misma VPC','EC2-LINUX-01 y EC2-LINUX-02','Cada una con su IP privada.','e_list'],
+['Probar la red interna','ping -c 4 IP_PRIVADA','Hay que permitir ICMP en el Security Group.','e_ping'],
+['Grupo de seguridad del EFS','efs-sg: NFS, TCP 2049, origen = SG de las instancias','Solo ellas pueden acceder.','e_sg'],
+['Destinos de montaje','uno por AZ, en la VPC','Disponibles en cada subred.','e_mounts'],
+['Asociar efs-sg al destino de montaje','Grupos de seguridad','Sin NFS permitido el montaje falla.','e_mtsg'],
+['Montar en las dos instancias','mount | grep datos-compartidos','nfs4 montado en /datos-compartidos.','e_mount1'],
+['Comprobar con df -h','127.0.0.1:/ → /datos-compartidos','Capacidad enorme (8 EB): EFS crece solo.','e_df2'],
+['Crear en una, leer en la otra','echo … | sudo tee /datos-compartidos/prueba.txt','Escribe y guarda en el EFS.','e_w1'],
+['Leer desde la otra','cat /datos-compartidos/prueba.txt','Las dos ven los mismos archivos.','e_r2'],
+['Y a la inversa','prueba2.txt','Funciona en los dos sentidos.','e_r1'],
+['Ver el contenido','ls -l /datos-compartidos','prueba.txt y prueba2.txt.','e_ls']])))
+h+=blk('s3','S3 e IAM',
+sec('Idea',flow([['Bucket','contenedor'],['Objeto','datos + metadatos + clave'],['Prefijo','«carpetas»'],['Política','quién lee']])+
+rules(['S3 no es un disco: se crea el bucket, se suben objetos y se accede a ellos.','Nombre de bucket: reglas de AWS y único globalmente.','Durabilidad (no perder datos, 11 nueves en Standard) ≠ disponibilidad (acceder al servicio).','Clases: Standard, Intelligent-Tiering, Standard-IA, One Zone-IA, Glacier… La práctica usa Standard.','Versionado: conserva versiones de un objeto. Lifecycle: acciones automáticas por antigüedad.','Subir a S3 ≠ hacerlo público: Block Public Access, IAM, bucket policy.']))+
+sec('Acceso desde la EC2',flow([['EC2','sin claves'],['Rol IAM','LabRole'],['AWS CLI','comandos'],['API','AWS'],['S3','bucket']])+
+tbl(['Interfaz','Qué es'],[['Consola','gráfica en el navegador'],['AWS CLI','comandos en terminal (aws s3 ls)'],['SDK','librerías para programas'],['API','peticiones por red; CLI y SDK la usan']])+
+tbl(['Error','Significa'],[['Unable to locate credentials','la CLI no tiene identidad (comprueba el rol)'],['AccessDenied','te identifican pero no tienes permiso']])+
+tbl(['Comando','Para qué'],[['aws --version','¿CLI instalada?'],['aws sts get-caller-identity','identidad (assumed-role/LabRole)'],['aws s3 ls','listar buckets'],['aws s3 ls s3://BUCKET/','contenido de un bucket'],['aws s3 cp a s3://BUCKET/','subir'],['aws s3 cp … --recursive','copiar un directorio'],['aws s3 sync','mantener sincronizado'],['aws s3 mv / rm','mover / borrar']])+
+rules(['Mejor un rol IAM (credenciales temporales) que claves permanentes en el servidor. Mínimo privilegio.']))+
+sec('Práctica paso a paso',steps([
+['Crear el bucket','nombre único, región, espacio global','Por defecto está activado Bloquear todo el acceso público.','s_create'],
+['Bloqueo público y versionado','Bloquear todo: activado · Versionado: desactivado','Valores por defecto de la práctica.','s_block'],
+['Crear prefijos','sitios-web/ y dentro sistemas, desarrollo, ciberseguridad','Estructura como /datos-web.','s_folders'],
+['Dar un rol a la EC2','Acciones → Seguridad → Modificar rol de IAM','Se asocia el perfil con LabRole.','s_menu'],
+['Comprobar identidad y CLI','aws sts get-caller-identity · aws s3 ls','assumed-role/LabRole.','s_sts'],
+['Localizar archivos del servidor','find /datos-web -type f','Lo que se subirá desde EBS.','s_find'],
+['Subir','aws s3 cp /datos-web/sistemas/img/ s3://BUCKET/sitios-web/sistemas/imagenes/ --recursive','Y lo mismo para documentos y las otras webs.'],
+['Apuntar las webs a S3','sed -i … index.html','Cambia rutas locales por URLs del objeto en S3.'],
+['Resultado inicial','imagen rota','El objeto es privado: devuelve AccessDenied.','s_broken'],
+['Ver el error','XML AccessDenied','Respuesta de S3: autorización, no red.','s_denied'],
+['Desactivar el bloqueo público','Editar bloqueo de acceso público','Advierte que puede hacer públicos objetos; hay que confirmar.','s_bpa_dlg'],
+['Bucket policy','Allow · Principal * · s3:GetObject · bucket/sitios-web/*','Solo lectura pública del prefijo sitios-web.','s_policy'],
+['Probar','URL del objeto','Ya se ve la imagen servida desde S3.','s_svg'],
+['Página final','web en EC2 + imágenes en S3','No todo tiene que residir en el EBS del servidor.','s_page']]))+
+rules(['Bloqueo público desactivado + política = público solo lo que la política permite. Si no hay política, nada es público.','La política limita el Resource a sitios-web/*: mínimo privilegio.']))
+h='<div class="pills" id="nb-blocks"></div>'+h;
+pr.innerHTML=h;
+var bb=$('#nb-blocks',pr);
+function showB(id){$$('.sb',pr).forEach(function(d){d.hidden=d.getAttribute('data-b')!==id});$$('.pill',bb).forEach(function(b){b.classList.toggle('on',b.getAttribute('data-b')===id)})}
+BL.forEach(function(x,i){var b=el('button','pill'+(i?'':' on'),x[1]);b.type='button';b.setAttribute('data-b',x[0]);b.onclick=function(){showB(x[0])};bb.appendChild(b)});
+showB('mapa');
+
+/* ---------- PRACTICA ---------- */
+var pp=panel('practica');
+pp.innerHTML='<div class="card"><h3>Mira la captura y contesta</h3><p class="lead" style="margin:0 0 12px">Elige un bloque. Verás la explicación al momento.</p><div class="pills" id="nb-cats"></div><div id="nb-q"></div></div>';
+var cur={pool:[],i:0,cat:'Todas',answered:false};
+function pools(cat){
+  if(cat==='Todas')return NQ.slice();
+  if(cat==='Falladas')return NQ.filter(function(q){return S.r[q.id]===0});
+  return NQ.filter(function(q){return q.c===cat});
+}
+var cbox=$('#nb-cats',pp);
+['Todas'].concat(CATS).concat(['Falladas']).forEach(function(c){
+  var b=el('button','pill'+(c==='Todas'?' on':''),c);b.type='button';b.setAttribute('data-c',c);
+  b.onclick=function(){start(c)};cbox.appendChild(b);
+});
+function qHtml(q,order,state){
+  var h='<div class="qmeta"><span class="tag">'+esc(q.c)+'</span></div>'+(q.img?im(q.img):'')+'<p class="qt">'+esc(q.q)+'</p><div class="opts">';
+  order.forEach(function(oi,p){
+    var cls='opt';
+    if(state&&state.show){if(oi===0)cls+=' ok';else if(state.pick===p)cls+=' bad'}
+    else if(state&&state.pick===p)cls+=' sel';
+    h+='<button type="button" class="'+cls+'" data-p="'+p+'"><i>'+String.fromCharCode(65+p)+'</i><span>'+esc(q.o[oi])+'</span></button>';
+  });
+  return h+'</div>';
+}
+function start(cat){
+  var list=pools(cat);
+  cur.cat=cat;
+  $$('.pill',cbox).forEach(function(b){b.classList.toggle('on',b.getAttribute('data-c')===cat)});
+  var box=$('#nb-q',pp);
+  if(!list.length){box.innerHTML='<p class="lead">'+(cat==='Falladas'?'No tienes preguntas falladas. Buen trabajo.':'No hay preguntas en este bloque.')+'</p>';return}
+  cur.pool=shuf(list);cur.i=0;show();
+}
+function show(){
+  var box=$('#nb-q',pp),q=cur.pool[cur.i];
+  cur.order=shuf(q.o.map(function(_,i){return i}));cur.answered=false;
+  box.innerHTML='<div id="nqbody">'+qHtml(q,cur.order,null)+'</div><div class="fbk" id="nfbk" aria-live="polite"></div><div class="r-btns"><button type="button" class="btn primary" id="nqnext" hidden>Siguiente</button></div>';
+  $$('.opt',box).forEach(function(b){b.onclick=function(){answer(+b.getAttribute('data-p'))}});
+  $('#nqnext',box).onclick=function(){cur.i++;if(cur.i>=cur.pool.length){done()}else show()};
+}
+function answer(p){
+  if(cur.answered)return;cur.answered=true;
+  var q=cur.pool[cur.i],ok=cur.order[p]===0;
+  S.r[q.id]=ok?1:0;save();refresh();
+  $('#nqbody').innerHTML=qHtml(q,cur.order,{show:true,pick:p});
+  var f=$('#nfbk');f.className='fbk '+(ok?'good':'bad');
+  f.innerHTML='<b>'+(ok?'Correcto.':'No es esa.')+'</b> '+esc(q.e);
+  var n=$('#nqnext');n.hidden=false;n.textContent=cur.i+1>=cur.pool.length?'Terminar':'Siguiente';n.focus();
+}
+function done(){
+  var box=$('#nb-q',pp),ok=cur.pool.filter(function(q){return S.r[q.id]===1}).length;
+  box.innerHTML='<p class="lead">Has terminado este bloque. Puedes repetirlo o repasar solo las que has dejado para revisar.</p><div class="r-btns"><button type="button" class="btn primary" id="nagain">Repetir bloque</button><button type="button" class="btn" id="nfails">Solo falladas</button></div>';
+  $('#nagain',box).onclick=function(){start(cur.cat)};
+  $('#nfails',box).onclick=function(){start('Falladas')};
+}
+
+/* ---------- SIMULACRO ---------- */
+var ps=panel('simulacro');
+var ex={list:[],orders:[],ans:[],i:0,sure:false,over:false};
+function newExam(){
+  ex.list=shuf(NQ).slice(0,EXAM_N);
+  ex.orders=ex.list.map(function(q){return shuf(q.o.map(function(_,i){return i}))});
+  ex.ans=ex.list.map(function(){return -1});
+  ex.i=0;ex.sure=false;ex.over=false;drawEx();
+}
+function drawEx(){
+  if(ex.over)return;
+  var h='<div class="card"><div class="exh"><h3>Simulacro de '+EXAM_N+' preguntas</h3><span class="qprog" id="nexc"></span></div>';
+  h+='<div class="grid" id="nexg"></div><div id="nexq"></div><div class="r-btns"><button type="button" class="btn" id="nexprev">Anterior</button><button type="button" class="btn" id="nexnext">Siguiente</button><button type="button" class="btn primary" id="nexend">Terminar y corregir</button></div><div class="r-msg" id="nexmsg" aria-live="polite"></div></div>';
+  ps.innerHTML=h;
+  var g=$('#nexg',ps);
+  ex.list.forEach(function(_,k){var b=el('button','gn',String(k+1));b.type='button';b.onclick=function(){ex.i=k;drawEx()};g.appendChild(b)});
+  paintEx();
+  $('#nexprev',ps).onclick=function(){if(ex.i>0){ex.i--;drawEx()}};
+  $('#nexnext',ps).onclick=function(){if(ex.i<EXAM_N-1){ex.i++;drawEx()}};
+  $('#nexend',ps).onclick=finish;
+}
+function paintEx(){
+  var q=ex.list[ex.i];
+  $('#nexc',ps).textContent='Pregunta '+(ex.i+1);
+  $$('.gn',ps).forEach(function(b,k){b.classList.toggle('on',k===ex.i);b.classList.toggle('dn',ex.ans[k]>=0)});
+  $('#nexq',ps).innerHTML=qHtml(q,ex.orders[ex.i],{pick:ex.ans[ex.i]});
+  $$('.opt',$('#nexq',ps)).forEach(function(b){b.onclick=function(){ex.ans[ex.i]=+b.getAttribute('data-p');ex.sure=false;$('#nexmsg',ps).textContent='';paintEx()}});
+  $('#nexprev',ps).disabled=ex.i===0;$('#nexnext',ps).disabled=ex.i===EXAM_N-1;
+}
+function finish(){
+  var un=ex.ans.filter(function(a){return a<0}).length,m=$('#nexmsg',ps);
+  if(un>0&&!ex.sure){ex.sure=true;m.className='r-msg bad';m.textContent='Hay preguntas sin contestar. Si quieres, pulsa otra vez para corregir igualmente.';return}
+  ex.over=true;
+  var ok=0,bad=[];
+  ex.list.forEach(function(q,k){var good=ex.ans[k]>=0&&ex.orders[k][ex.ans[k]]===0;if(good)ok++;else bad.push(k);S.r[q.id]=good?1:0});
+  var nota=Math.round(ok*100/EXAM_N)/10;
+  if(nota>S.best)S.best=nota;save();refresh();
+  var h='<div class="card"><h3>Resultado</h3><p class="big">'+ok+' de '+EXAM_N+' · nota '+nota.toFixed(1).replace('.',',')+' sobre 10</p><p class="lead" style="margin:0 0 12px">Sin penalización por fallo.</p><div class="r-btns"><button type="button" class="btn primary" id="nexnew">Nuevo simulacro</button></div></div>';
+  if(bad.length){
+    h+='<div class="card"><h3>Revisa tus '+bad.length+' fallos</h3>';
+    bad.forEach(function(k){
+      var q=ex.list[k],o=ex.orders[k],mine=ex.ans[k]>=0?q.o[o[ex.ans[k]]]:'Sin contestar';
+      h+='<div class="rev">'+(q.img?im(q.img):'')+'<p class="qt">'+(k+1)+'. '+esc(q.q)+'</p><p class="rv bad">Tu respuesta: '+esc(mine)+'</p><p class="rv good">Correcta: '+esc(q.o[0])+'</p><p class="rx">'+esc(q.e)+'</p></div>';
+    });
+    h+='</div>';
+  }
+  ps.innerHTML=h;$('#nexnew',ps).onclick=newExam;
+  try{window.scrollTo(0,0)}catch(e){}
+}
+function refresh(){
+  var ok=NQ.filter(function(q){return S.r[q.id]===1}).length;
+  var c=$('#nb-card-count');if(c)c.textContent=ok+' de '+N+' preguntas acertadas';
+  var s=$('#nb-sum');if(s)s.textContent=ok+' de '+N+' acertadas'+(S.best?' · mejor simulacro '+S.best.toFixed(1).replace('.',','):'');
+  var bar=$('#nb-bar');if(bar)bar.style.width=Math.round(ok*100/N)+'%';
+}
+function route(){
+  var h=(location.hash||'').slice(1);
+  if(h!=='nube'&&h.indexOf('nb-')!==0)return;
+  var id=h.slice(3);if(!$('#nbp-'+id))id='estudio';
+  $$('#nb-panels .panel').forEach(function(p){p.hidden=(p.id!=='nbp-'+id)});
   $$('a',tabs).forEach(function(a){a.classList.toggle('on',a.getAttribute('data-t')===id)});
 }
 window.addEventListener('hashchange',route);
