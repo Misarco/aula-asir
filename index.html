@@ -71,7 +71,7 @@ h3{font-size:17px;margin-bottom:10px}
 .b8{background:radial-gradient(circle,rgba(255,255,255,.3) 1.5px,transparent 2px) 0 0/26px 26px,linear-gradient(120deg,#0d2a3b,#15556f)}
 .soon{color:var(--muted);font-size:14px;margin-top:18px}
 .crumb{display:inline-block;margin-bottom:10px;font-size:14px;text-decoration:none}
-.sum{display:flex;align-items:center;gap:14px;margin:14px 0 18px;flex-wrap:wrap}
+.sum,#sri-card-count,#bd-card-count,#seg-card-count{display:none!important}.sum{display:flex;align-items:center;gap:14px;margin:14px 0 18px;flex-wrap:wrap}
 .sum .bar{flex:1;min-width:160px;height:8px;border-radius:99px;background:var(--code-bg);overflow:hidden}
 .sum .bar i{display:block;height:100%;width:0;background:var(--accent)}
 .sum span{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
@@ -652,7 +652,7 @@ var pillSets=[];
 
 function refresh(){
   var done=EX.filter(function(e){return store[e.id]}).length,n=EX.length;
-  $('#count').textContent=done+' de '+n+' ejercicios sin fallos';
+  
   $('#bar').style.width=Math.round(done*100/n)+'%';
   $$('.pill[data-id]').forEach(function(p){p.classList.toggle('done',!!store[p.getAttribute('data-id')])});
   var sc=$('#sri-card-count');if(sc)sc.textContent=done+' de '+n+' ejercicios sin fallos';
@@ -922,7 +922,7 @@ function start(cat){
 function show(){
   var box=$('#bd-q',pp),q=cur.pool[cur.i];
   cur.order=shuf([0,1,2,3].slice(0,q.o.length));cur.answered=false;cur.pick=-1;
-  box.innerHTML='<div class="qprog">Pregunta '+(cur.i+1)+' de '+cur.pool.length+'</div><div id="qbody">'+qHtml(q,cur.order,null)+'</div><div class="fbk" id="fbk" aria-live="polite"></div><div class="r-btns"><button type="button" class="btn primary" id="qnext" hidden>Siguiente</button></div>';
+  box.innerHTML='<div id="qbody">'+qHtml(q,cur.order,null)+'</div><div class="fbk" id="fbk" aria-live="polite"></div><div class="r-btns"><button type="button" class="btn primary" id="qnext" hidden>Siguiente</button></div>';
   $$('.opt',box).forEach(function(b){b.onclick=function(){answer(+b.getAttribute('data-p'))}});
   $('#qnext',box).onclick=function(){cur.i++;if(cur.i>=cur.pool.length){done()}else show()};
 }
@@ -937,7 +937,7 @@ function answer(p){
 }
 function done(){
   var box=$('#bd-q',pp),ok=cur.pool.filter(function(q){return S.r[q.id]===1}).length;
-  box.innerHTML='<p class="lead">Has terminado este bloque: '+ok+' de '+cur.pool.length+' acertadas en la última respuesta de cada una.</p><div class="r-btns"><button type="button" class="btn primary" id="again">Repetir bloque</button><button type="button" class="btn" id="fails">Solo falladas</button></div>';
+  box.innerHTML='<p class="lead">Has terminado este bloque. Puedes repetirlo o repasar solo las que has dejado para revisar.</p><div class="r-btns"><button type="button" class="btn primary" id="again">Repetir bloque</button><button type="button" class="btn" id="fails">Solo falladas</button></div>';
   $('#again',box).onclick=function(){start(cur.cat)};
   $('#fails',box).onclick=function(){start('Falladas')};
 }
@@ -965,7 +965,7 @@ function drawEx(){
 }
 function paintEx(){
   var q=ex.list[ex.i];
-  $('#exc',ps).textContent='Pregunta '+(ex.i+1)+' de '+EXAM_N+' · '+ex.ans.filter(function(a){return a>=0}).length+' contestadas';
+  $('#exc',ps).textContent='Pregunta '+(ex.i+1);
   $$('.gn',ps).forEach(function(b,k){b.classList.toggle('on',k===ex.i);b.classList.toggle('dn',ex.ans[k]>=0)});
   $('#exq',ps).innerHTML=qHtml(q,ex.orders[ex.i],{pick:ex.ans[ex.i]});
   $$('.opt',$('#exq',ps)).forEach(function(b){b.onclick=function(){ex.ans[ex.i]=+b.getAttribute('data-p');ex.sure=false;$('#exmsg',ps).textContent='';paintEx()}});
@@ -973,13 +973,13 @@ function paintEx(){
 }
 function finish(){
   var un=ex.ans.filter(function(a){return a<0}).length,m=$('#exmsg',ps);
-  if(un>0&&!ex.sure){ex.sure=true;m.className='r-msg bad';m.textContent='Te faltan '+un+' preguntas sin contestar. Pulsa otra vez para corregir igualmente.';return}
+  if(un>0&&!ex.sure){ex.sure=true;m.className='r-msg bad';m.textContent='Hay preguntas sin contestar. Si quieres, pulsa otra vez para corregir igualmente.';return}
   ex.over=true;
   var ok=0,bad=[];
   ex.list.forEach(function(q,k){var good=ex.ans[k]>=0&&ex.orders[k][ex.ans[k]]===0;if(good)ok++;else bad.push(k);S.r[q.id]=good?1:0});
   var nota=Math.round(ok*100/EXAM_N)/10;
   if(nota>S.best)S.best=nota;save();refresh();
-  var h='<div class="card"><h3>Resultado</h3><p class="big">'+ok+' de '+EXAM_N+' · nota '+nota.toFixed(1).replace('.',',')+' sobre 10</p><p class="lead" style="margin:0 0 12px">Calculada sin penalización por fallo. Tu mejor nota: '+S.best.toFixed(1).replace('.',',')+'.</p><div class="r-btns"><button type="button" class="btn primary" id="exnew">Nuevo simulacro</button></div></div>';
+  var h='<div class="card"><h3>Resultado</h3><p class="big">'+ok+' de '+EXAM_N+' · nota '+nota.toFixed(1).replace('.',',')+' sobre 10</p><p class="lead" style="margin:0 0 12px">Calculada sin penalización por fallo.</p><div class="r-btns"><button type="button" class="btn primary" id="exnew">Nuevo simulacro</button></div></div>';
   if(bad.length){
     h+='<div class="card"><h3>Revisa tus '+bad.length+' fallos</h3>';
     bad.forEach(function(k){
@@ -1345,7 +1345,7 @@ function start(cat){
 function show(){
   var box=$('#seg-q',pp),q=cur.pool[cur.i];
   cur.order=shuf(q.o.map(function(_,i){return i}));cur.answered=false;
-  box.innerHTML='<div class="qprog">Pregunta '+(cur.i+1)+' de '+cur.pool.length+'</div><div id="sqbody">'+qHtml(q,cur.order,null)+'</div><div class="fbk" id="sfbk" aria-live="polite"></div><div class="r-btns"><button type="button" class="btn primary" id="sqnext" hidden>Siguiente</button></div>';
+  box.innerHTML='<div id="sqbody">'+qHtml(q,cur.order,null)+'</div><div class="fbk" id="sfbk" aria-live="polite"></div><div class="r-btns"><button type="button" class="btn primary" id="sqnext" hidden>Siguiente</button></div>';
   $$('.opt',box).forEach(function(b){b.onclick=function(){answer(+b.getAttribute('data-p'))}});
   $('#sqnext',box).onclick=function(){cur.i++;if(cur.i>=cur.pool.length){done()}else show()};
 }
@@ -1360,7 +1360,7 @@ function answer(p){
 }
 function done(){
   var box=$('#seg-q',pp),ok=cur.pool.filter(function(q){return S.r[q.id]===1}).length;
-  box.innerHTML='<p class="lead">Has terminado este bloque: '+ok+' de '+cur.pool.length+' acertadas en la última respuesta de cada una.</p><div class="r-btns"><button type="button" class="btn primary" id="sagain">Repetir bloque</button><button type="button" class="btn" id="sfails">Solo falladas</button></div>';
+  box.innerHTML='<p class="lead">Has terminado este bloque. Puedes repetirlo o repasar solo las que has dejado para revisar.</p><div class="r-btns"><button type="button" class="btn primary" id="sagain">Repetir bloque</button><button type="button" class="btn" id="sfails">Solo falladas</button></div>';
   $('#sagain',box).onclick=function(){start(cur.cat)};
   $('#sfails',box).onclick=function(){start('Falladas')};
 }
@@ -1388,7 +1388,7 @@ function drawEx(){
 }
 function paintEx(){
   var q=ex.list[ex.i];
-  $('#sexc',ps).textContent='Pregunta '+(ex.i+1)+' de '+EXAM_N+' · '+ex.ans.filter(function(a){return a>=0}).length+' contestadas';
+  $('#sexc',ps).textContent='Pregunta '+(ex.i+1);
   $$('.gn',ps).forEach(function(b,k){b.classList.toggle('on',k===ex.i);b.classList.toggle('dn',ex.ans[k]>=0)});
   $('#sexq',ps).innerHTML=qHtml(q,ex.orders[ex.i],{pick:ex.ans[ex.i]});
   $$('.opt',$('#sexq',ps)).forEach(function(b){b.onclick=function(){ex.ans[ex.i]=+b.getAttribute('data-p');ex.sure=false;$('#sexmsg',ps).textContent='';paintEx()}});
@@ -1396,13 +1396,13 @@ function paintEx(){
 }
 function finish(){
   var un=ex.ans.filter(function(a){return a<0}).length,m=$('#sexmsg',ps);
-  if(un>0&&!ex.sure){ex.sure=true;m.className='r-msg bad';m.textContent='Te faltan '+un+' preguntas sin contestar. Pulsa otra vez para corregir igualmente.';return}
+  if(un>0&&!ex.sure){ex.sure=true;m.className='r-msg bad';m.textContent='Hay preguntas sin contestar. Si quieres, pulsa otra vez para corregir igualmente.';return}
   ex.over=true;
   var ok=0,bad=[];
   ex.list.forEach(function(q,k){var good=ex.ans[k]>=0&&ex.orders[k][ex.ans[k]]===0;if(good)ok++;else bad.push(k);S.r[q.id]=good?1:0});
   var nota=Math.round(ok*100/EXAM_N)/10;
   if(nota>S.best)S.best=nota;save();refresh();
-  var h='<div class="card"><h3>Resultado</h3><p class="big">'+ok+' de '+EXAM_N+' · nota '+nota.toFixed(1).replace('.',',')+' sobre 10</p><p class="lead" style="margin:0 0 12px">Sin penalización por fallo. Tu mejor nota: '+S.best.toFixed(1).replace('.',',')+'.</p><div class="r-btns"><button type="button" class="btn primary" id="sexnew">Nuevo simulacro</button></div></div>';
+  var h='<div class="card"><h3>Resultado</h3><p class="big">'+ok+' de '+EXAM_N+' · nota '+nota.toFixed(1).replace('.',',')+' sobre 10</p><p class="lead" style="margin:0 0 12px">Sin penalización por fallo.</p><div class="r-btns"><button type="button" class="btn primary" id="sexnew">Nuevo simulacro</button></div></div>';
   if(bad.length){
     h+='<div class="card"><h3>Revisa tus '+bad.length+' fallos</h3>';
     bad.forEach(function(k){
