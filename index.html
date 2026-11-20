@@ -4323,7 +4323,7 @@ function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!==und
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
 var tabs=$('#ig-tabs'),panels=$('#ig-panels');
-var TABS=[['voc','Vocabulario'],['tar','Tarjetas'],['test','Test']];
+var TABS=[['voc','Vocabulario'],['gram','Gramática'],['tar','Tarjetas'],['test','Test']];
 TABS.forEach(function(t){var a=el('a','',t[1]);a.href='#ig-'+t[0];a.setAttribute('data-t',t[0]);tabs.appendChild(a)});
 function panel(id){var p=el('section','panel');p.id='igp-'+id;p.hidden=true;panels.appendChild(p);return p}
 /* palabras */
@@ -4423,6 +4423,71 @@ function ask(){
   var sp=$('#ig-qsp',pq);if(sp)sp.onclick=function(){speak(w.en)};
 }
 drawQC();qNew();ask();
+/* ---- Gramática ---- */
+var pg=panel('gram');
+var GT=[
+['ps','Present simple',
+'<div class="enun"><b>Para qué se usa</b><p>Hábitos y rutinas, hechos verdaderos y horarios. <i>Palabras típicas:</i> always, usually, often, sometimes, never, every day, on Mondays.</p></div>'+
+'<div class="tw"><table><thead><tr><th></th><th>I / you / we / they</th><th>he / she / it</th></tr></thead><tbody>'+
+'<tr><td><b>＋</b></td><td>I <b>work</b></td><td>She work<b>s</b></td></tr>'+
+'<tr><td><b>－</b></td><td>I <b>don\'t</b> work</td><td>She <b>doesn\'t</b> work</td></tr>'+
+'<tr><td><b>？</b></td><td><b>Do</b> you work?</td><td><b>Does</b> she work?</td></tr>'+
+'<tr><td>Respuesta corta</td><td>Yes, I <b>do</b>. / No, I <b>don\'t</b>.</td><td>Yes, she <b>does</b>. / No, she <b>doesn\'t</b>.</td></tr></tbody></table></div>'+
+'<div class="enun"><b>Lo que cambia</b><p>• Solo en he/she/it el verbo lleva <b>-s</b>: work → work<b>s</b>.</p><p>• Terminan en <b>-es</b>: watch→watch<b>es</b>, fix→fix<b>es</b>, pass→pass<b>es</b>, go→go<b>es</b>, do→do<b>es</b>.</p><p>• Consonante + y → <b>-ies</b>: study→stud<b>ies</b>, copy→cop<b>ies</b> (pero play→plays).</p><p>• <b>have → has</b> (he has).</p><p>• Con <b>don\'t / doesn\'t / do / does</b> el verbo va en infinitivo SIN -s: <i>She doesn\'t work</i> (no "doesn\'t works").</p></div>',
+[['She ___ (work) in a bank.','works'],['He ___ (not / use) Linux.','doesn\'t use'],['___ you ___ (save) your files every day?','Do … save'],['My brother ___ (study) computing.','studies'],['The program ___ (not / start) when I click.','doesn\'t start'],['___ she ___ (have) a laptop?','Does … have'],['I never ___ (watch) videos at work.','watch'],['The system administrator ___ (fix) the network problems.','fixes'],['They ___ (not / back up) the data on Fridays.','don\'t back up'],['Which verb is correct? "She ___ the spreadsheet every morning" (open / opens / does opens)','opens']]],
+['wi','Will (futuro)',
+'<div class="enun"><b>Para qué se usa</b><p>Predicciones (<i>It will rain</i>), decisiones en el momento (<i>I\'ll answer it</i>), promesas (<i>I\'ll call you</i>) y ofrecimientos (<i>I\'ll help you</i>). <i>Palabras típicas:</i> tomorrow, next week, soon, in 2030, probably, I think.</p></div>'+
+'<div class="tw"><table><thead><tr><th></th><th>Forma (igual para todas las personas)</th></tr></thead><tbody>'+
+'<tr><td><b>＋</b></td><td>I / you / he / she / we / they <b>will</b> + verbo</td></tr>'+
+'<tr><td>Contraída</td><td>I<b>\'ll</b>, you<b>\'ll</b>, she<b>\'ll</b>…</td></tr>'+
+'<tr><td><b>－</b></td><td><b>will not</b> = <b>won\'t</b> + verbo</td></tr>'+
+'<tr><td><b>？</b></td><td><b>Will</b> + sujeto + verbo?</td></tr>'+
+'<tr><td>Respuesta corta</td><td>Yes, I <b>will</b>. / No, I <b>won\'t</b>.</td></tr></tbody></table></div>'+
+'<div class="enun"><b>Lo que cambia respecto al present simple</b><p>• <b>Nunca lleva -s</b>, ni siquiera en he/she/it: <i>She will work</i> (no "wills").</p><p>• Para negar y preguntar <b>no</b> usa do/does: <i>Will you…?</i>, <i>He won\'t…</i></p><p>• Después de will, el verbo va en <b>infinitivo sin to</b>: <i>I will help</i> (no "will to help").</p></div>',
+[['I think the new software ___ (be) faster.','will be'],['She ___ (not / come) to the meeting tomorrow.','won\'t come'],['___ you ___ (send) me the file, please?','Will … send'],['"The phone is ringing." — "I ___ (answer) it."','\'ll answer'],['Cloud computing ___ (become) more popular in the future.','will become'],['I promise I ___ (not / forget) the password.','won\'t forget'],['Next year the company ___ (hire) two new technicians.','will hire'],['"Will he finish the project?" — "No, he ___."','won\'t'],['Which is correct? "He (will works / will work / wills work) tomorrow."','will work']]],
+['qw','What, which, who…',
+'<div class="enun"><b>Palabras interrogativas</b><p>Van al principio de la pregunta. Después, el orden: <b>palabra + do/does/will… + sujeto + verbo</b>. <i>What does she use? Where will you work?</i></p></div>'+
+'<div class="tw"><table><thead><tr><th>Palabra</th><th>Significa / se usa para</th><th>Ejemplo</th></tr></thead><tbody>'+
+'<tr><td><b>What</b></td><td>qué / cuál — cosa, sin límite de opciones</td><td>What is your name?</td></tr>'+
+'<tr><td><b>Which</b></td><td>cuál / qué — elegir entre opciones <b>limitadas</b></td><td>Which laptop do you prefer, this or that?</td></tr>'+
+'<tr><td><b>Who</b></td><td>quién — persona</td><td>Who is the administrator?</td></tr>'+
+'<tr><td><b>Whose</b></td><td>de quién — posesión</td><td>Whose phone is this?</td></tr>'+
+'<tr><td><b>Where</b></td><td>dónde — lugar</td><td>Where do you store the backups?</td></tr>'+
+'<tr><td><b>When</b></td><td>cuándo — tiempo</td><td>When will the server start?</td></tr>'+
+'<tr><td><b>Why</b></td><td>por qué — motivo (respuesta: because)</td><td>Why does it fail?</td></tr>'+
+'<tr><td><b>How</b></td><td>cómo — manera</td><td>How do you open it?</td></tr>'+
+'<tr><td><b>How many</b></td><td>cuántos — contables</td><td>How many files are there?</td></tr>'+
+'<tr><td><b>How much</b></td><td>cuánto — incontables / precio</td><td>How much memory does it have?</td></tr>'+
+'<tr><td><b>How often</b></td><td>con qué frecuencia</td><td>How often do you back up?</td></tr></tbody></table></div>'+
+'<div class="enun"><b>What vs Which</b><p><b>What</b> = pregunta abierta (no hay lista): <i>What is your favourite programme?</i></p><p><b>Which</b> = hay opciones concretas delante: <i>Which one do you want, the red or the blue?</i></p></div>',
+[['___ is your favourite programme? (no hay opciones)','What'],['___ of these two keyboards do you prefer?','Which'],['___ is the person in charge of the network?','Who'],['___ laptop is this? — It\'s Ana\'s.','Whose'],['___ files are in the folder? (contables)','How many'],['___ memory does the computer have? (incontable)','How much'],['___ do you update the antivirus? — Every week.','How often'],['___ is the meeting? — At 5 o\'clock.','When'],['___ does the printer not work? — Because it has no paper.','Why'],['___ do you keep the passwords? — In a safe place.','Where']]],
+['pr','Pronombres',
+'<div class="tw"><table><thead><tr><th>Sujeto<br><small>(hace la acción)</small></th><th>Complemento<br><small>(la recibe)</small></th><th>Adjetivo posesivo<br><small>(+ nombre)</small></th><th>Pronombre posesivo<br><small>(solo)</small></th></tr></thead><tbody>'+
+'<tr><td>I</td><td>me</td><td>my</td><td>mine</td></tr>'+
+'<tr><td>you</td><td>you</td><td>your</td><td>yours</td></tr>'+
+'<tr><td>he</td><td>him</td><td>his</td><td>his</td></tr>'+
+'<tr><td>she</td><td>her</td><td>her</td><td>hers</td></tr>'+
+'<tr><td>it</td><td>it</td><td>its</td><td>—</td></tr>'+
+'<tr><td>we</td><td>us</td><td>our</td><td>ours</td></tr>'+
+'<tr><td>they</td><td>them</td><td>their</td><td>theirs</td></tr></tbody></table></div>'+
+'<div class="enun"><b>Cómo se distinguen</b><p>• <b>Sujeto</b> va antes del verbo: <i><b>She</b> sends the file.</i></p><p>• <b>Complemento</b> va después del verbo o de una preposición: <i>Send <b>it</b> to <b>him</b>.</i></p><p>• <b>Adjetivo posesivo</b> va delante de un nombre: <i>This is <b>my</b> laptop.</i></p><p>• <b>Pronombre posesivo</b> sustituye al nombre: <i>This laptop is <b>mine</b>.</i></p></div>'+
+'<div class="tw"><table><thead><tr><th>Demostrativos</th><th>Cerca</th><th>Lejos</th></tr></thead><tbody><tr><td>Singular</td><td><b>this</b> (este)</td><td><b>that</b> (ese/aquel)</td></tr><tr><td>Plural</td><td><b>these</b> (estos)</td><td><b>those</b> (esos/aquellos)</td></tr></tbody></table></div>',
+[['Maria works with me. ___ (ella) is my colleague.','She'],['Send the report to ___ (él).','him'],['This is ___ (mi) computer.','my'],['This keyboard is ___ (el mío).','mine'],['Ana and Luis have a server. ___ server is fast. (de ellos)','Their'],['Can you help ___? (a nosotros)','us'],['The company changed ___ (su) logo. (it)','its'],['Is this your phone? — No, it isn\'t ___. (el mío)','mine'],['___ (estos) files are important; ___ (aquellos, lejos) are not.','These … those'],['I like Maria. I often talk to ___. (ella)','her']]]
+];
+var gCur=S.gt||'ps';
+function drawG(){
+  var pills='<div class="pills" id="ig-gs"></div><div id="ig-gb"></div>';
+  if(!$('#ig-gs',pg))pg.innerHTML=pills;
+  var box=$('#ig-gs',pg);box.innerHTML='';
+  GT.forEach(function(t){var b=el('button','pill'+(t[0]===gCur?' on':''),t[1]);b.type='button';b.onclick=function(){gCur=t[0];S.gt=t[0];save();drawG()};box.appendChild(b)});
+  var t=GT.filter(function(x){return x[0]===gCur})[0]||GT[0];
+  var h='<div class="card"><h3>'+esc(t[1])+'</h3>'+t[2]+'</div><div class="card"><h3>Practica: completa los huecos</h3><p class="lead" style="margin:0 0 8px">Escríbelo en un papel y pulsa «Ver respuesta» para comprobar.</p>';
+  t[3].forEach(function(e,i){h+='<div class="exq" style="margin:0 0 10px"><div>'+esc(e[0])+'</div><button type="button" class="btn" data-i="'+i+'">Ver respuesta</button><div class="gans" hidden style="margin-top:6px"><b style="color:var(--accent)">'+esc(e[1])+'</b></div></div>'});
+  h+='</div>';
+  $('#ig-gb',pg).innerHTML=h;
+  $$('#ig-gb .exq',pg).forEach(function(q){var b=$('button',q),a=$('.gans',q);b.onclick=function(){a.hidden=!a.hidden;b.textContent=a.hidden?'Ver respuesta':'Ocultar respuesta'}});
+}
+drawG();
 function route(){
   var h=(location.hash||'').slice(1);
   if(h!=='ing'&&h.indexOf('ig-')!==0)return;
