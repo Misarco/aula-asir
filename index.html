@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aula de estudio ASIR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=IBM+Plex+Sans:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* layout: inicio con tarjetas de asignaturas; dentro, un servicio por pestaña: mapa, tabla de cambios y ejercicios */
+  --bg:#f2f5f7; --surface:#ffffff; --ink:#13222b; --muted:#566874; --line:#d5dde3; --line-strong:#aebbc4;
+  --accent:#0b7a75; --accent-soft:#d8efec; --on-accent:#ffffff;
+  --violet:#5b4bc4; --violet-soft:#e5e2fa;
+  --good:#1b7f4b; --good-soft:#dbf3e5; --bad:#b3261e; --bad-soft:#fbe1de; --code-bg:#e9eef2;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0b1216; --surface:#121c22; --ink:#e5eef2; --muted:#8ea2ad; --line:#243540; --line-strong:#3b5260;
+    --accent:#3cc4b8; --accent-soft:#12373a; --on-accent:#062a27;
+    --violet:#a99cf5; --violet-soft:#272352;
+    --good:#5fd08e; --good-soft:#12301f; --bad:#ff8a80; --bad-soft:#3a1a18; --code-bg:#0e171c;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0b1216; --surface:#121c22; --ink:#e5eef2; --muted:#8ea2ad; --line:#243540; --line-strong:#3b5260;
+  --accent:#3cc4b8; --accent-soft:#12373a; --on-accent:#062a27;
+  --violet:#a99cf5; --violet-soft:#272352;
+  --good:#5fd08e; --good-soft:#12301f; --bad:#ff8a80; --bad-soft:#3a1a18; --code-bg:#0e171c;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--body);-webkit-text-size-adjust:100%}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.top{border-bottom:1px solid var(--line);background:var(--surface)}
+.top .in{max-width:1040px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font:700 18px var(--display)}
+.logo{background:var(--accent);color:var(--on-accent);border-radius:6px;padding:2px 8px;font:700 14px var(--mono);letter-spacing:.04em}
+.grade{color:var(--muted);font-size:14px}
+.wrap{max-width:1040px;margin:0 auto;padding:24px 16px 56px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0}
+h1{font-size:32px;line-height:1.15}
+h2{font-size:26px;line-height:1.2}
+h3{font-size:17px;margin-bottom:10px}
+.lead{color:var(--muted);margin:6px 0 22px;max-width:62ch}
+.subjects{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.subj{display:block;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden;color:inherit;text-decoration:none}
+.subj.on:hover{border-color:var(--accent)}
+.subj.off{opacity:.6}
+.ban{height:92px}
+.subj .tx{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px}
+.subj h3{font-size:15px;margin:0;line-height:1.3}
+.subj .sub{font-size:13px;color:var(--muted)}
+.badge{align-self:flex-start;font-size:12px;font-weight:500;padding:2px 9px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+.subj.off .badge{background:var(--code-bg);color:var(--muted)}
+.b1{background:linear-gradient(90deg,rgba(255,255,255,.22) 2px,transparent 2px) 0 0/24px 24px,linear-gradient(rgba(255,255,255,.22) 2px,transparent 2px) 0 0/24px 24px,#2a86a3}
+.b2{background:repeating-linear-gradient(60deg,rgba(255,255,255,.22) 0 40px,transparent 40px 80px),#69bdbe}
+.b3{background:repeating-linear-gradient(-60deg,rgba(0,0,0,.1) 0 40px,transparent 40px 80px),#1fa384}
+.b4{background:radial-gradient(circle at 22% 30%,#2a8a96 0,transparent 42%),radial-gradient(circle at 80% 80%,#1c5a73 0,transparent 45%),#0e2430}
+.b5{background:repeating-linear-gradient(60deg,rgba(255,255,255,.14) 0 45px,transparent 45px 90px),#6a58d2}
+.b6{background:radial-gradient(circle,transparent 0 16px,rgba(255,255,255,.3) 16px 18px,transparent 18px) 0 0/42px 42px,#66c0be}
+.b7{background:repeating-linear-gradient(90deg,rgba(255,255,255,.16) 0 12px,transparent 12px 24px),repeating-linear-gradient(0deg,rgba(0,0,0,.12) 0 12px,transparent 12px 24px),#1a78dc}
+.b8{background:radial-gradient(circle,rgba(255,255,255,.3) 1.5px,transparent 2px) 0 0/26px 26px,linear-gradient(120deg,#0d2a3b,#15556f)}
+.soon{color:var(--muted);font-size:14px;margin-top:18px}
+.crumb{display:inline-block;margin-bottom:10px;font-size:14px;text-decoration:none}
+.sum{display:flex;align-items:center;gap:14px;margin:14px 0 18px;flex-wrap:wrap}
+.sum .bar{flex:1;min-width:160px;height:8px;border-radius:99px;background:var(--code-bg);overflow:hidden}
+.sum .bar i{display:block;height:100%;width:0;background:var(--accent)}
+.sum span{font-size:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.tabs a{padding:8px 16px;border-radius:999px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);text-decoration:none;font-weight:500;font-size:14px}
+.tabs a.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+.card svg{display:block;width:100%;max-width:680px;margin:0 auto;height:auto}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:500;color:var(--muted);font-size:13px}
+td:first-child{font-weight:500;white-space:nowrap}
+.rules{margin:12px 0 0;padding-left:18px;font-size:14px;color:var(--muted)}
+.rules li{margin:3px 0}
+svg .t{font:500 14px var(--body);fill:var(--ink)}
+svg .ts{font:400 12px var(--body);fill:var(--muted)}
+svg .bn{fill:var(--surface);stroke:var(--line-strong);stroke-width:1}
+svg .ba{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1}
+svg .bv{fill:var(--violet-soft);stroke:var(--violet);stroke-width:1}
+svg .dash{fill:none;stroke:var(--line-strong);stroke-width:1;stroke-dasharray:4 4}
+svg .ar{stroke:var(--muted);stroke-width:1.5;fill:none}
+svg .lf{stroke:var(--line-strong);stroke-width:1;stroke-dasharray:3 4}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.pill,.btn{font:500 14px var(--body);padding:7px 12px;border-radius:8px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);cursor:pointer}
+.pill:hover,.btn:hover{border-color:var(--accent)}
+.pill.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.pill.done::before{content:"\2713\00a0"}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.r-note{font-size:14px;color:var(--muted);margin-bottom:8px}
+.r-code{font:400 13px/2.15 var(--mono);white-space:pre-wrap;background:var(--code-bg);border-radius:10px;padding:12px 14px;color:var(--ink);overflow-wrap:anywhere}
+.blank{font:inherit;display:inline-block;min-width:68px;padding:0 6px;line-height:1.7;border:1px dashed var(--line-strong);border-radius:5px;background:var(--surface);color:var(--ink);cursor:pointer;text-align:center}
+.blank.f{border-style:solid}
+.blank.over{background:var(--accent-soft);border-color:var(--accent)}
+.blank.ok{background:var(--good-soft);color:var(--good);border-color:var(--good)}
+.blank.bad{background:var(--bad-soft);color:var(--bad);border-color:var(--bad)}
+.r-help{font-size:13px;color:var(--muted);margin:10px 0 6px}
+.r-bank{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:400 13px var(--mono);padding:5px 10px;border:1px solid var(--line-strong);border-radius:8px;background:var(--surface);color:var(--ink);cursor:grab;user-select:none}
+.chip.sel{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.r-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.r-msg{margin-top:10px;font-weight:500;min-height:1.5em}
+.r-msg.good{color:var(--good)} .r-msg.bad{color:var(--bad)}
+.r-fb{margin:6px 0 0;padding-left:18px;font-size:14px;color:var(--muted)}
+.exhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.tag{font-size:13px;font-weight:500;padding:2px 10px;border-radius:999px;background:var(--violet-soft);color:var(--violet)}
+@media (max-width:520px){h1{font-size:26px}h2{font-size:22px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="in"><a class="brand" href="#inicio"><span class="logo">ASIR</span><span>Aula de estudio</span></a><span class="grade">2º ASIR Vespertino</span></div></header>
+<div class="wrap">
+<section id="view-inicio">
+<h1>Tus asignaturas</h1>
+<p class="lead">Elige una asignatura para estudiar. Por ahora está lista la parte práctica de Servicios en Red e Internet.</p>
+<div class="subjects" id="subjects"></div>
+<p class="soon">Las demás asignaturas se irán añadiendo.</p>
+</section>
+<section id="view-sri" hidden>
+<a class="crumb" href="#inicio">← Asignaturas</a>
+<h2>Servicios en Red e Internet · parte práctica</h2>
+<div class="sum"><div class="bar" role="progressbar" aria-label="Ejercicios sin fallos"><i id="bar"></i></div><span id="count"></span></div>
+<nav class="tabs" id="tabs" aria-label="Servicios"></nav>
+<div id="panels"></div>
+</section>
+</div>
+<script>
+var EX=[
+{id:'dns-local-p',svc:'dns',tab:'named.conf.local · primario',file:'server1 · /etc/bind/named.conf.local',note:'',
+bank:['master','slave','/etc/bind/','db.examen.com','db.20.28','examen.com','28.20.in-addr.arpa','20.28.in-addr.arpa'],
+lines:[
+'//ZONA DIRECTA',
+'zone "[[examen.com|Zona directa: el nombre del dominio]]" {',
+'        type [[master|El primario es master]];',
+'        file "[[/etc/bind/]][[db.examen.com|Fichero de la zona directa]]";',
+'        allow-transfer { internals; };',
+'};',
+'//ZONA INVERSA',
+'zone "[[28.20.in-addr.arpa|Red 20.28 al revés + .in-addr.arpa]]" {',
+'        type [[master]];',
+'        file "[[/etc/bind/]][[db.20.28|El fichero se nombra al derecho: 20.28]]";',
+'        allow-transfer { internals; };',
+'};']},
+{id:'dns-local-s',svc:'dns',tab:'named.conf.local · secundario',file:'server2 · /etc/bind/named.conf.local',note:'Cambia solo una palabra respecto al primario. Los masters ya vienen puestos.',
+bank:['master','slave','/etc/bind/','db.examen.com','db.20.28','examen.com','28.20.in-addr.arpa','20.28.in-addr.arpa'],
+lines:[
+'//ZONA DIRECTA',
+'zone "[[examen.com|Zona directa: el nombre del dominio]]" {',
+'        type [[slave|El secundario es slave]];',
+'        file "[[/etc/bind/]][[db.examen.com|Fichero de la zona directa]]";',
+'        allow-query { any; };',
+'        masters { 20.28.10.11; };',
+'};',
+'//ZONA INVERSA',
+'zone "[[28.20.in-addr.arpa|Red 20.28 al revés + .in-addr.arpa]]" {',
+'        type [[slave]];',
+'        file "[[/etc/bind/]][[db.20.28|El fichero se nombra al derecho: 20.28]]";',
+'        allow-query { any; };',
+'        masters { 20.28.10.11; };',
+'};']},
+{id:'dns-options',svc:'dns',tab:'named.conf.options',file:'server1 y server2 · named.conf.options',note:'Es igual en primario y secundario. La ACL se llama internals.',
+bank:['forwarders','8.8.8.8','8.8.4.4','internals','safeclients'],
+lines:[
+'acl internals {',
+'        20.28.10.11;  20.28.20.12;',
+'        20.28.100.11; 20.28.200.12;',
+'};',
+'options {',
+'        directory "/var/cache/bind";',
+'        allow-query { any; };',
+'        allow-query-cache { [[internals|La ACL definida arriba]]; };',
+'        recursion yes;',
+'        allow-recursion { [[internals]]; };',
+'        allow-transfer { none; };',
+'        [[forwarders|Reenvía lo que no sabe a Google]] {',
+'                [[8.8.8.8|DNS de Google]];',
+'                [[8.8.4.4|DNS de Google]];',
+'        };',
+'        dnssec-validation auto;',
+'};']},
+{id:'dns-directa',svc:'dns',tab:'db.examen.com',file:'server1 · zona directa',note:'',
+bank:['server1.examen.com','root.examen.com','server2.examen.com','turno1.examen.com','turno2.examen.com','20.28.10.11','20.28.20.12','20.28.100.11','20.28.200.12','www','mail','NS','A','CNAME','PTR','MX'],
+lines:[
+'$TTL    604800',
+'@   IN   SOA   [[server1.examen.com|Servidor primario]]. [[root.examen.com|Correo del administrador]]. (',
+'               20210222   ; Serial',
+'               12h        ; Refresh',
+'               15m        ; Retry',
+'               3w         ; Expire',
+'               2h )       ; Negative Cache TTL',
+';name servers',
+'    IN  [[NS|NS = quién es servidor DNS de la zona]]  [[server1.examen.com]].   ;DNS primario',
+'    IN  [[NS]]  [[server2.examen.com]].   ;DNS secundario',
+';registros para resolución directa',
+'[[server1.examen.com]].  IN  [[A|A = nombre → IP]]  [[20.28.10.11|IP de server1]]   ;DNS primario',
+'[[server2.examen.com]].  IN  [[A]]  [[20.28.20.12|IP de server2]]   ;DNS secundario',
+'[[turno1.examen.com]].   IN  [[A]]  [[20.28.100.11|IP de turno1]]   ;turno1',
+'[[turno2.examen.com]].   IN  [[A]]  [[20.28.200.12|IP de turno2]]   ;turno2',
+'; registros para los alias',
+'[[www|Alias de turno1]]   IN  [[CNAME|CNAME = alias → nombre]]   turno1',
+'[[mail|Alias de turno2]]  IN  [[CNAME]]   turno2']},
+{id:'dns-inversa',svc:'dns',tab:'db.20.28',file:'server1 · zona inversa',note:'Las IPs sin invertir (20.12, 200.12, 10.11, 100.11) sobran. En el examen no se ve el punto tras el primer nombre del SOA; en un fichero real iría.',
+bank:['PTR','www.examen.com','server1.examen.com','11.10','20.12','12.20','server2.examen.com','200.12','11.100','NS','root.examen.com','turno1.examen.com','mail.examen.com','turno2.examen.com','100.11','10.11','12.200'],
+lines:[
+'$TTL    1d ;',
+'@   IN   SOA   [[server1.examen.com|Servidor primario]] [[root.examen.com|Correo del administrador]]. (',
+'               20210222   ; Serial',
+'               12h        ; Refresh',
+'               15m        ; Retry',
+'               3w         ; Expire',
+'               2h )       ; Negative Cache TTL',
+'; name servers',
+'    IN  [[NS|NS = quién es servidor DNS de la zona]]  [[server1.examen.com]].   ;línea para el DNS primario',
+'    IN  [[NS]]  [[server2.examen.com]].   ;línea para el DNS secundario',
+'; Registros para resolución inversa',
+'[[11.10|20.28.10.11: dos últimos octetos al revés]]   IN  [[PTR|PTR = IP → nombre]]  [[server1.examen.com]].   ; DNS primario',
+'[[12.20|20.28.20.12: dos últimos octetos al revés]]   IN  [[PTR]]  [[server2.examen.com]].   ; DNS secundario',
+'[[11.100|20.28.100.11: al revés es 11.100]]  IN  [[PTR]]  [[turno1.examen.com]].   ; turno1',
+'[[12.200|20.28.200.12: al revés es 12.200]]  IN  [[PTR]]  [[turno2.examen.com]].   ; turno2',
+'[[12.200|mail es turno2: mismo propietario]]  IN  [[PTR]]  [[mail.examen.com]].   ; mail',
+'[[11.100|www es turno1: mismo propietario]]  IN  [[PTR]]  [[www.examen.com]].   ; www']},
+{id:'dns-check',svc:'dns',tab:'comprobaciones',file:'server1 · terminal',note:'Orden: sintaxis, zona directa, zona inversa, reinicio, estado.',
+bank:['28.20','named-checkconf','named-checkzone','examen.com','restart','status','in-addr.arpa','20.28','systemctl','named.conf.local'],
+lines:[
+'//comprobación de fichero de zonas',
+'$ sudo [[named-checkconf|Comprueba la configuración]] /etc/bind/[[named.conf.local]]',
+'//comprobación del fichero zona directa',
+'$ sudo [[named-checkzone|Comprueba una zona: nombre y fichero]] [[examen.com]] /etc/bind/db.[[examen.com]]',
+'//comprobación del fichero de zona inversa',
+'$ sudo [[named-checkzone]] [[28.20|Red al revés]].[[in-addr.arpa]] /etc/bind/db.[[20.28|Fichero al derecho]]',
+'//reinicio del servicio bind',
+'$ sudo [[systemctl|Gestiona servicios]] [[restart|Reiniciar]] bind9',
+'//comprobación del servicio bind',
+'$ sudo [[systemctl]] [[status|Ver el estado]] bind9']},
+
+{id:'dhcp-conf',svc:'dhcp',tab:'dhcpd.conf',file:'servidor · /etc/dhcp/dhcpd.conf (alumno 5)',note:'Subred 192.168.5.0/24, servidor en .192, rango de .10 a .200.',
+bank:['192.168.5.0','255.255.255.0','192.168.5.10','192.168.5.200','192.168.5.1','routers','domain-name-servers','600','7200','192.168.5.192','255.255.0.0','192.168.5.100'],
+lines:[
+'subnet [[192.168.5.0|La red termina en .0]] netmask [[255.255.255.0|Máscara /24]] {',
+'  range [[192.168.5.10|Primera IP del rango]] [[192.168.5.200|Última IP del rango]];',
+'  option [[routers|Puerta de enlace]] [[192.168.5.1|El router, no el servidor]];',
+'  option [[domain-name-servers|DNS que reparte]] 8.8.8.8;',
+'  default-lease-time [[600|Concesión normal, en segundos]];',
+'  max-lease-time [[7200|Concesión máxima, en segundos]];',
+'}']},
+{id:'dhcp-reserva',svc:'dhcp',tab:'reserva por MAC',file:'servidor · final de dhcpd.conf',note:'La MAC sale de ip a en el cliente (link/ether).',
+bank:['host','subnet','hardware ethernet','fixed-address','range','02:42:c0:a8:05:03','192.168.5.100','192.168.5.192'],
+lines:[
+'[[host|Reserva para un equipo]] cliente_fijo {',
+'  [[hardware ethernet|Enlaza con la MAC]] [[02:42:c0:a8:05:03|MAC del cliente]];',
+'  [[fixed-address|IP que recibirá siempre]] [[192.168.5.100|IP reservada]];',
+'}']},
+{id:'dhcp-dual-1',svc:'dhcp',tab:'dual · principal',file:'principal (192.168.5.190) · dhcpd.conf',note:'Principal: la mitad baja del rango.',
+bank:['192.168.5.10','192.168.5.100','192.168.5.101','192.168.5.200','192.168.5.190','192.168.5.191'],
+lines:[
+'subnet 192.168.5.0 netmask 255.255.255.0 {',
+'  range [[192.168.5.10|Empieza en .10]] [[192.168.5.100|Termina en .100]];',
+'  option routers 192.168.5.1;',
+'}']},
+{id:'dhcp-dual-2',svc:'dhcp',tab:'dual · secundario',file:'secundario (192.168.5.191) · dhcpd.conf',note:'Los tramos no se solapan, así no se pisan las concesiones.',
+bank:['192.168.5.10','192.168.5.100','192.168.5.101','192.168.5.200','192.168.5.190','192.168.5.191'],
+lines:[
+'subnet 192.168.5.0 netmask 255.255.255.0 {',
+'  range [[192.168.5.101|Donde acaba el principal, más uno]] [[192.168.5.200|Termina en .200]];',
+'  option routers 192.168.5.1;',
+'}']},
+{id:'dhcp-cmd',svc:'dhcp',tab:'comandos y logs',file:'servidor y cliente · terminal',note:'Servidor y cliente son contenedores Docker.',
+bank:['start','stop','dhclient','a','-r','dhcpd.leases','syslog','dhcpd.conf','access.log'],
+lines:[
+'//arrancar el servidor',
+'$ service isc-dhcp-server [[start|Arrancar]]',
+'//pedir IP desde el cliente',
+'$ [[dhclient|Cliente DHCP]] -v eth0',
+'//ver la IP recibida',
+'$ ip [[a|Muestra las interfaces]]',
+'//liberar la concesión',
+'$ dhclient [[-r|Release]]',
+'//concesiones activas',
+'$ cat /var/lib/dhcp/[[dhcpd.leases|Fichero de concesiones]]',
+'//intercambio Discover, Offer, Request, ACK',
+'$ cat /var/log/[[syslog|Traza del sistema]]']},
+
+{id:'ftp-usuarios',svc:'ftp',tab:'usuarios y chroot',file:'servidor · /etc/vsftpd.conf',note:'Entran en su home: /home/ftp/usuario1_alu5.',
+bank:['local_enable','write_enable','chroot_local_user','allow_writeable_chroot','anonymous_enable','anon_upload_enable','chroot_list_enable','listen_port','chmod','777','755'],
+lines:[
+'# permitir el login de usuarios locales',
+'[[local_enable|Usuarios locales]]=YES',
+'# permitir subir ficheros y crear carpetas',
+'[[write_enable|Escritura]]=YES',
+'# enjaular a cada usuario en su directorio',
+'[[chroot_local_user|Enjaulado]]=YES',
+'# evitar el error 500 OOPS con la raíz escribible',
+'[[allow_writeable_chroot|Raíz escribible]]=YES',
+'',
+'# permisos totales en su carpeta',
+'$ [[chmod|Cambia permisos]] [[777|Todos los permisos]] /home/ftp/usuario1_alu5']},
+{id:'ftp-lista',svc:'ftp',tab:'uno enjaulado, otro libre',file:'servidor · /etc/vsftpd.conf y lista',note:'Con chroot_local_user=NO la lista son los enjaulados.',
+bank:['chroot_local_user','chroot_list_enable','chroot_list_file','/etc/vsftpd.chroot_list','usuario1_alu5','usuario2_alu5','/etc/ftpusers','allow_writeable_chroot'],
+lines:[
+'# usuario1 enjaulado y usuario2 libre',
+'[[chroot_local_user|Por defecto nadie enjaulado]]=NO',
+'[[chroot_list_enable|Activa la lista]]=YES',
+'[[chroot_list_file|Fichero con la lista]]=[[/etc/vsftpd.chroot_list|Ruta de la lista]]',
+'',
+'# contenido de la lista (con NO, los enjaulados)',
+'[[usuario1_alu5|El que queda enjaulado]]']},
+{id:'ftp-anonimo',svc:'ftp',tab:'usuario anónimo',file:'servidor · /etc/vsftpd.conf',note:'El raíz del anónimo no puede ser escribible: se sube a una subcarpeta.',
+bank:['anonymous_enable','anon_root','anon_upload_enable','anon_mkdir_write_enable','local_enable','write_enable','chroot_local_user'],
+lines:[
+'# que el anónimo pueda entrar',
+'[[anonymous_enable|Acceso anónimo]]=YES',
+'# su carpeta de trabajo',
+'[[anon_root|Carpeta del anónimo]]=/srv/ftp',
+'# que el anónimo pueda subir',
+'[[anon_upload_enable|Subida anónima]]=YES',
+'# que el anónimo pueda crear carpetas',
+'[[anon_mkdir_write_enable|Crear carpetas]]=YES']},
+{id:'ftp-avanzado',svc:'ftp',tab:'puerto, límites y logs',file:'servidor · /etc/vsftpd.conf',note:'Con listen_port hay que activar listen=YES.',
+bank:['listen','listen_port','max_clients','max_per_ip','ftpd_banner','xferlog_enable','xferlog_file','anon_root'],
+lines:[
+'# escuchar en modo independiente',
+'[[listen|Modo independiente]]=YES',
+'# cambiar el puerto',
+'[[listen_port|Puerto]]=2121',
+'# límite de conexiones totales',
+'[[max_clients|Clientes totales]]=10',
+'# límite de conexiones por IP',
+'[[max_per_ip|Por IP]]=3',
+'# mensaje de bienvenida',
+'[[ftpd_banner|Bienvenida]]="Bienvenido al FTP"',
+'# registrar las transferencias',
+'[[xferlog_enable|Activa el log]]=YES',
+'[[xferlog_file|Ruta del log]]=/var/log/vsftpd.log']},
+
+{id:'apa-puerto',svc:'apache',tab:'puerto y raíz web',file:'servidor · ports.conf y 000-default.conf',note:'Los dos 8080 tienen que coincidir.',
+bank:['Listen','8080','DocumentRoot','/var/w3','80','804','/var/www/html','ServerName'],
+lines:[
+'# /etc/apache2/ports.conf',
+'[[Listen|Puerto de escucha]] [[8080|Puerto nuevo]]',
+'',
+'# /etc/apache2/sites-available/000-default.conf',
+'<VirtualHost *:[[8080]]>',
+'    [[DocumentRoot|Carpeta de la web]] [[/var/w3|Nueva raíz]]',
+'</VirtualHost>']},
+{id:'apa-directory',svc:'apache',tab:'listado y acceso por IP',file:'servidor · apache2.conf',note:'Sin Indexes y sin index.html, Apache responde 403.',
+bank:['Directory','Options','Indexes','all granted','not ip','all denied','ErrorDocument','DirectoryIndex'],
+lines:[
+'<[[Directory|Bloque de una carpeta]] /var/w3>',
+'    [[Options|Opciones de la carpeta]] [[Indexes|Muestra el listado de ficheros]]',
+'    <RequireAll>',
+'        Require [[all granted|Permite a todos]]',
+'        Require [[not ip|Excepto esta IP]] 192.168.5.1',
+'    </RequireAll>',
+'</Directory>']},
+{id:'apa-index-404',svc:'apache',tab:'index y error 404',file:'servidor · dir.conf y 000-default.conf',note:'',
+bank:['DirectoryIndex','principal.html','ErrorDocument','404','403','DocumentRoot','index.php','500'],
+lines:[
+'# /etc/apache2/mods-enabled/dir.conf',
+'[[DirectoryIndex|Página por defecto]] [[principal.html|Nuestra página]] index.html',
+'',
+'# /etc/apache2/sites-available/000-default.conf',
+'[[ErrorDocument|Página de error propia]] [[404|No encontrado]] "NO EXISTE ESA PAGINA"']},
+{id:'apa-auth',svc:'apache',tab:'userdir y contraseña',file:'servidor · terminal y apache2.conf',note:'Userdir: carpeta public_html en la home → http://localhost/~usuario1_alu5/',
+bank:['a2enmod','a2ensite','htpasswd','AuthType','AuthUserFile','valid-user','all granted','AuthName'],
+lines:[
+'# habilitar userdir',
+'$ [[a2enmod|Activa un módulo]] userdir',
+'',
+'# directorio privado con contraseña',
+'$ [[htpasswd|Crea el fichero de contraseñas]] -c /etc/apache2/.htpasswd usuario2_alu5',
+'Alias /privado /var/privado',
+'<Directory /var/privado>',
+'    [[AuthType|Tipo de autenticación]] Basic',
+'    AuthName "Zona privada"',
+'    [[AuthUserFile|Fichero de contraseñas]] /etc/apache2/.htpasswd',
+'    Require [[valid-user|Cualquier usuario del fichero]]',
+'</Directory>']},
+{id:'apa-vhost',svc:'apache',tab:'virtual host',file:'servidor y cliente',note:'El cliente necesita /etc/hosts para resolver el nombre.',
+bank:['ServerName','DocumentRoot','/var/proyectoA','a2ensite','a2enmod','reload','hosts','/var/w3','ServerAlias'],
+lines:[
+'# /etc/apache2/sites-available/proyectoA.conf',
+'<VirtualHost *:80>',
+'    [[ServerName|Nombre del sitio]] www.proyectoA5.es',
+'    [[DocumentRoot|Carpeta de la web]] [[/var/proyectoA|Carpeta del proyecto]]',
+'</VirtualHost>',
+'',
+'$ [[a2ensite|Activa un sitio]] proyectoA',
+'$ service apache2 [[reload|Recarga sin cortar]]',
+'',
+'# en el cliente: /etc/[[hosts|Resolución local]]',
+'192.168.5.30 www.proyectoA5.es']},
+{id:'apa-servicio',svc:'apache',tab:'servicio y logs',file:'servidor · terminal',note:'',
+bank:['start','stop','restart','reload','apache2ctl','access.log','error.log'],
+lines:[
+'$ service apache2 [[start|Levantar]]',
+'$ service apache2 [[stop|Parar]]',
+'$ service apache2 [[restart|Reiniciar]]',
+'$ [[apache2ctl|Control de Apache]] configtest',
+'$ cat /var/log/apache2/[[access.log|Quién entra y qué pide]]']}
+];
+
+</script>
+<script>
+(function(){
+var KEY='asir-sri-v1',store={};
+try{store=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){store={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}}
+function $(s,r){return(r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+
+EX.forEach(function(ex){
+  ex.parts=[];ex.items=[];var n=0;
+  ex.lines.forEach(function(l){
+    var parts=[],last=0;
+    l.replace(/\[\[(.+?)(?:\|(.+?))?\]\]/g,function(m,a,h,off){
+      parts.push({t:l.slice(last,off)});parts.push({b:n});ex.items.push({a:a,h:h||''});n++;last=off+m.length;return m;
+    });
+    parts.push({t:l.slice(last)});ex.parts.push(parts);
+  });
+  var hm={};
+  ex.items.forEach(function(it){if(it.h&&!hm[it.a])hm[it.a]=it.h});
+  ex.items.forEach(function(it){if(!it.h)it.h=hm[it.a]||''});
+});
+
+function Runner(root,onDone){
+  root.innerHTML='<div class="r-note"></div><div class="r-code" role="group" aria-label="Fichero con huecos"></div><p class="r-help">Toca una palabra y luego un hueco, o arrástrala. Se pueden repetir y algunas sobran.</p><div class="r-bank"></div><div class="r-btns"><button type="button" class="btn primary" data-a="check">Comprobar</button><button type="button" class="btn" data-a="solve">Ver solución</button><button type="button" class="btn" data-a="reset">Reiniciar</button></div><div class="r-msg" aria-live="polite"></div><ul class="r-fb"></ul>';
+  var ex=null,fill=[],res=null,sel=null,words=[];
+  function msg(t,c){var m=$('.r-msg',root);m.textContent=t;m.className='r-msg'+(c?' '+c:'');$('.r-fb',root).innerHTML=''}
+  function setW(i,w){fill[i]=w;res=null;msg('');render()}
+  function render(){
+    $('.r-note',root).textContent=ex.file+(ex.note?'. '+ex.note:'');
+    var code=$('.r-code',root);code.innerHTML='';
+    ex.parts.forEach(function(parts){
+      parts.forEach(function(p){
+        if(p.t!==undefined){code.appendChild(document.createTextNode(p.t));return}
+        var i=p.b,v=fill[i];
+        var b=el('button','blank'+(v?' f':'')+(res&&v?(res[i]?' ok':' bad'):''));
+        b.type='button';b.textContent=v||' ';
+        b.setAttribute('aria-label','Hueco '+(i+1)+(v?': '+v:': vacío'));
+        b.onclick=function(){if(sel)setW(i,sel);else if(fill[i])setW(i,'')};
+        b.ondragover=function(e){e.preventDefault();b.classList.add('over')};
+        b.ondragleave=function(){b.classList.remove('over')};
+        b.ondrop=function(e){e.preventDefault();var w=e.dataTransfer.getData('text/plain');if(w)setW(i,w)};
+        code.appendChild(b);
+      });
+      code.appendChild(document.createTextNode('\n'));
+    });
+    var bank=$('.r-bank',root);bank.innerHTML='';
+    words.forEach(function(w){
+      var c=el('button','chip'+(sel===w?' sel':''),w);c.type='button';c.draggable=true;
+      c.ondragstart=function(e){e.dataTransfer.setData('text/plain',w)};
+      c.onclick=function(){sel=(sel===w)?null:w;render()};
+      bank.appendChild(c);
+    });
+  }
+  function check(){
+    var empty=fill.filter(function(v){return!v}).length;
+    if(empty){msg('Faltan '+empty+' huecos por rellenar.','bad');return}
+    res=fill.map(function(v,i){return v===ex.items[i].a});
+    var ok=res.filter(Boolean).length,n=res.length;
+    if(ok===n){msg('Perfecto: '+ok+' de '+n+'.','good');onDone(ex.id)}
+    else{
+      msg(ok+' de '+n+' correctos. Toca un hueco rojo para borrarlo.','');
+      var ul=$('.r-fb',root);
+      res.forEach(function(r,i){if(!r){var li=el('li','', 'Hueco '+(i+1)+': pusiste '+fill[i]+'. Va '+ex.items[i].a+(ex.items[i].h?' ('+ex.items[i].h+')':'')+'.');ul.appendChild(li)}});
+    }
+    render();
+  }
+  root.addEventListener('click',function(e){
+    var a=e.target&&e.target.getAttribute&&e.target.getAttribute('data-a');
+    if(a==='check')check();
+    else if(a==='solve'){fill=ex.items.map(function(it){return it.a});res=null;msg('');render()}
+    else if(a==='reset'){fill=ex.items.map(function(){return''});res=null;sel=null;msg('');render()}
+  });
+  return{load:function(e){ex=e;fill=e.items.map(function(){return''});res=null;sel=null;words=shuf(e.bank);msg('');render()}};
+}
+
+function defs(id){return'<defs><marker id="'+id+'" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>'}
+function bx(c,x,y,w,h,t1,t2){
+  var cx=x+w/2,s='<rect class="'+c+'" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="8"/>';
+  if(t2)s+='<text class="t" x="'+cx+'" y="'+(y+h/2-9)+'" text-anchor="middle" dominant-baseline="central">'+esc(t1)+'</text><text class="ts" x="'+cx+'" y="'+(y+h/2+10)+'" text-anchor="middle" dominant-baseline="central">'+esc(t2)+'</text>';
+  else s+='<text class="t" x="'+cx+'" y="'+(y+h/2)+'" text-anchor="middle" dominant-baseline="central">'+esc(t1)+'</text>';
+  return s;
+}
+function bx3(c,x,y,w,h,t1,t2,t3){
+  var cx=x+w/2;
+  return'<rect class="'+c+'" x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="8"/><text class="t" x="'+cx+'" y="'+(y+18)+'" text-anchor="middle" dominant-baseline="central">'+esc(t1)+'</text><text class="ts" x="'+cx+'" y="'+(y+40)+'" text-anchor="middle" dominant-baseline="central">'+esc(t2)+'</text><text class="ts" x="'+cx+'" y="'+(y+58)+'" text-anchor="middle" dominant-baseline="central">'+esc(t3)+'</text>';
+}
+function ln(x1,y1,x2,y2,id){return'<line class="ar" x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" marker-end="url(#'+id+')"/>'}
+function tx(x,y,t,a,c){return'<text class="'+c+'" x="'+x+'" y="'+y+'" text-anchor="'+a+'">'+esc(t)+'</text>'}
+function svg(h,title,body){return'<svg viewBox="0 0 680 '+h+'" role="img"><title>'+esc(title)+'</title>'+body+'</svg>'}
+
+var MAPS={};
+MAPS.dns=svg(440,'Mapa de DNS con BIND9',defs('a1')+
+  bx('bn',40,30,240,56,'server1 · DNS primario','20.28.10.11 · type master')+
+  bx('bn',400,30,240,56,'server2 · DNS secundario','type slave · recibe los db.*')+
+  ln(282,58,398,58,'a1')+tx(340,44,'copia zonas','middle','ts')+ln(160,88,160,108,'a1')+
+  '<rect class="dash" x="40" y="110" width="420" height="150" rx="12"/>'+tx(56,128,'Ficheros de server1 (los escribes tú)','start','ts')+
+  bx('ba',56,140,190,52,'named.conf.local','qué zonas hay')+bx('ba',254,140,190,52,'named.conf.options','ACL y forwarders')+
+  bx('bv',56,200,190,52,'db.examen.com','nombre → IP y alias')+bx('bv',254,200,190,52,'db.20.28','IP → nombre (PTR)')+
+  tx(40,292,'Truco de la zona inversa','start','t')+
+  bx('bn',40,334,150,44,'20.28.10.11')+ln(192,350,278,326,'a1')+ln(192,362,278,388,'a1')+
+  bx('ba',280,298,280,56,'zona 28.20.in-addr.arpa','red 20.28, al revés')+bx('bv',280,360,280,56,'PTR 11.10','resto 10.11, al revés'));
+MAPS.dhcp=svg(360,'Mapa de DHCP: intercambio DORA',defs('a2')+
+  bx('bn',40,30,170,48,'Cliente Ubuntu','sin IP fija')+bx('ba',470,30,170,48,'Servidor DHCP','192.168.5.192')+
+  '<line class="lf" x1="125" y1="80" x2="125" y2="250"/><line class="lf" x1="555" y1="80" x2="555" y2="250"/>'+
+  ln(125,110,553,110,'a2')+tx(340,102,'1 · Discover: ¿hay algún servidor?','middle','ts')+
+  ln(555,150,127,150,'a2')+tx(340,142,'2 · Offer: te ofrezco esta IP','middle','ts')+
+  ln(125,190,553,190,'a2')+tx(340,182,'3 · Request: acepto esa IP','middle','ts')+
+  ln(555,230,127,230,'a2')+tx(340,222,'4 · ACK: concesión confirmada','middle','ts')+
+  tx(40,268,'Ficheros del servidor','start','ts')+
+  bx('ba',40,278,190,52,'dhcpd.conf','rango, lease, reservas')+bx('bv',245,278,190,52,'dhcpd.leases','concesiones activas')+bx('bv',450,278,190,52,'syslog','trazas Discover → ACK'));
+MAPS.ftp=svg(310,'Mapa de FTP con vsftpd',defs('a3')+
+  bx('bn',40,134,150,56,'Cliente','ftp, lftp o navegador')+bx('ba',250,134,170,56,'Servidor vsftpd','/etc/vsftpd.conf')+
+  ln(192,162,248,162,'a3')+ln(422,150,478,84,'a3')+ln(422,174,478,240,'a3')+
+  bx3('bv',480,42,160,76,'/home/ftp/usuario1','usuario local, enjaulado','chroot_local_user=YES')+
+  bx3('bv',480,202,160,76,'/srv/ftp','usuario anónimo','anonymous_enable=YES')+
+  tx(40,298,'write_enable=YES → suben y crean carpetas · anon_upload_enable=YES → el anónimo también','start','ts'));
+MAPS.apache=svg(330,'Mapa de Apache',defs('a4')+
+  bx('bn',40,130,140,56,'Cliente','curl o navegador')+bx('ba',240,130,170,56,'apache2','service apache2 restart')+
+  ln(182,158,238,158,'a4')+ln(412,146,468,56,'a4')+ln(412,152,468,130,'a4')+ln(412,164,468,204,'a4')+ln(412,170,468,278,'a4')+
+  bx('ba',470,30,170,52,'ports.conf','Listen 80 → 8080')+bx('ba',470,104,170,52,'000-default.conf','DocumentRoot → /var/w3')+
+  bx('bv',470,178,170,52,'/var/w3','principal.html, imagenes/')+bx('bv',470,252,170,52,'/var/log/apache2','access.log, error.log'));
+
+function table(h,rows){
+  var s='<table><thead><tr>'+h.map(function(x){return'<th>'+esc(x)+'</th>'}).join('')+'</tr></thead><tbody>';
+  rows.forEach(function(r){s+='<tr>'+r.map(function(x){return'<td>'+esc(x)+'</td>'}).join('')+'</tr>'});
+  return s+'</tbody></table>';
+}
+function rules(a){return'<ul class="rules">'+a.map(function(x){return'<li>'+esc(x)+'</li>'}).join('')+'</ul>'}
+var TABLES={
+dns:table(['','Zona directa','Zona inversa','PTR lleva','Lo nuevo'],[
+ ['Práctica 1','aula2ASIRX.com','X.168.192.in-addr.arpa','último octeto','A, NS y PTR'],
+ ['→ Práctica 2','ieslaarboledaX.com','no la pide','–','forwarders 8.8.8.8 y 8.8.4.4 + CNAME'],
+ ['→ Práctica 3','asirX.net','X.10.in-addr.arpa (db.10.X)','2 últimos octetos al revés','3 subredes, MX prioridad 10, CNAME'],
+ ['→ Práctica 4','igual que la 3','igual','igual','esclavo, SOA 259200 / 28800 / 864000, allow-transfer'],
+ ['Examen','examen.com','28.20.in-addr.arpa','2 últimos octetos al revés','práctica 2 + 4 + ACL internals']])+
+ rules(['Red 20.28 → zona 28.20.in-addr.arpa · IP 20.28.10.11 → PTR 11.10','Primario → secundario: master → slave · allow-transfer → masters','A: nombre → IP · PTR: IP → nombre · NS: servidor · CNAME: alias → nombre · MX: correo']),
+dhcp:table(['','Práctica 1','→ Práctica 2 (dual)'],[
+ ['Servidores','1 (.192)','2: principal .190 → secundario .191'],
+ ['range','.10 → .200','principal .10 → .100 · secundario .101 → .200'],
+ ['Reserva por MAC','sí (.100)','no'],
+ ['Si cae el principal','–','el secundario sigue repartiendo .101 → .200']])+
+ rules(['Reserva: MAC (ip a) → host + hardware ethernet + fixed-address → restart → dhclient -r y dhclient -v eth0','DORA: Discover → Offer → Request → ACK, se ve en /var/log/syslog','Concesiones activas: /var/lib/dhcp/dhcpd.leases']),
+ftp:table(['Directiva','NO o comentada','→ YES'],[
+ ['chroot_local_user','se mueve por todo el sistema','enjaulado en su home'],
+ ['write_enable','solo puede bajar','sube y crea carpetas'],
+ ['anonymous_enable','530 Login incorrect','entra como anonymous (/srv/ftp)'],
+ ['anon_upload_enable','el anónimo solo baja','el anónimo también sube'],
+ ['chroot_list_enable','la lista no se usa','con chroot_local_user=NO la lista son los enjaulados; con YES, los libres']])+
+ rules(['Usuario de la instalación: ftp · fichero: /etc/vsftpd.conf · log: /var/log/vsftpd.log','chmod 777 /home/ftp/usuario1_alu5 → permisos totales','root está bloqueado por /etc/ftpusers']),
+apache:table(['Quiero','Fichero','Cambio'],[
+ ['Puerto','ports.conf y VirtualHost','Listen 80 → 8080 → 804 (los dos iguales)'],
+ ['Raíz web','000-default.conf y apache2.conf','DocumentRoot /var/www/html → /var/w3, y <Directory> con Require all granted'],
+ ['Página por defecto','mods-enabled/dir.conf','DirectoryIndex index.html → principal.html'],
+ ['Listado','<Directory>','Options Indexes (sin Indexes → 403)'],
+ ['Bloquear una IP','<Directory>','Require all granted → más Require not ip 192.168.5.1'],
+ ['Error 404','000-default.conf','ErrorDocument 404 "NO EXISTE ESA PAGINA"']])+
+ rules(['Servicio: service apache2 start → stop → restart · comprobar con apache2ctl configtest','Logs: /var/log/apache2/access.log y error.log','Userdir: a2enmod userdir → ~/public_html · Virtual host: a2ensite → reload → /etc/hosts del cliente'])
+};
+
+var SV=[
+ {id:'dns',name:'DNS',cmp:'Qué cambia entre prácticas'},
+ {id:'dhcp',name:'DHCP',cmp:'Qué cambia entre prácticas'},
+ {id:'ftp',name:'FTP',cmp:'Qué cambia al activar cada directiva'},
+ {id:'apache',name:'Apache',cmp:'Qué cambia para cada tarea'}
+];
+var NAMES={dns:'DNS',dhcp:'DHCP',ftp:'FTP',apache:'Apache'};
+var panels=$('#panels'),tabs=$('#tabs');
+var pillSets=[];
+
+function refresh(){
+  var done=EX.filter(function(e){return store[e.id]}).length,n=EX.length;
+  $('#count').textContent=done+' de '+n+' ejercicios sin fallos';
+  $('#bar').style.width=Math.round(done*100/n)+'%';
+  $$('.pill[data-id]').forEach(function(p){p.classList.toggle('done',!!store[p.getAttribute('data-id')])});
+  var sc=$('#sri-card-count');if(sc)sc.textContent=done+' de '+n+' ejercicios sin fallos';
+}
+function onDone(id){store[id]=1;save();refresh()}
+
+SV.forEach(function(s){
+  var a=el('a','',s.name);a.href='#sri-'+s.id;a.setAttribute('data-t',s.id);tabs.appendChild(a);
+  var p=el('section','panel');p.id='panel-'+s.id;p.hidden=true;
+  p.innerHTML='<div class="card"><h3>Mapa</h3>'+MAPS[s.id]+'</div><div class="card"><h3>'+esc(s.cmp)+'</h3><div class="tw">'+TABLES[s.id]+'</div></div><div class="card"><h3>Ejercicios: arrastra y rellena</h3><div class="pills"></div><div class="runner"></div></div>';
+  panels.appendChild(p);
+  var runner=Runner($('.runner',p),onDone),pills=$('.pills',p),list=EX.filter(function(e){return e.svc===s.id});
+  list.forEach(function(e,i){
+    var b=el('button','pill'+(i===0?' on':''),e.tab);b.type='button';b.setAttribute('data-id',e.id);
+    b.onclick=function(){$$('.pill',pills).forEach(function(x){x.classList.remove('on')});b.classList.add('on');runner.load(e)};
+    pills.appendChild(b);
+  });
+  runner.load(list[0]);
+});
+
+var ea=el('a','','Modo examen');ea.href='#sri-examen';ea.setAttribute('data-t','examen');tabs.appendChild(ea);
+var ep=el('section','panel');ep.id='panel-examen';ep.hidden=true;
+ep.innerHTML='<div class="card"><h3>Modo examen</h3><p class="lead" style="margin:0 0 14px">Te sale un fichero al azar de cualquier servicio. Rellénalo sin mirar la teoría, como en el examen.</p><div class="exhead"><span class="tag"></span><button type="button" class="btn primary" id="next">Otro al azar</button></div><div class="runner"></div></div>';
+panels.appendChild(ep);
+var er=Runner($('.runner',ep),onDone),last=null;
+function rnd(){
+  var pool=EX.filter(function(e){return e!==last}),e=pool[Math.floor(Math.random()*pool.length)];
+  last=e;$('.tag',ep).textContent=NAMES[e.svc]+' · '+e.tab;er.load(e);
+}
+$('#next').onclick=rnd;rnd();
+
+var CARDS=[
+ ['b1','Administración de Sistemas Operativos'],
+ ['b2','Administración de Sistemas Gestores de Bases de Datos'],
+ ['b3','Arquitectura Cloud'],
+ ['b4','Digitalización'],
+ ['b5','Implantación de Aplicaciones Web'],
+ ['b6','Inglés'],
+ ['b7','Seguridad y Alta disponibilidad'],
+ ['b8','Servicios en Red e Internet']
+];
+var sg=$('#subjects');
+CARDS.forEach(function(c){
+  var on=c[0]==='b8',a=el(on?'a':'div','subj '+(on?'on':'off'));
+  if(on)a.href='#sri';else a.setAttribute('aria-disabled','true');
+  a.innerHTML='<div class="ban '+c[0]+'"></div><div class="tx"><h3>'+esc(c[1])+'</h3><span class="sub">2º ASIR Vespertino</span>'+(on?'<span class="badge">Parte práctica disponible</span><span class="sub" id="sri-card-count"></span>':'<span class="badge">Próximamente</span>')+'</div>';
+  sg.appendChild(a);
+});
+
+var lastView='';
+function route(){
+  var h=(location.hash||'#inicio').slice(1);
+  if(h==='sri')h='sri-dns';
+  var inSri=h.indexOf('sri-')===0,view=inSri?'sri':'inicio';
+  $('#view-inicio').hidden=inSri;$('#view-sri').hidden=!inSri;
+  if(inSri){
+    var id=h.slice(4);if(!$('#panel-'+id))id='dns';
+    $$('.panel').forEach(function(p){p.hidden=(p.id!=='panel-'+id)});
+    $$('a',tabs).forEach(function(a){a.classList.toggle('on',a.getAttribute('data-t')===id)});
+  }
+  if(view!==lastView){try{window.scrollTo(0,0)}catch(e){}lastView=view}
+}
+window.addEventListener('hashchange',route);
+refresh();route();
+})();
+
+</script>
+</body>
+</html>
