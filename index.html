@@ -187,6 +187,12 @@ code{font-family:var(--mono);font-size:.92em}
 <nav class="tabs" id="tabs" aria-label="Servicios"></nav>
 <div id="panels"></div>
 </section>
+<section id="view-web" hidden>
+<a class="crumb" href="#inicio">← Asignaturas</a>
+<h2>Implantación de Aplicaciones Web · PHP</h2>
+<nav class="tabs" id="wb-tabs" aria-label="Secciones"></nav>
+<div id="wb-panels"></div>
+</section>
 <section id="view-nube" hidden>
 <a class="crumb" href="#inicio">← Asignaturas</a>
 <h2>Arquitectura Cloud · prácticas de AWS</h2>
@@ -702,9 +708,9 @@ var CARDS=[
 ];
 var sg=$('#subjects');
 CARDS.forEach(function(c){
-  var on=c[0]==='b8'||c[0]==='b2'||c[0]==='b7'||c[0]==='b3',isBd=c[0]==='b2',isSeg=c[0]==='b7',isNube=c[0]==='b3',a=el(on?'a':'div','subj '+(on?'on':'off'));
-  if(on)a.href=isNube?'#nube':isSeg?'#seg':isBd?'#bd':'#sri';else a.setAttribute('aria-disabled','true');
-  a.innerHTML='<div class="ban '+c[0]+'"></div><div class="tx"><h3>'+esc(c[1])+'</h3><span class="sub">2º ASIR Vespertino</span>'+(on?(isNube?'<span class="badge">Prácticas de AWS: estudio y ejercicios con imágenes</span>':isSeg?'<span class="badge">Estudio y ejercicios con imágenes</span><span class="sub" id="seg-card-count"></span>':isBd?'<span class="badge">Test de optimización SQL</span><span class="sub" id="bd-card-count"></span>':'<span class="badge">Parte práctica disponible</span><span class="sub" id="sri-card-count"></span>'):'<span class="badge">Próximamente</span>')+'</div>';
+  var on=c[0]==='b8'||c[0]==='b2'||c[0]==='b7'||c[0]==='b3'||c[0]==='b5',isWeb=c[0]==='b5',isBd=c[0]==='b2',isSeg=c[0]==='b7',isNube=c[0]==='b3',a=el(on?'a':'div','subj '+(on?'on':'off'));
+  if(on)a.href=isWeb?'#web':isNube?'#nube':isSeg?'#seg':isBd?'#bd':'#sri';else a.setAttribute('aria-disabled','true');
+  a.innerHTML='<div class="ban '+c[0]+'"></div><div class="tx"><h3>'+esc(c[1])+'</h3><span class="sub">2º ASIR Vespertino</span>'+(on?(isWeb?'<span class="badge">PHP: arrays, cadenas y HTML</span>':isNube?'<span class="badge">Prácticas de AWS: estudio y ejercicios con imágenes</span>':isSeg?'<span class="badge">Estudio y ejercicios con imágenes</span><span class="sub" id="seg-card-count"></span>':isBd?'<span class="badge">Test de optimización SQL</span><span class="sub" id="bd-card-count"></span>':'<span class="badge">Parte práctica disponible</span><span class="sub" id="sri-card-count"></span>'):'<span class="badge">Próximamente</span>')+'</div>';
   sg.appendChild(a);
 });
 
@@ -712,8 +718,8 @@ var lastView='';
 function route(){
   var h=(location.hash||'#inicio').slice(1);
   if(h==='sri')h='sri-dns';
-  var inSri=h.indexOf('sri-')===0,inBd=h==='bd'||h.indexOf('bd-')===0,inSeg=h==='seg'||h.indexOf('seg-')===0,inNube=h==='nube'||h.indexOf('nb-')===0,view=inSri?'sri':inBd?'bd':inSeg?'seg':inNube?'nube':'inicio';
-  $('#view-inicio').hidden=inSri||inBd||inSeg||inNube;$('#view-seg').hidden=!inSeg;$('#view-nube').hidden=!inNube;$('#view-sri').hidden=!inSri;$('#view-bd').hidden=!inBd;
+  var inSri=h.indexOf('sri-')===0,inBd=h==='bd'||h.indexOf('bd-')===0,inSeg=h==='seg'||h.indexOf('seg-')===0,inNube=h==='nube'||h.indexOf('nb-')===0,inWeb=h==='web'||h.indexOf('wb-')===0,view=inSri?'sri':inBd?'bd':inSeg?'seg':inNube?'nube':'inicio';
+  $('#view-inicio').hidden=inSri||inBd||inSeg||inNube||inWeb;$('#view-web').hidden=!inWeb;$('#view-seg').hidden=!inSeg;$('#view-nube').hidden=!inNube;$('#view-sri').hidden=!inSri;$('#view-bd').hidden=!inBd;
   if(inSri){
     var id=h.slice(4);if(!$('#panel-'+id))id='dns';
     $$('.panel').forEach(function(p){p.hidden=(p.id!=='panel-'+id)});
@@ -2004,6 +2010,466 @@ function route(){
   if(h!=='nube'&&h.indexOf('nb-')!==0)return;
   var id=h.slice(3);if(!$('#nbp-'+id))id='estudio';
   $$('#nb-panels .panel').forEach(function(p){p.hidden=(p.id!=='nbp-'+id)});
+  $$('a',tabs).forEach(function(a){a.classList.toggle('on',a.getAttribute('data-t')===id)});
+}
+window.addEventListener('hashchange',route);
+start('Todas');newExam();refresh();route();
+})();
+
+var WQ=[];
+function W_(c,code,q,o,e){WQ.push({c:c,code:code||'',q:q,o:o,e:e})}
+var A='Arrays',R_='Recorrer',F_='Funciones de array',C='Cadenas',M='Modificar y calcular',H='HTML y PHP',Z_='Comparativas';
+
+/* ---------- Arrays ---------- */
+W_(A,'',"¿Qué es un array indexado en PHP?",["Un array cuyas claves son números enteros: 0, 1, 2…","Un array cuyas claves son siempre textos","Un array que solo puede guardar números","Un array que se ordena solo al crearlo"],"Indexado = claves numéricas (por defecto empiezan en 0). Asociativo = claves de texto.");
+W_(A,'',"¿Qué es un array asociativo?",["Un array en el que cada valor se identifica con una clave de texto, como «titulo» o «J001»","Un array en el que cada valor se identifica con un número que empieza en 0","Un array que solo admite una clave por cada tipo de dato","Un array que relaciona dos variables distintas del programa"],"Se escribe clave => valor. La clave puede ser texto o número, pero en un asociativo se usa para dar significado al dato.");
+W_(A,'',"¿Qué es un array bidimensional?",["Un array cuyos elementos son a su vez arrays (una tabla de filas y columnas)","Un array que tiene exactamente dos elementos","Un array que se puede recorrer en dos sentidos","Un array con dos claves iguales por cada valor"],"El catálogo de videojuegos es bidimensional: cada código (J001…) contiene otro array con título, género, plataforma, precio y stock.");
+W_(A,'$a = ["rojo", "verde", "azul"];\necho $a[1];',"¿Qué imprime este código?",["verde","rojo","azul","1"],"Los índices empiezan en 0: $a[0] es rojo, $a[1] es verde y $a[2] es azul.");
+W_(A,'$j = ["titulo" => "Minecraft", "stock" => 20];\necho $j["stock"];',"¿Qué imprime este código?",["20","stock","Minecraft","Error: la clave debe ser un número"],"Con un array asociativo se accede al valor por su clave de texto.");
+W_(A,'$v = [\n  "J001" => ["titulo" => "GTA VI", "precio" => 79.99],\n  "J002" => ["titulo" => "Minecraft", "precio" => 29.99]\n];\necho $v["J002"]["titulo"];',"¿Qué imprime este código?",["Minecraft","J002","29.99","Array"],"Primero la clave exterior («J002») y luego la interior («titulo»): $v[\"J002\"][\"titulo\"].");
+W_(A,'',"En el array del catálogo, ¿qué representan «J001», «J002»… y qué representan «titulo», «precio»…?",["«J001…» son las claves de cada videojuego; «titulo…» son las claves de sus atributos","«J001…» son valores y «titulo…» son los índices numéricos","Las dos cosas son claves del mismo nivel del array","«J001…» son atributos y «titulo…» son los códigos"],"Es un array de dos niveles: el exterior usa el código como clave y cada valor es un array interior con claves de atributo.");
+W_(A,'$a = ["x", "y"];\n$a[] = "z";\necho count($a);',"¿Qué hace $a[] = \"z\"; y qué imprime count($a)?",["Añade «z» al final con el siguiente índice libre; imprime 3","Sustituye el primer elemento por «z»; imprime 2","Da error porque faltan los corchetes con índice; no imprime nada","Añade «z» al principio y reordena los índices; imprime 3"],"Los corchetes vacíos añaden al final usando el siguiente índice numérico libre.");
+W_(A,'',"¿Qué diferencia hay entre usar [ ] y array( ) para crear un array?",["Ninguna: [ ] es la sintaxis corta de array( ) y hacen lo mismo","[ ] crea arrays asociativos y array( ) solo indexados","array( ) es más rápido porque se evalúa antes de ejecutar","[ ] solo funciona dentro de funciones"],"Desde PHP 5.4 se puede usar [ ] en lugar de array( ). El enunciado usa la forma corta.");
+W_(A,'',"¿Qué significa el operador => dentro de un array?",["Asocia una clave con su valor: clave => valor","Compara si dos valores son iguales o mayores","Asigna el valor de la derecha a la variable de la izquierda","Indica que el valor es de tipo array"],"=> separa clave y valor en arrays y en foreach ($a as $k => $v). No es una comparación (>=) ni una asignación (=).");
+W_(A,'',"¿Para qué sirve la clave «J001» en lugar de usar 0, 1, 2…?",["Identifica cada videojuego con un código propio y permite acceder directamente: $videojuegos[\"J001\"]","Hace que el array ocupe menos memoria","Obliga a PHP a ordenar los videojuegos por código","Permite repetir el mismo código en varios videojuegos"],"Una clave con significado permite localizar un elemento sin recorrerlo. Además, las claves no se repiten: asignar a una clave existente la sobrescribe.");
+W_(A,'$a = ["J001" => "uno"];\n$a["J001"] = "dos";\necho count($a);',"¿Qué imprime este código?",["1, porque la clave J001 ya existía y se sobrescribe su valor","2, porque se guardan los dos valores","0, porque se borra el elemento anterior","Error: la clave ya está en uso"],"Las claves son únicas: al asignar a una existente se cambia el valor, no se añade otro elemento.");
+W_(A,'',"¿Qué devuelve count($videojuegos) con el array del ejercicio?",["5, el número de elementos del nivel exterior (los videojuegos)","25, porque cuenta todos los atributos","6, porque cuenta también el array completo","1, porque hay un solo array"],"count() solo cuenta los elementos del primer nivel salvo que se use COUNT_RECURSIVE. Hay 5 videojuegos.");
+W_(A,'',"¿Cómo accedes al precio del videojuego J003?",["$videojuegos[\"J003\"][\"precio\"]","$videojuegos[\"precio\"][\"J003\"]","$videojuegos.J003.precio","$videojuegos->J003->precio"],"En PHP los arrays se indexan con corchetes y se va de fuera adentro: primero la clave del videojuego y luego la del atributo. El punto y la flecha son de otros lenguajes o de objetos.");
+W_(A,'',"¿Qué diferencia hay entre $a[\"1\"] y $a[\"uno\"]?",["Ninguna en tipo de array, pero «1» como texto numérico se convierte en la clave entera 1 y «uno» queda como texto","«1» es siempre una clave de texto y «uno» una entera","Las dos dan error si el array es asociativo","$a[\"uno\"] solo funciona si el array es bidimensional"],"PHP convierte las claves de texto que son enteros decimales («1») en enteros. Una clave como «uno» se queda como texto.");
+
+/* ---------- Recorrer ---------- */
+W_(R_,'',"¿Qué estructura se usa para recorrer un array asociativo y obtener cada clave y su valor?",["foreach ($array as $clave => $valor)","for ($i = 0; $i < count($array); $i++)","while ($array)","switch ($array)"],"foreach es la estructura pensada para arrays. Con $clave => $valor recibes ambas cosas en cada vuelta.");
+W_(R_,'',"¿Por qué un for con $i < count($videojuegos) y $videojuegos[$i] no funciona con el array del ejercicio?",["Porque las claves son «J001»… y no 0, 1, 2…, así que $videojuegos[0] no existe","Porque for no se puede usar con arrays","Porque count() devuelve siempre 0 en arrays bidimensionales","Porque $i no puede ser entero en PHP"],"El for con contador solo sirve para arrays indexados con claves 0,1,2…. En un asociativo hay que usar foreach.");
+W_(R_,'foreach ($videojuegos as $codigo => $juego) {\n  echo $codigo . " ";\n}',"¿Qué contiene $codigo en cada vuelta del bucle?",["La clave exterior: J001, J002, J003…","El array completo de cada videojuego","El título de cada videojuego","El número de vuelta: 0, 1, 2…"],"En foreach ($a as $k => $v), $k toma la clave y $v el valor. Aquí el valor ($juego) es el array interior.");
+W_(R_,'foreach ($videojuegos as $codigo => $juego) {\n  echo $juego["titulo"] . "\\n";\n}',"En este bucle, ¿qué tipo de dato es $juego?",["Un array con titulo, genero, plataforma, precio y stock","Un texto con el título","Un número con el precio","La clave «J001», «J002»…"],"Como el array es bidimensional, el valor de cada vuelta es otro array y por eso se escribe $juego[\"titulo\"].");
+W_(R_,'',"¿Qué diferencia hay entre foreach ($a as $v) y foreach ($a as $k => $v)?",["La primera solo da el valor; la segunda da también la clave","La primera recorre al revés y la segunda al derecho","La primera solo funciona con arrays indexados","No hay diferencia: $k se crea siempre"],"Si no necesitas la clave, basta $v. En el catálogo la necesitas para mostrar el código (J001…).");
+W_(R_,'',"Para mostrar la columna «Código» de la tabla, ¿qué debes usar?",["La variable de clave del foreach ($codigo => $juego)","Un valor $juego[\"codigo\"], que ya viene en el array","La función count()","El índice numérico $i de un for"],"El array interior no tiene un campo «codigo»: el código es la clave exterior, así que hay que pedirla con $codigo =>.");
+W_(R_,'$n = 0;\nforeach ($videojuegos as $j) {\n  $n++;\n}\necho $n;',"¿Qué imprime este código con el array del ejercicio?",["5","0","60","1"],"$n++ suma uno por cada vuelta, y hay cinco videojuegos. Es un contador, igual que count().");
+W_(R_,'$total = 0;\nforeach ($videojuegos as $j) {\n  $total += $j["stock"];\n}\necho $total;',"¿Qué calcula este código y cuánto imprime?",["Suma el stock de todos los videojuegos: 60","Cuenta los videojuegos: 5","Calcula el precio total: 234.95","Imprime el último stock: 15"],"$total += x es lo mismo que $total = $total + x. 12+8+20+5+15 = 60 unidades.");
+W_(R_,'',"¿Por qué conviene inicializar $total = 0 antes del foreach que suma el stock?",["Porque la variable debe tener un valor inicial conocido antes de acumular; si no, el resultado puede ser erróneo o dar aviso","Porque PHP no deja usar variables dentro de un foreach","Para que el foreach recorra el array al revés","Porque si no, el array se vacía"],"Un acumulador necesita empezar en 0. Sin inicializar, PHP avisa de variable no definida y el resultado depende de la primera vuelta.");
+W_(R_,'',"¿Cómo se recorre un array bidimensional completo, con todos sus atributos?",["Con un foreach dentro de otro foreach (bucle anidado)","Con un único foreach, que recorre todos los niveles a la vez","Con un for que va de 0 a 25","No se puede: hay que convertirlo antes a texto"],"El foreach exterior recorre los videojuegos y el interior recorre los atributos de cada uno. Para columnas fijas basta un solo foreach y acceder a cada clave.");
+W_(R_,'foreach ($videojuegos as $juego) {\n  foreach ($juego as $atributo => $valor) {\n    echo $atributo . ": " . $valor . " ";\n  }\n}',"¿Qué hace este código?",["Recorre todos los atributos de todos los videojuegos y los imprime como «clave: valor»","Imprime solo el título de cada videojuego","Imprime únicamente las claves J001, J002…","Da error porque no se pueden anidar bucles"],"El bucle exterior da cada juego y el interior recorre sus atributos (titulo, genero, plataforma, precio, stock).");
+W_(R_,'',"Dentro de un foreach ($videojuegos as $j), ¿qué pasa si haces $j[\"stock\"] = 0;?",["Solo cambia la copia $j; el array original no se modifica","Pone a 0 el stock de todos los videojuegos en el array original","Da error porque $j es de solo lectura","Borra el videojuego del array"],"Por defecto foreach trabaja con una copia del valor. Para modificar el original se usa la clave ($videojuegos[$codigo][\"stock\"] = 0) o una referencia (&$j).");
+W_(R_,'',"Quieres modificar el precio de todos los videojuegos dentro de un foreach. ¿Cuál es la forma correcta?",["foreach ($videojuegos as $codigo => $j) { $videojuegos[$codigo][\"precio\"] = ...; }","foreach ($videojuegos as $j) { $j[\"precio\"] = ...; }","foreach ($videojuegos as $precio) { $precio = ...; }","for ($i = 0; $i < 5; $i++) { $videojuegos[$i][\"precio\"] = ...; }"],"Hay que escribir en el array original usando su clave. La segunda opción solo cambia una copia y la cuarta falla porque las claves no son 0..4.");
+
+/* ---------- Funciones de array ---------- */
+W_(F_,'',"¿Qué hace count($array)?",["Devuelve el número de elementos del array","Suma los valores numéricos del array","Devuelve el último elemento","Cuenta las letras de todos los valores"],"count() cuenta elementos. Para sumar valores se usa array_sum().");
+W_(F_,'',"¿Qué diferencia hay entre count() y array_sum()?",["count() devuelve cuántos elementos hay; array_sum() suma sus valores","count() suma los valores y array_sum() los cuenta","Las dos hacen lo mismo con distinto nombre","count() solo sirve con textos y array_sum() con números"],"Para la media: array_sum($precios) / count($precios).");
+W_(F_,'',"¿Qué hace array_column($videojuegos, \"precio\")?",["Devuelve un array con el valor «precio» de cada videojuego","Devuelve la columna del videojuego más caro","Elimina el atributo «precio» de todos los videojuegos","Ordena el array por precio"],"Extrae una «columna» de un array bidimensional. Combinada con array_sum() o max() simplifica los cálculos.");
+W_(F_,'echo array_sum(array_column($videojuegos, "stock"));',"¿Qué imprime este código con el array inicial?",["60","5","234.95","15"],"array_column saca los stocks (12, 8, 20, 5, 15) y array_sum los suma: 60.");
+W_(F_,'',"¿Qué hace max(array_column($videojuegos, \"precio\"))?",["Devuelve el precio más alto, pero no el videojuego al que pertenece","Devuelve el título del videojuego más caro","Devuelve la clave del videojuego más caro","Devuelve el número de videojuegos caros"],"max() da el mayor valor. Para saber qué videojuego es hay que buscar su clave, por ejemplo con un foreach que guarde el mayor.");
+W_(F_,'$mayor = 0; $caro = "";\nforeach ($videojuegos as $cod => $j) {\n  if ($j["precio"] > $mayor) {\n    $mayor = $j["precio"];\n    $caro = $cod;\n  }\n}',"¿Qué contiene $caro al terminar este bucle con el array inicial?",["J001, el código del videojuego más caro","79.99, el precio más alto","Grand Theft Auto VI, el título","5, el número de videojuegos"],"El bucle guarda el mayor precio visto y la clave que lo tenía. $mayor valdría 79.99 y $caro «J001».");
+W_(F_,'',"¿Qué hace in_array(\"Rol\", $generos)?",["Devuelve true si el valor «Rol» está en el array $generos","Devuelve la posición de «Rol» en el array","Añade «Rol» al array","Devuelve true si «Rol» es una clave del array"],"in_array busca un VALOR. Para buscar una CLAVE se usa array_key_exists() o isset().");
+W_(F_,'',"¿Qué diferencia hay entre in_array() y array_key_exists()?",["in_array busca un valor; array_key_exists busca una clave","in_array busca una clave; array_key_exists busca un valor","in_array solo sirve en arrays bidimensionales","Son idénticas"],"Ejemplo: array_key_exists(\"J001\", $videojuegos) es true; in_array(\"J001\", $videojuegos) es false, porque J001 es clave, no valor.");
+W_(F_,'',"¿Qué hace isset($videojuegos[\"J009\"])?",["Devuelve false si esa clave no existe o vale null","Crea la clave J009 vacía","Da un error fatal si la clave no existe","Devuelve el contenido de J009"],"isset() comprueba sin provocar error. Es la forma segura de preguntar si existe una clave antes de leerla.");
+W_(F_,'',"¿Qué hace unset($videojuegos[\"J005\"])?",["Elimina ese elemento del array","Pone el stock de J005 a cero","Vacía todo el array","Devuelve el videojuego J005 y lo mantiene"],"unset() destruye la variable o el elemento indicado. Después count() devolvería 4.");
+W_(F_,'',"¿Qué hace array_keys($videojuegos)?",["Devuelve un array con las claves: J001, J002, J003, J004, J005","Devuelve un array con los valores de cada videojuego","Ordena el array por claves","Cuenta cuántas claves tiene"],"array_keys saca las claves y array_values saca los valores.");
+W_(F_,'',"¿Qué diferencia hay entre sort(), asort() y ksort()?",["sort ordena por valor y pierde las claves; asort ordena por valor conservándolas; ksort ordena por clave","sort ordena por clave; asort por valor; ksort al revés","Las tres ordenan igual; solo cambia el nombre","sort ordena arrays asociativos; asort los indexados"],"Con arrays asociativos suele convenir asort/ksort para no perder las claves. Para ordenar por un atributo interior (precio) se usa usort().");
+W_(F_,'',"Quieres ordenar el catálogo por precio, que es un atributo interior. ¿Qué función encaja?",["usort() con una función de comparación (o uasort() para conservar las claves)","sort(), que ya mira el campo precio","ksort(), que ordena por atributo","array_sum()"],"Para ordenar por un campo de un array interior hay que decir cómo comparar: usort/uasort aceptan una función propia.");
+W_(F_,'',"¿Qué hace array_filter($videojuegos, fn($j) => $j[\"precio\"] > 40)?",["Devuelve solo los videojuegos cuyo precio supera 40","Devuelve el número de videojuegos caros","Cambia el precio de los videojuegos a 40","Elimina los videojuegos de menos de 40 del original"],"Devuelve un array nuevo con los que cumplen la condición; el original no cambia. Con count() obtienes cuántos son.");
+W_(F_,'echo count(array_filter($videojuegos, fn($j) => $j["precio"] > 40));',"¿Qué imprime con el array inicial?",["2: GTA VI (79.99) y Elden Ring (59.99)","3: GTA VI, Red Dead y Elden Ring","5, porque todos tienen precio","1, solo el más caro"],"Red Dead Redemption 2 cuesta 39.99, que NO supera 40. Es una trampa típica de «supera» frente a «llega a».");
+W_(F_,'',"¿Qué hace implode(\", \", array_keys($videojuegos))?",["Une las claves en un único texto separado por comas","Separa un texto en un array","Cuenta las claves","Invierte el orden de las claves"],"implode convierte un array en texto con un separador; explode hace lo contrario.");
+
+/* ---------- Cadenas ---------- */
+W_(C,'',"¿Qué hace strtoupper(\"Elden Ring\")?",["Devuelve «ELDEN RING»: el texto en mayúsculas","Devuelve «elden ring»: el texto en minúsculas","Devuelve «Elden Ring» con la primera letra en mayúscula","Devuelve el número de letras"],"strtoupper = a mayúsculas; strtolower = a minúsculas; ucfirst = solo la primera letra; ucwords = la primera de cada palabra.");
+W_(C,'',"¿Qué diferencia hay entre strtoupper, strtolower, ucfirst y ucwords?",["Mayúsculas todo; minúsculas todo; primera letra del texto; primera letra de cada palabra","Las cuatro convierten a mayúsculas, con distinta velocidad","Solo cambian la primera letra, cada una en un idioma","strtoupper y strtolower alteran números; las otras no"],"Se usan para normalizar textos antes de compararlos o mostrarlos.");
+W_(C,'echo strlen("Elden Ring");',"¿Qué imprime este código?",["10","9","2","Elden Ring"],"strlen cuenta los caracteres, incluido el espacio: E-l-d-e-n (5) + espacio (1) + R-i-n-g (4) = 10.");
+W_(C,'',"¿Qué hace strlen()?",["Devuelve cuántos caracteres (bytes) tiene un texto","Devuelve cuántas palabras tiene un texto","Devuelve cuántos elementos tiene un array","Devuelve la última letra del texto"],"Para arrays se usa count(); para texto, strlen(). Con tildes o ñ cuenta bytes, por eso el enunciado aclara que los títulos son ASCII.");
+W_(C,'',"¿Por qué el enunciado dice que los títulos «contienen caracteres ASCII»?",["Porque strlen() y substr() cuentan bytes; con tildes o ñ (UTF-8) un carácter ocupa más de un byte y el resultado sería engañoso","Porque PHP no admite tildes en ningún caso","Porque ASCII hace que strtoupper sea más rápido","Para que stripos distinga mayúsculas"],"Las funciones mb_strlen y mb_substr existen para texto multibyte (UTF-8). Con ASCII puro, strlen y substr dan lo esperado.");
+W_(C,'echo substr("Minecraft", 0, 5);',"¿Qué imprime este código?",["Minec","inecr","Minecraft","Mine"],"substr(texto, inicio, longitud): empieza en la posición 0 y toma 5 caracteres.");
+W_(C,'',"¿Qué hace substr($titulo, 0, 5)?",["Devuelve los 5 primeros caracteres del título","Devuelve el título sin los 5 primeros caracteres","Devuelve los 5 últimos caracteres","Devuelve la posición número 5 del título"],"El segundo argumento es la posición de inicio (0 = primera) y el tercero, cuántos caracteres. Sin tercer argumento llega hasta el final.");
+W_(C,'echo substr("Minecraft", -3);',"¿Qué imprime este código?",["aft","Min","raf","ft"],"Un inicio negativo cuenta desde el final: los últimos 3 caracteres.");
+W_(C,'echo substr("Elden Ring", 2, 3);',"¿Qué imprime este código?",["den","lde","Eld","n R"],"Empieza en la posición 2 (la tercera letra, «d») y toma 3: d-e-n.");
+W_(C,'',"¿Qué hace stripos($titulo, \"Red\")?",["Busca «Red» sin distinguir mayúsculas y devuelve su posición, o false si no está","Busca «Red» distinguiendo mayúsculas y devuelve true o false","Cuenta cuántas veces aparece «Red»","Sustituye «Red» por otra palabra"],"La i de stripos es de «insensible a mayúsculas». Devuelve la posición (un entero, que puede ser 0) o false.");
+W_(C,'',"¿Qué diferencia hay entre strpos() y stripos()?",["strpos distingue mayúsculas y minúsculas; stripos no","strpos devuelve true/false; stripos devuelve la posición","strpos busca al principio; stripos al final","strpos solo funciona con números"],"Son iguales salvo en la sensibilidad a mayúsculas. El ejercicio pide expresamente stripos: «la búsqueda no debe distinguir mayúsculas».");
+W_(C,'if (stripos("Red Dead Redemption 2", "Red") == false) {\n  echo "no está";\n} else {\n  echo "está";\n}',"¿Qué imprime este código?",["no está, aunque «Red» sí aparece: stripos devuelve 0 y 0 == false","está, porque «Red» aparece al principio","Error: no se puede comparar un entero con false","No imprime nada"],"La trampa clásica: «Red» está en la posición 0, y 0 == false es true. Hay que comparar con === false.");
+W_(C,'',"¿Cómo se comprueba correctamente que stripos ha encontrado el texto?",["stripos($t, \"Red\") !== false","stripos($t, \"Red\") == true","stripos($t, \"Red\") > 0","stripos($t, \"Red\") != 0"],"!== compara valor y tipo, así distingue 0 (encontrado al principio) de false (no encontrado). Con > 0 o != 0 fallarían los títulos que empiezan por la palabra.");
+W_(C,'',"¿Por qué en el ejercicio, buscando «The» sin distinguir mayúsculas, también aparece «Grand Theft Auto VI»?",["Porque «Theft» contiene «the» y stripos no distingue mayúsculas","Porque «The» aparece al principio de todos los títulos","Porque stripos busca letras sueltas","Porque Grand Theft Auto VI es de PS5"],"stripos busca la cadena en cualquier posición, no palabras completas. Con «Red» y «The» coinciden 3 títulos: GTA VI (por Theft), Red Dead Redemption 2 y The Witcher 3.");
+W_(C,'',"Con el array inicial y stripos para «Red» o «The», ¿cuántas coincidencias hay?",["3: Grand Theft Auto VI, Red Dead Redemption 2 y The Witcher 3","2: Red Dead Redemption 2 y The Witcher 3","1: solo The Witcher 3","5: todos"],"«Theft» contiene «the». Un título que cumple las dos condiciones se cuenta una vez si se usa || y un único contador.");
+W_(C,'',"¿Qué hace str_contains($texto, \"the\") (PHP 8)?",["Devuelve true si el texto contiene «the» (distingue mayúsculas)","Devuelve la posición de «the»","Sustituye «the» por vacío","Devuelve true sin distinguir mayúsculas"],"Es una forma más cómoda que strpos para saber si existe, pero distingue mayúsculas: str_contains(\"Theft\", \"the\") es false. El ejercicio pide stripos.");
+W_(C,'',"¿Qué hace str_replace(\"a\", \"o\", \"banana\")?",["Devuelve «bononoo»: sustituye todas las «a» por «o»","Devuelve «bonana»: sustituye solo la primera «a»","Devuelve «banana» sin cambios","Devuelve 3, el número de «a»"],"str_replace reemplaza todas las apariciones (en banana hay 3 «a»), así que el resultado es bonono. Para contar ocurrencias se usa substr_count.");
+W_(C,'echo "Precio: " . $j["precio"] . " €";',"En este código, ¿qué hace el punto (.)?",["Concatena (une) textos","Multiplica dos valores","Accede a un atributo del array","Separa decimales"],"En PHP el punto es el operador de concatenación. La suma de números usa +.");
+W_(C,'$p = 5;\necho "Valor: $p";\necho \'Valor: $p\';',"¿Qué diferencia hay entre comillas dobles y simples?",["Las dobles sustituyen la variable por su valor (Valor: 5); las simples imprimen $p tal cual","Las simples sustituyen variables y las dobles no","No hay diferencia","Las dobles son más lentas y por eso no se usan"],"Dobles = interpolación de variables y secuencias como \\n. Simples = texto literal.");
+W_(C,'',"¿Qué hace trim(\"  hola  \")?",["Quita los espacios del principio y del final","Quita todos los espacios, también los del medio","Pone el texto en mayúsculas","Cuenta los espacios"],"Útil para limpiar datos de formularios antes de validarlos.");
+W_(C,'',"¿Qué hace htmlspecialchars($titulo) al mostrar un dato en una página?",["Convierte <, >, & y comillas en entidades HTML, para que no se interpreten como código","Convierte el texto a mayúsculas","Elimina los espacios del texto","Cifra el texto"],"Protege frente a que un dato con etiquetas se ejecute como HTML (XSS). Es buena práctica al imprimir datos que pueden venir de un usuario.");
+
+/* ---------- Modificar y calcular ---------- */
+W_(M,'$videojuegos["J001"]["precio"] *= 0.9;',"¿Qué hace esta línea?",["Reduce un 10 % el precio de J001","Aumenta un 10 % el precio de J001","Multiplica el precio por 9","Reduce el precio en 0,9 euros"],"Multiplicar por 0.9 deja el 90 % del precio, es decir, un 10 % menos.");
+W_(M,'',"El precio de J001 es 79.99. Tras reducirlo un 10 %, ¿qué valor tiene antes de redondear?",["71.991","7.999","79.09","72.00"],"79.99 × 0.9 = 71.991. Con round(…, 2) quedaría 71.99.");
+W_(M,'',"¿Cuál de estas formas reduce correctamente un 10 % el precio de J001?",["$videojuegos[\"J001\"][\"precio\"] = round($videojuegos[\"J001\"][\"precio\"] * 0.9, 2);","$videojuegos[\"precio\"][\"J001\"] = round($videojuegos[\"J001\"][\"precio\"] - 10, 2);","$videojuegos[\"J001\"] = $videojuegos[\"J001\"][\"precio\"] * 0.9;","$videojuegos[\"J001\"][\"precio\"] - 10%;"],"La segunda invierte las claves y resta 10 euros, no un 10 %. La tercera sustituye todo el array del videojuego por un número. La cuarta no es PHP válido.");
+W_(M,'$videojuegos["J004"]["stock"] += 5;',"¿Qué hace esta línea y cuál es el stock de J004 después?",["Suma 5 unidades al stock: pasa de 5 a 10","Asigna 5 al stock: se queda en 5","Resta 5 al stock: pasa a 0","Multiplica el stock por 5: pasa a 25"],"+= suma al valor actual. Con = se sobrescribiría.");
+W_(M,'',"¿Qué diferencia hay entre $x = 5; y $x += 5;?",["= asigna 5; += suma 5 al valor que ya tenía","= suma 5 y += asigna 5","Son equivalentes","+= solo funciona con textos"],"Los operadores compuestos (+=, -=, *=, .=) modifican el valor actual.");
+W_(M,'$videojuegos["J003"]["plataforma"] = "PC y PS5";',"¿Qué hace esta línea?",["Sustituye el valor de plataforma de J003 por «PC y PS5»","Añade un nuevo videojuego J003","Añade «PC y PS5» al valor anterior","Cambia la clave J003 por «PC y PS5»"],"Asignar a una clave existente cambia su valor. Si fuera .= se concatenaría al anterior («PC» + «PC y PS5»).");
+W_(M,'',"¿Cuál es la media de precios del catálogo inicial?",["46,99 € (234,95 ÷ 5)","234,95 €","39,99 €","79,99 €"],"Media = suma de precios / número de videojuegos: array_sum(array_column($v, \"precio\")) / count($v).");
+W_(M,'',"¿Cuántas unidades hay en stock en el catálogo inicial?",["60","5","70","12"],"12 + 8 + 20 + 5 + 15 = 60. Tras sumar 5 a J004 serían 65, no 70, porque sube de 5 a 10... y 12+8+20+10+15 = 65.");
+W_(M,'',"¿Cuál es el videojuego más caro del catálogo inicial?",["Grand Theft Auto VI, con 79,99 €","Elden Ring, con 59,99 €","Red Dead Redemption 2, con 39,99 €","The Witcher 3, con 24,99 €"],"Se calcula con un foreach que guarda el mayor precio visto, o con max() sobre array_column.");
+W_(M,'',"Tras reducir un 10 % el precio de J001, ¿sigue siendo el más caro?",["Sí: pasa a 71,99 € y el siguiente es Elden Ring con 59,99 €","No: pasa a ser Elden Ring","No: pasa a ser Red Dead Redemption 2","Depende del orden del array"],"La actividad 5 se calcula sobre los datos ya modificados en la actividad 4, por eso conviene hacerla después.");
+W_(M,'',"¿Por qué conviene hacer la actividad 5 (cálculos) después de la 4 (modificaciones)?",["Porque los cálculos deben reflejar los datos actualizados del array","Porque PHP ejecuta las actividades por orden alfabético","Porque modificar el array después de calcular da error","Porque los cálculos solo funcionan con datos modificados"],"El código se ejecuta de arriba abajo: si calculas antes de modificar, el resultado usa los valores antiguos.");
+W_(M,'',"¿Qué hace round($precio, 2)?",["Redondea el precio a 2 decimales","Multiplica el precio por 2","Devuelve los dos primeros dígitos","Redondea siempre hacia abajo"],"round redondea al más cercano; floor siempre hacia abajo y ceil siempre hacia arriba.");
+W_(M,'echo number_format(1234.5, 2, ",", ".");',"¿Qué imprime este código?",["1.234,50","1,234.50","1234,5","1234.50"],"number_format(número, decimales, separador decimal, separador de miles). Es el formato español: coma decimal y punto de miles.");
+W_(M,'',"¿Para qué sirve number_format() en la tabla de precios?",["Para mostrar el precio con 2 decimales y el formato deseado sin cambiar el valor guardado","Para convertir el precio en entero","Para sumar los precios","Para ordenar los precios"],"Formatea solo la presentación. Los cálculos se hacen con el número, no con el texto formateado.");
+W_(M,'',"¿Por qué no se deben hacer sumas con el precio ya formateado con number_format?",["Porque devuelve un texto («1.234,50»), no un número","Porque number_format borra el precio original","Porque solo se puede usar una vez por variable","Porque PHP no permite sumar decimales"],"number_format devuelve un string. Calcula siempre con números y formatea solo al mostrar.");
+W_(M,'',"¿Qué videojuegos «superan los 40 €» en el catálogo inicial?",["GTA VI (79,99) y Elden Ring (59,99): dos videojuegos","GTA VI, Red Dead y Elden Ring: tres videojuegos","Solo GTA VI","Todos menos Minecraft"],"Red Dead Redemption 2 vale 39,99 y no supera 40. La condición es $precio > 40, no >=.");
+W_(M,'$c = 0;\nforeach ($videojuegos as $j) {\n  if ($j["precio"] > 40) { $c++; }\n}\necho $c;',"¿Qué calcula este código?",["Cuántos videojuegos cuestan más de 40 €","Cuánto suman los videojuegos de más de 40 €","El videojuego más caro","El precio medio"],"Es un contador condicional: solo se incrementa cuando se cumple la condición.");
+W_(M,'echo 10 / 4;',"¿Qué imprime este código en PHP?",["2.5","2","3","2.0"],"El operador / hace división decimal. Para la parte entera existe intdiv(10, 4) y para el resto el operador %.");
+
+/* ---------- HTML y PHP ---------- */
+W_(H,'',"¿Qué indican las etiquetas <?php y ?>?",["El inicio y el fin de un bloque de código PHP dentro de un archivo","El inicio y el fin de un comentario","Un enlace a otro archivo PHP","Una tabla HTML"],"Lo que está fuera de esas etiquetas se envía tal cual al navegador (HTML); lo de dentro lo ejecuta el servidor.");
+W_(H,'',"¿Qué ve el navegador cuando visita una página PHP?",["Solo el HTML resultante: el código PHP se ejecuta en el servidor y no se envía","El código PHP completo","El código PHP, pero sin comentarios","Nada: PHP no genera contenido visible"],"PHP es un lenguaje de servidor. El navegador recibe el HTML ya generado, por eso no se ven los arrays ni los bucles.");
+W_(H,'',"¿Qué diferencia hay entre echo y la etiqueta corta <?= ?>?",["<?= $x ?> equivale a <?php echo $x; ?>","<?= ?> ejecuta bucles y echo no","<?= ?> solo imprime números","echo imprime en el servidor y <?= ?> en el navegador"],"<?= es un atajo para imprimir una expresión dentro del HTML.");
+W_(H,'',"¿Qué hace PHP con una tabla HTML que se escribe fuera de las etiquetas <?php ?>?",["Se envía tal cual al navegador, sin procesarla","La borra","La ejecuta como código","Da un error de sintaxis"],"Es lo que permite mezclar HTML y PHP: el HTML se envía literal y solo se ejecuta lo que está dentro de <?php ?>.");
+W_(H,'<table>\n<?php foreach ($videojuegos as $cod => $j): ?>\n  <tr><td><?= $cod ?></td></tr>\n<?php endforeach; ?>\n</table>',"¿Qué hace este fragmento y qué es la sintaxis con «:» y «endforeach»?",["Genera una fila <tr> por cada videojuego; es la sintaxis alternativa de foreach, cómoda al mezclar con HTML","Genera una sola fila para todos los videojuegos","Da error: foreach no admite los dos puntos","Imprime la tabla completa una sola vez"],"foreach (...): ... endforeach; es equivalente a foreach (...) { ... } y se lee mejor cuando hay mucho HTML entre medias.");
+W_(H,'',"¿Dónde debe ir el foreach que genera las filas de una tabla HTML?",["Dentro de <table>, entre la fila de cabecera y </table>, de modo que se repita solo la fila <tr>","Antes de <table>, para que se ejecute una vez","Dentro de cada <td>, para repetir las celdas","Después de </table>"],"La cabecera (<th>) se escribe una sola vez; lo que se repite por cada videojuego es la fila <tr>.");
+W_(H,'',"¿Qué etiquetas HTML necesita una tabla con cabecera?",["<table>, <tr> para filas, <th> para encabezados y <td> para celdas","<ul>, <li> y <p>","<form>, <input> y <button>","<div>, <span> y <br>"],"th = celda de encabezado, td = celda de datos, tr = fila, table = tabla. thead/tbody son opcionales para agrupar.");
+W_(H,'',"¿Para qué sirve htmlspecialchars() al imprimir un valor en una tabla?",["Para que caracteres como < y & se muestren como texto y no se interpreten como HTML","Para poner el texto en negrita","Para formatear el precio","Para eliminar las etiquetas <tr>"],"Evita que un valor con etiquetas altere la página o ejecute código. En datos propios y controlados no es imprescindible, pero es buena costumbre.");
+W_(H,'',"¿Cuántas columnas tiene la tabla de la actividad 1 y cuáles son?",["6: código, título, género, plataforma, precio y stock","5: título, género, plataforma, precio y stock","4: código, título, precio y stock","3: código, título y precio"],"El código viene de la clave del array; las otras cinco, de los atributos. La captura de «Visualización» es solo un ejemplo de estilo.");
+W_(H,'',"¿Qué es mejor para mostrar un resultado calculado, como la media, dentro del HTML?",["Calcularlo en PHP y mostrarlo con <?= ?>, formateado con number_format","Escribirlo a mano en el HTML","Calcularlo con JavaScript en el navegador","Guardarlo en una tabla vacía"],"Así el dato siempre refleja el array y no se queda desfasado si cambian los datos.");
+W_(H,'',"¿Por qué un archivo con código PHP se guarda con extensión .php y no .html?",["Para que el servidor lo procese con el intérprete de PHP antes de enviarlo","Para que el navegador lo reconozca como más rápido","Porque el .html no admite etiquetas","Porque .php hace que se vea el código"],"El servidor decide por la extensión (o la configuración) qué archivos pasan por PHP. Un .html se envía sin ejecutar nada.");
+
+/* ---------- Comparativas ---------- */
+W_(Z_,'',"¿Qué es mejor para guardar un videojuego con título, precio y stock: un array indexado o uno asociativo?",["Uno asociativo, porque cada dato tiene un nombre claro: $j[\"precio\"] se entiende mejor que $j[2]","Uno indexado, porque es siempre más rápido de leer","Da igual, el código es igual de claro","Ninguno: hay que usar variables sueltas"],"Un indexado obliga a recordar qué significa cada posición. Un asociativo documenta el código por sí mismo.");
+W_(Z_,'',"¿Cuándo es más natural un array indexado?",["Para una lista simple de elementos del mismo tipo, como los géneros o los precios","Para guardar los atributos de un único videojuego","Para relacionar un código con sus datos","Nunca: los asociativos lo sustituyen siempre"],"Indexado = lista ordenada. Asociativo = pares nombre-valor. Pueden combinarse, como en el catálogo.");
+W_(Z_,'',"¿Por qué el ejercicio usa un array bidimensional y no cinco arrays sueltos de títulos, precios, etc.?",["Porque agrupa todos los datos de un videojuego en un mismo sitio y evita desajustes entre listas","Porque PHP no admite más de un array por programa","Porque los arrays sueltos no se pueden recorrer","Porque ocupa menos líneas en el HTML"],"Con arrays separados, un cambio de orden o un borrado puede descuadrar títulos y precios. Con un solo array cada videojuego va junto.");
+W_(Z_,'',"¿Qué diferencia hay entre = y == y ===?",["= asigna; == compara valores; === compara valor y tipo","= compara; == asigna; === concatena","Las tres comparan, con distinta velocidad","= compara tipos; == compara solo longitudes"],"Por eso se usa stripos(...) !== false: 0 == false es true, pero 0 === false es false.");
+W_(Z_,'',"¿Qué diferencia hay entre && y ||?",["&& exige que se cumplan las dos condiciones; || basta con que se cumpla una","&& suma y || resta","|| exige las dos y && solo una","Solo cambian en el orden de ejecución"],"En la actividad 3, «contiene Red O contiene The» se escribe con ||.");
+W_(Z_,'',"¿Qué diferencia hay entre for y foreach para recorrer el catálogo?",["foreach recorre claves y valores sin necesitar índice numérico; for necesita índices 0..n","for es para arrays asociativos y foreach para indexados","foreach modifica siempre el array original","No se pueden usar en PHP a la vez"],"En un array asociativo con claves J001… no existe el índice 0, así que for no sirve directamente.");
+W_(Z_,'',"¿Qué es mejor para sumar el stock: un foreach con acumulador o array_sum(array_column())?",["Las dos valen; array_sum(array_column()) es más corto y el foreach es más didáctico","Solo vale el foreach: array_sum no suma columnas","Solo vale array_sum: el foreach no suma","Ninguna: hay que usar count()"],"El resultado es el mismo. Si la profesora quiere ver el recorrido, hazlo con foreach; si quieres brevedad, con funciones de array.");
+W_(Z_,'',"¿Por qué no se usa == false para comprobar el resultado de stripos?",["Porque una coincidencia en la posición 0 devuelve 0 y 0 == false es true, así que se tomaría como «no encontrado»","Porque == false da error en PHP 8","Porque stripos solo devuelve true o false","Porque == es más lento que ==="],"Con === false se distingue «no encontrado» (false) de «encontrado en la posición 0».");
+W_(Z_,'',"¿Qué diferencia hay entre echo y print_r()?",["echo imprime textos o valores simples; print_r() muestra la estructura de un array","echo muestra arrays y print_r() textos","Son idénticos","print_r() ejecuta el código PHP del array"],"print_r($array) es muy útil para depurar; var_dump() añade tipos y tamaños. Con echo un array solo imprime «Array».");
+W_(Z_,'',"¿Qué diferencia hay entre sort() y usort()?",["sort() ordena por el propio valor; usort() ordena con una función de comparación que defines tú","sort() ordena por clave y usort() por valor","usort() solo ordena textos","sort() conserva las claves y usort() no"],"Para ordenar videojuegos por precio, el valor es un array y sort() no sabría por qué campo comparar.");
+W_(Z_,'',"¿Qué es mejor para calcular el precio medio: array_sum/count o un foreach con contador?",["Las dos dan lo mismo; array_sum(array_column($v,\"precio\")) / count($v) es la más compacta","Solo vale el foreach","Solo vale count()","Ninguna: hay que usar avg()"],"PHP no tiene una función avg() nativa para arrays: se calcula como suma entre número de elementos.");
+
+(function(){var F={
+2:["Un array que tiene exactamente dos elementos en total","Un array que se puede recorrer en dos sentidos distintos","Un array que repite dos veces cada clave con su valor"],
+10:["Hace que el array ocupe menos memoria al guardar los datos","Obliga a PHP a ordenar los videojuegos por su código siempre","Permite repetir el mismo código en varios videojuegos distintos"],
+11:["2, porque se guardan los dos valores con la misma clave","0, porque se borra el elemento anterior al reasignar","Error: PHP no permite usar una clave que ya está en uso"],
+12:["25, porque cuenta todos los atributos de todos los videojuegos","6, porque cuenta también el propio array completo","1, porque hay un único array en el programa"],
+14:["«1» es siempre una clave de texto y «uno» siempre una clave entera","Las dos dan error si el array es asociativo y no indexado","$a[\"uno\"] solo funciona si el array es bidimensional"],
+16:["Porque for no se puede usar con ningún tipo de array en PHP","Porque count() devuelve siempre 0 en arrays bidimensionales","Porque la variable $i no puede ser un entero en PHP"],
+18:["Un texto con el título del videojuego actual","Un número con el precio del videojuego actual","La clave del videojuego actual: «J001», «J002»…"],
+23:["Porque PHP no permite usar variables nuevas dentro de un foreach","Para que el foreach recorra el array en orden inverso","Porque si no, el array queda vacío al terminar el bucle"],
+25:["Imprime solo el título de cada videojuego del array","Imprime únicamente las claves J001, J002… del array","Da error porque PHP no permite anidar dos bucles foreach"],
+27:["foreach ($videojuegos as $j) { $j[\"precio\"] = ...; }","foreach ($videojuegos as $precio) { $precio = ...; }","for ($i = 0; $i < 5; $i++) { $videojuegos[$i][\"precio\"] = ...; }"],
+32:["Devuelve el título del videojuego más caro del array","Devuelve la clave del videojuego más caro del array","Devuelve cuántos videojuegos tienen un precio alto"],
+38:["Devuelve un array con los valores de cada videojuego","Ordena el array por sus claves de menor a mayor","Cuenta cuántas claves distintas tiene el array"],
+39:["sort ordena por clave; asort por valor; ksort al revés que sort","Las tres ordenan igual y solo cambia el nombre de la función","sort ordena arrays asociativos y asort los indexados"],
+40:["sort(), porque ya compara el campo precio de cada videojuego","ksort(), porque ordena por el atributo que se indique","array_sum(), porque ordena sumando los valores"],
+43:["Separa un texto en un array usando la coma","Cuenta cuántas claves tiene el array","Invierte el orden de las claves del array"],
+45:["Las cuatro convierten a mayúsculas, con distinta velocidad","Solo cambian la primera letra, cada una en un idioma distinto","strtoupper y strtolower alteran los números y las otras no"],
+48:["Porque PHP no admite tildes en ningún texto de un programa","Porque ASCII hace que strtoupper sea más rápido de ejecutar","Para que stripos pase a distinguir mayúsculas de minúsculas"],
+53:["Busca «Red» distinguiendo mayúsculas y devuelve true o false","Cuenta cuántas veces aparece «Red» dentro del título","Sustituye «Red» por otra palabra dentro del título"],
+55:["está, porque «Red» aparece justo al principio del título","Error: PHP no permite comparar un entero con false","No imprime nada porque falta la comparación estricta"],
+59:["Devuelve la posición de «the» dentro del texto","Sustituye «the» por un texto vacío en el resultado","Devuelve true sin distinguir mayúsculas de minúsculas"],
+62:["Las simples sustituyen variables y las dobles las imprimen tal cual","No hay diferencia: PHP trata igual los dos tipos de comillas","Las dobles son más lentas y por eso no se recomiendan"],
+64:["Convierte el texto a mayúsculas para que no se vea el código","Elimina los espacios sobrantes del texto antes de mostrarlo","Cifra el texto para que no se pueda leer en la página"],
+74:["No: pasa a ser Elden Ring, con 59,99 €, el más caro","No: pasa a ser Red Dead Redemption 2, con 39,99 €","Depende del orden en que estén los videojuegos en el array"],
+78:["Para convertir el precio en un número entero al guardarlo","Para sumar los precios de todos los videojuegos a la vez","Para ordenar los precios de menor a mayor en la tabla"],
+80:["GTA VI, Red Dead y Elden Ring: tres videojuegos en total","Solo GTA VI, que es el único que supera los 40 €","Todos menos Minecraft, que es el más barato del catálogo"],
+83:["El inicio y el fin de un comentario dentro del archivo","Un enlace que importa otro archivo PHP al programa","El comienzo y el final de una tabla HTML"],
+84:["El código PHP completo, tal y como está escrito en el archivo","El código PHP, pero sin los comentarios del programador","Nada: PHP no genera contenido visible en el navegador"],
+86:["La borra del resultado final que recibe el navegador","La ejecuta como si fuera código PHP dentro del servidor","Da un error de sintaxis y detiene la ejecución del archivo"],
+87:["Genera una sola fila <tr> con todos los videojuegos juntos","Da error: foreach no admite los dos puntos ni endforeach","Imprime la tabla completa una sola vez y no la repite"],
+88:["Antes de <table>, para que se ejecute una sola vez","Dentro de cada <td>, para repetir las celdas de la fila","Después de </table>, para añadir las filas al final de la página"],
+89:["<ul>, <li> y <p>, con una lista de elementos por fila","<form>, <input> y <button>, con un campo por columna","<div>, <span> y <br>, con un salto de línea por celda"],
+90:["Para poner el texto en negrita dentro de la celda","Para dar formato de moneda al precio del videojuego","Para eliminar las etiquetas <tr> sobrantes de la tabla"],
+92:["Escribirlo a mano directamente en el HTML de la página","Calcularlo con JavaScript en el navegador del usuario","Guardarlo en una tabla vacía y ocultarla después"],
+93:["Para que el navegador lo reconozca como un archivo más rápido","Porque el formato .html no admite etiquetas de ningún tipo","Porque .php hace que el código se vea en el navegador"],
+94:["Uno indexado, porque es siempre más rápido de leer y de entender","Da igual: el código es igual de claro con cualquiera de los dos","Ninguno: hay que usar variables sueltas para cada dato"],
+95:["Para guardar los distintos atributos de un único videojuego","Para relacionar un código con todos sus datos asociados","Nunca: los asociativos sustituyen siempre a los indexados"],
+96:["Porque PHP no admite más de un array por cada programa","Porque los arrays sueltos no se pueden recorrer con foreach","Porque ocupa menos líneas dentro del código HTML"],
+98:["&& suma las condiciones y || las resta entre sí","|| exige que se cumplan las dos y && basta con una","Solo cambian en el orden en que PHP las ejecuta"],
+99:["for es para arrays asociativos y foreach solo para indexados","foreach modifica siempre el array original sin necesidad de claves","No se pueden usar en el mismo programa PHP a la vez"],
+100:["Solo vale el foreach: array_sum no es capaz de sumar columnas","Solo vale array_sum: el foreach no sirve para acumular sumas","Ninguna de las dos: hay que usar count() para sumar"],
+101:["Porque == false da error en las versiones recientes de PHP 8","Porque stripos solo devuelve true o false y nunca un número","Porque == es bastante más lento que === al comparar"],
+102:["echo muestra arrays enteros y print_r() solo textos simples","Son idénticos: los dos muestran la estructura de un array","print_r() ejecuta el código PHP que haya dentro del array"],
+103:["sort() ordena por clave y usort() ordena por valor","usort() solo es capaz de ordenar textos y no números","sort() conserva las claves y usort() las pierde siempre"],
+104:["Solo vale el foreach con un contador y un acumulador","Solo vale count(), que ya calcula la media del array","Ninguna: PHP tiene una función avg() que lo hace"],
+1:["Un array en el que cada valor se identifica con un número que empieza en 0","Un array que solo admite una clave por cada tipo de dato distinto","Un array que relaciona dos variables diferentes del programa"],
+6:["«J001…» son valores y «titulo…» son los índices numéricos del array","Las dos cosas son claves de un mismo nivel del array","«J001…» son atributos y «titulo…» son los códigos de producto"],
+58:["2: Red Dead Redemption 2 y The Witcher 3, que son los que empiezan por esas palabras","1: solo The Witcher 3, que empieza por «The»","5: todos los videojuegos del catálogo"]
+};
+Object.keys(F).forEach(function(i){var q=WQ[+i];if(q&&F[i].length===q.o.length-1)q.o=[q.o[0]].concat(F[i])});
+WQ.forEach(function(q){if(q.q.indexOf('unidades hay en stock')>=0)q.e='12 + 8 + 20 + 5 + 15 = 60 unidades. Con el +5 de J004 (actividad 4) pasarían a 65.'});
+})();
+
+(function(){
+var KEY='asir-web-v1',S={};
+try{S=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){S={}}
+S.r=S.r||{};S.best=S.best||0;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function $(s,r){return(r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function im(k,cap){return '<figure class="qimg"><a href="img/web/'+k+'.jpg" target="_blank" rel="noopener"><img src="img/web/'+k+'.jpg" alt="'+esc(''||'')+'" loading="lazy"></a>'+(cap?'<figcaption>'+cap+'</figcaption>':'')+'</figure>'}
+WQ.forEach(function(q,i){q.id=i});
+var N=WQ.length,CATS=[];
+WQ.forEach(function(q){if(CATS.indexOf(q.c)<0)CATS.push(q.c)});
+var EXAM_N=Math.min(40,N);
+var tabs=$('#wb-tabs'),panels=$('#wb-panels');
+var TABS=[['estudio','Estudio'],['practica','Ejercicios'],['simulacro','Simulacro de '+EXAM_N]];
+TABS.forEach(function(t){var a=el('a','',t[1]);a.href='#wb-'+t[0];a.setAttribute('data-t',t[0]);tabs.appendChild(a)});
+function panel(id){var p=el('section','panel');p.id='wbp-'+id;p.hidden=true;panels.appendChild(p);return p}
+
+function flow(a){var s='<div class="flow">';a.forEach(function(x,i){s+=(i?'<span class="fa">→</span>':'')+'<div class="fb"><b>'+x[0]+'</b><small>'+x[1]+'</small></div>'});return s+'</div>'}
+function tbl(head,rows){var s='<div class="tw"><table><thead><tr>';head.forEach(function(x){s+='<th>'+x+'</th>'});s+='</tr></thead><tbody>';rows.forEach(function(r){s+='<tr>';r.forEach(function(c,i){s+='<td>'+(i===0?'<code>'+c+'</code>':c)+'</td>'});s+='</tr>'});return s+'</tbody></table></div>'}
+function rules(a){return '<ul class="rules">'+a.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>'}
+function two(a,b2){return '<div class="two">'+a+b2+'</div>'}
+function steps(a){var s='';a.forEach(function(x,i){s+='<div class="stp"><b>'+(i+1)+'. '+x[0]+'</b>'+(x[1]?'<code class="cm">'+x[1]+'</code>':'')+'<p>'+x[2]+'</p>'+(x[3]?im(x[3]):'')+'</div>'});return s}
+function sec(t,body){return '<div class="card"><h3>'+t+'</h3>'+body+'</div>'}
+
+function code(s){return '<div class="r-code">'+esc(s)+'</div>'}
+var VG=String.raw`$videojuegos = [
+  "J001" => [
+    "titulo" => "Grand Theft Auto VI",
+    "genero" => "Accion",
+    "plataforma" => "PS5",
+    "precio" => 79.99,
+    "stock" => 12
+  ],
+  "J002" => [ ... ],   // y así hasta J005
+];`;
+var pr=panel('estudio');
+var BL=[];
+function blk(id,name,body){BL.push([id,name]);return '<div class="sb" data-b="'+id+'" hidden>'+body+'</div>'}
+var h='';
+h+=blk('mapa','Mapa y chuleta',
+sec('Qué te piden y con qué herramienta',tbl(['Actividad','Qué hay que hacer','Herramienta clave'],[
+['1 · Visualizar','tabla HTML con 6 columnas','foreach ($a as $cod => $j) + &lt;table&gt;'],
+['2 · Cadenas','mayúsculas, longitud, 5 primeros caracteres','strtoupper · strlen · substr'],
+['3 · Búsqueda','títulos con «Red» o «The», y cuántos son','stripos(…) !== false · contador'],
+['4 · Modificar','−10 % a J001, +5 stock a J004, plataforma de J003','$a["J001"]["precio"] *= 0.9 · += · ='],
+['5 · Cálculos','media, más caro, total stock, cuántos &gt; 40 €','array_sum · count · foreach · if']])+
+flow([['Array','datos en memoria'],['foreach','recorre'],['Funciones','strlen, stripos…'],['Modifica','por clave'],['HTML','muestra el resultado']]))+
+sec('Indexado, asociativo y bidimensional: qué cambia',tbl(['','Indexado','Asociativo','Bidimensional'],[
+['Claves','números 0, 1, 2…','textos («titulo», «J001»)','dos niveles de claves'],
+['Ejemplo','["rojo","verde"]','["titulo"=>"Minecraft"]','["J001"=>["titulo"=>"…"]]'],
+['Acceso','$a[1]','$j["titulo"]','$v["J001"]["titulo"]'],
+['Recorrido','for o foreach','foreach (k => v)','foreach (y a veces anidado)'],
+['Se usa para','listas simples','atributos de una cosa','una tabla de cosas (el catálogo)']])+
+rules(['El catálogo del ejercicio es bidimensional <b>y</b> asociativo en los dos niveles: el código es la clave exterior y los atributos son las claves interiores.']))+
+sec('Chuleta de funciones',tbl(['Función','Qué hace'],[
+['count($a)','nº de elementos'],['array_sum($a)','suma de los valores'],['array_column($v,"precio")','saca una «columna» de un array de arrays'],['max / min','mayor / menor valor'],['isset($a["k"])','¿existe la clave?'],['in_array($x,$a)','¿existe el valor?'],['array_keys / array_values','todas las claves / todos los valores'],['unset($a["k"])','borra un elemento'],['strtoupper / strtolower','mayúsculas / minúsculas'],['strlen($t)','nº de caracteres'],['substr($t,0,5)','5 primeros caracteres'],['stripos($t,"x")','posición (sin distinguir mayúsculas) o false'],['round($n,2)','redondea a 2 decimales'],['number_format($n,2,",",".")','formato 1.234,50 para mostrar']])))
+h+=blk('arrays','Arrays',
+sec('Los tres tipos, con código',two('<div><h4>Indexado</h4>'+code('$colores = ["rojo", "verde", "azul"];\necho $colores[1];   // verde\n$colores[] = "negro"; // añade al final')+'</div>','<div><h4>Asociativo</h4>'+code('$juego = [\n  "titulo" => "Minecraft",\n  "precio" => 29.99\n];\necho $juego["precio"]; // 29.99')+'</div>')+
+rules(['Indexado: la posición es la clave; empieza en 0.','Asociativo: clave => valor; la clave tiene significado.','El operador <b>=&gt;</b> une clave y valor. No es una comparación.']))+
+sec('Bidimensional: el array del ejercicio',code(VG)+
+flow([['$videojuegos','array exterior'],['["J003"]','clave = código'],['["precio"]','clave = atributo'],['29.99','valor']])+
+code('echo $videojuegos["J003"]["titulo"];  // Minecraft\necho $videojuegos["J003"]["precio"];  // 29.99\necho count($videojuegos);              // 5  (solo el nivel exterior)')+
+rules(['Se lee de fuera adentro: primero el código, luego el atributo.','Las claves no se repiten: asignar a una existente <b>sobrescribe</b>, no añade.','Para añadir un videojuego nuevo: <code>$videojuegos["J006"] = [ … ];</code>']))+
+sec('Comparar: ¿cuál uso y por qué?',tbl(['Pregunta','Respuesta'],[
+['¿Por qué asociativo y no indexado para un videojuego?','porque $j["precio"] se entiende; $j[3] obliga a recordar qué es cada posición'],
+['¿Por qué un array de arrays y no 5 arrays sueltos?','agrupa todo lo de un juego; con listas separadas es fácil que se descuadren'],
+['¿Cuándo indexado?','listas simples del mismo tipo (géneros, precios sueltos)'],
+['¿Cómo compruebo si existe una clave?','isset($v["J009"]) o array_key_exists("J009",$v)'],
+['¿Cómo compruebo si existe un valor?','in_array("Rol",$generos)']])))
+h+=blk('recorrer','Recorrer arrays',
+sec('foreach: la herramienta principal',code('foreach ($videojuegos as $codigo => $juego) {\n  echo $codigo . " - " . $juego["titulo"] . "\\n";\n}')+
+flow([['$codigo','"J001", "J002"…'],['$juego','array interior con los 5 atributos'],['$juego["titulo"]','un atributo']])+
+rules(['<code>foreach ($a as $v)</code> da solo el valor; <code>foreach ($a as $k => $v)</code> da clave y valor.','Para la columna «código» necesitas la <b>clave</b>: no es un atributo del array interior.']))+
+sec('¿Por qué no un for?',tbl(['','for','foreach'],[
+['Necesita','índices 0, 1, 2…','nada'],['Con el catálogo','$videojuegos[0] no existe (las claves son J001…)','funciona'],['Mejor para','arrays indexados','asociativos y bidimensionales']])+
+code('// MAL con este array:\nfor ($i = 0; $i < count($videojuegos); $i++) {\n  echo $videojuegos[$i]["titulo"]; // $videojuegos[0] no existe\n}'))+
+sec('Patrones que vas a usar siempre',tbl(['Patrón','Código'],[
+['Contar','$n = 0; foreach (…) { $n++; }'],['Acumular (sumar)','$total = 0; foreach (…) { $total += $j["stock"]; }'],['Contar con condición','if ($j["precio"] &gt; 40) { $c++; }'],['Máximo','guardar el mayor visto y su clave en el if']])+
+code('$mayor = 0; $caro = "";\nforeach ($videojuegos as $cod => $j) {\n  if ($j["precio"] > $mayor) {\n    $mayor = $j["precio"];\n    $caro  = $cod;\n  }\n}')+
+rules(['Inicializa siempre el acumulador antes del bucle ($total = 0).','Dentro de un foreach, <code>$j["stock"] = 0</code> cambia solo una <b>copia</b>. Para modificar el original: <code>$videojuegos[$codigo]["stock"] = 0;</code>']))
+)
+h+=blk('cadenas','Cadenas',
+sec('Actividad 2: las tres funciones',code('$t = "Elden Ring";\necho strtoupper($t);   // ELDEN RING\necho strlen($t);       // 10  (cuenta el espacio)\necho substr($t, 0, 5); // Elden')+
+tbl(['Función','Qué hace','Ojo'],[['strtoupper','todo a mayúsculas','strtolower = minúsculas; ucfirst / ucwords = iniciales'],['strlen','nº de caracteres (bytes)','por eso el enunciado dice ASCII: con tildes cuenta más'],['substr($t,ini,long)','trozo del texto','ini 0 = primera letra; ini negativo cuenta desde el final']])+
+code('substr("Minecraft", 0, 5);  // Minec\nsubstr("Minecraft", -3);    // aft\nsubstr("Elden Ring", 2, 3); // den'))+
+sec('Actividad 3: stripos y la trampa del 0',tbl(['','strpos','stripos'],[['Distingue mayúsculas','sí','no (la i = insensible)'],['Devuelve','posición o false','posición o false']])+
+code('// "Red" está en la posición 0 → stripos devuelve 0\nif (stripos($t, "Red") == false)  { … }  // MAL: 0 == false\nif (stripos($t, "Red") !== false) { … }  // BIEN')+
+flow([['Devuelve 0','encontrado al principio'],['Devuelve false','no encontrado'],['Se comprueba con','!== false']])+
+rules(['<code>==</code> compara valor (0 == false es true); <code>===</code> / <code>!==</code> comparan valor y tipo.','Con «Red» o «The» coinciden <b>3</b> títulos: Grand Theft Auto VI (porque «Th<b>e</b>ft» contiene «the»), Red Dead Redemption 2 y The Witcher 3.','stripos busca la cadena en cualquier sitio, no palabras completas.']))+
+sec('Más funciones de texto que pueden caer',tbl(['Función','Ejemplo','Resultado'],[['str_replace','str_replace("a","o","banana")','bononoo'],['trim','trim("  hola  ")','hola'],['str_contains (PHP 8)','str_contains("Theft","the")','false (distingue mayúsculas)'],['implode','implode(", ", ["a","b"])','a, b'],['explode','explode(",", "a,b")','["a","b"]'],['htmlspecialchars','htmlspecialchars("&lt;b&gt;")','&amp;lt;b&amp;gt; (se muestra como texto)']])+
+rules(['El punto <b>.</b> concatena: <code>"Precio: " . $p . " €"</code>.','Comillas dobles: sustituyen variables ("Valor: $p"). Simples: texto literal (\'Valor: $p\').'])))
+h+=blk('calculo','Modificar y calcular',
+sec('Actividad 4: modificar el array directamente',code('$videojuegos["J001"]["precio"] *= 0.9;          // −10 %  → 71.991\n$videojuegos["J001"]["precio"] = round($videojuegos["J001"]["precio"], 2); // 71.99\n$videojuegos["J004"]["stock"] += 5;            // 5 → 10\n$videojuegos["J003"]["plataforma"] = "PC y PS5";')+
+tbl(['Operador','Qué hace'],[['=','asigna (sobrescribe)'],['+=','suma al valor actual'],['*= 0.9','multiplica por 0.9 = deja el 90 %'],['.=','añade texto al final']])+
+rules(['Una rebaja del 10 % es multiplicar por 0.9, no restar 10.','Cada cambio se hace por sus dos claves: <code>["J001"]["precio"]</code>.']))+
+sec('Actividad 5: cálculos',code('$precios = array_column($videojuegos, "precio");\n$media  = array_sum($precios) / count($precios);\n$stock  = array_sum(array_column($videojuegos, "stock"));\n$caros  = count(array_filter($videojuegos, fn($j) => $j["precio"] > 40));\n$mas_caro = max($precios);')+
+tbl(['Dato','Catálogo inicial','Tras la actividad 4'],[['Precio medio','46,99 €','45,39 €'],['Más caro','GTA VI 79,99 €','GTA VI 71,99 €'],['Unidades en stock','60','65'],['Precio &gt; 40 €','2 (GTA VI y Elden Ring)','2 (GTA VI y Elden Ring)']])+
+rules(['Red Dead Redemption 2 vale 39,99: <b>no</b> supera 40.','Haz los cálculos después de modificar el array, para que usen los datos nuevos.','Para mostrar: <code>number_format($media, 2, ",", ".")</code> da 45,39. Calcula con números y formatea solo al imprimir.']))+
+sec('Comparar dos formas de hacer lo mismo',tbl(['','foreach con acumulador','array_sum(array_column())'],[['Líneas','más','una'],['Se ve el recorrido','sí (más didáctico)','no'],['Resultado','igual','igual'],['Cuándo','si el enunciado pide recorrer','si quieres brevedad']])))
+h+=blk('html','HTML + PHP',
+sec('Cómo se mezclan',flow([['Navegador','pide la página .php'],['Servidor','ejecuta &lt;?php … ?&gt;'],['HTML resultante','solo texto HTML'],['Navegador','lo muestra']])+
+rules(['Lo de fuera de <code>&lt;?php ?&gt;</code> se envía tal cual; lo de dentro lo ejecuta el servidor.','El navegador nunca ve el PHP: solo el HTML generado.','<code>&lt;?= $x ?&gt;</code> equivale a <code>&lt;?php echo $x; ?&gt;</code>.','El archivo debe ser .php para que el servidor lo procese.']))+
+sec('Actividad 1: la tabla',code(String.raw`<table>
+  <tr><th>Código</th><th>Título</th><th>Género</th><th>Plataforma</th><th>Precio</th><th>Stock</th></tr>
+  <?php foreach ($videojuegos as $codigo => $j): ?>
+  <tr>
+    <td><?= $codigo ?></td>
+    <td><?= htmlspecialchars($j["titulo"]) ?></td>
+    <td><?= $j["genero"] ?></td>
+    <td><?= $j["plataforma"] ?></td>
+    <td><?= number_format($j["precio"], 2, ",", ".") ?> €</td>
+    <td><?= $j["stock"] ?></td>
+  </tr>
+  <?php endforeach; ?>
+</table>`)+
+rules(['La cabecera (<code>&lt;th&gt;</code>) va una vez; lo que se repite es la fila <code>&lt;tr&gt;</code>.','<code>foreach (…): … endforeach;</code> es la sintaxis alternativa de las llaves, más legible entre HTML.','htmlspecialchars evita que un dato con etiquetas altere la página.']))+
+sec('Etiquetas de tabla',tbl(['Etiqueta','Qué es'],[['&lt;table&gt;','la tabla'],['&lt;tr&gt;','fila'],['&lt;th&gt;','celda de encabezado'],['&lt;td&gt;','celda de datos'],['&lt;thead&gt; / &lt;tbody&gt;','agrupan cabecera / cuerpo (opcionales)']])))
+h+=blk('solucion','Solución completa',
+sec('Las 5 actividades juntas',code(String.raw`<?php
+$videojuegos = [ /* el array del enunciado */ ];
+
+// Act. 2 y 3: cadenas y búsqueda
+$coincidencias = 0;
+foreach ($videojuegos as $cod => $j) {
+  $t = $j["titulo"];
+  echo strtoupper($t) . " | " . strlen($t) . " | " . substr($t, 0, 5) . "<br>";
+  if (stripos($t, "Red") !== false || stripos($t, "The") !== false) {
+    echo "Coincide: $t<br>";
+    $coincidencias++;
+  }
+}
+echo "Total coincidencias: $coincidencias<br>";   // 3
+
+// Act. 4: modificar
+$videojuegos["J001"]["precio"] = round($videojuegos["J001"]["precio"] * 0.9, 2);
+$videojuegos["J004"]["stock"] += 5;
+$videojuegos["J003"]["plataforma"] = "PC y PS5";
+
+// Act. 5: cálculos (con los datos ya modificados)
+$precios = array_column($videojuegos, "precio");
+$media   = array_sum($precios) / count($precios);
+$unidades = array_sum(array_column($videojuegos, "stock"));
+$masCaro = ""; $mayor = 0; $caros = 0;
+foreach ($videojuegos as $cod => $j) {
+  if ($j["precio"] > $mayor) { $mayor = $j["precio"]; $masCaro = $j["titulo"]; }
+  if ($j["precio"] > 40) { $caros++; }
+}
+echo "Media: " . number_format($media, 2, ",", ".") . " €<br>";
+echo "Más caro: $masCaro<br>";
+echo "Unidades: $unidades<br>";
+echo "Más de 40 €: $caros<br>";
+?>`)+
+rules(['La actividad 1 (tabla) y la 4 (tabla actualizada) usan el mismo bloque HTML: puedes reutilizarlo tras cada fase.','Orden: mostrar, modificar, volver a mostrar, calcular.'])))
+h='<div class="pills" id="wb-blocks"></div>'+h;
+pr.innerHTML=h;
+var bb=$('#wb-blocks',pr);
+function showB(id){$$('.sb',pr).forEach(function(d){d.hidden=d.getAttribute('data-b')!==id});$$('.pill',bb).forEach(function(b){b.classList.toggle('on',b.getAttribute('data-b')===id)})}
+BL.forEach(function(x,i){var b=el('button','pill'+(i?'':' on'),x[1]);b.type='button';b.setAttribute('data-b',x[0]);b.onclick=function(){showB(x[0])};bb.appendChild(b)});
+showB('mapa');
+
+/* ---------- PRACTICA ---------- */
+var pp=panel('practica');
+pp.innerHTML='<div class="card"><h3>Contesta y aprende</h3><p class="lead" style="margin:0 0 12px">Elige un tema. Verás la explicación al momento.</p><div class="pills" id="wb-cats"></div><div id="wb-q"></div></div>';
+var cur={pool:[],i:0,cat:'Todas',answered:false};
+function pools(cat){
+  if(cat==='Todas')return WQ.slice();
+  if(cat==='Falladas')return WQ.filter(function(q){return S.r[q.id]===0});
+  return WQ.filter(function(q){return q.c===cat});
+}
+var cbox=$('#wb-cats',pp);
+['Todas'].concat(CATS).concat(['Falladas']).forEach(function(c){
+  var b=el('button','pill'+(c==='Todas'?' on':''),c);b.type='button';b.setAttribute('data-c',c);
+  b.onclick=function(){start(c)};cbox.appendChild(b);
+});
+function qHtml(q,order,state){
+  var h='<div class="qmeta"><span class="tag">'+esc(q.c)+'</span></div>'+(q.code?'<div class="qk">'+esc(q.code)+'</div>':'')+'<p class="qt">'+esc(q.q)+'</p><div class="opts">';
+  order.forEach(function(oi,p){
+    var cls='opt';
+    if(state&&state.show){if(oi===0)cls+=' ok';else if(state.pick===p)cls+=' bad'}
+    else if(state&&state.pick===p)cls+=' sel';
+    h+='<button type="button" class="'+cls+'" data-p="'+p+'"><i>'+String.fromCharCode(65+p)+'</i><span>'+esc(q.o[oi])+'</span></button>';
+  });
+  return h+'</div>';
+}
+function start(cat){
+  var list=pools(cat);
+  cur.cat=cat;
+  $$('.pill',cbox).forEach(function(b){b.classList.toggle('on',b.getAttribute('data-c')===cat)});
+  var box=$('#wb-q',pp);
+  if(!list.length){box.innerHTML='<p class="lead">'+(cat==='Falladas'?'No tienes preguntas falladas. Buen trabajo.':'No hay preguntas en este bloque.')+'</p>';return}
+  cur.pool=shuf(list);cur.i=0;show();
+}
+function show(){
+  var box=$('#wb-q',pp),q=cur.pool[cur.i];
+  cur.order=shuf(q.o.map(function(_,i){return i}));cur.answered=false;
+  box.innerHTML='<div id="wqbody">'+qHtml(q,cur.order,null)+'</div><div class="fbk" id="wfbk" aria-live="polite"></div><div class="r-btns"><button type="button" class="btn primary" id="wqnext" hidden>Siguiente</button></div>';
+  $$('.opt',box).forEach(function(b){b.onclick=function(){answer(+b.getAttribute('data-p'))}});
+  $('#wqnext',box).onclick=function(){cur.i++;if(cur.i>=cur.pool.length){done()}else show()};
+}
+function answer(p){
+  if(cur.answered)return;cur.answered=true;
+  var q=cur.pool[cur.i],ok=cur.order[p]===0;
+  S.r[q.id]=ok?1:0;save();refresh();
+  $('#wqbody').innerHTML=qHtml(q,cur.order,{show:true,pick:p});
+  var f=$('#wfbk');f.className='fbk '+(ok?'good':'bad');
+  f.innerHTML='<b>'+(ok?'Correcto.':'No es esa.')+'</b> '+esc(q.e);
+  var n=$('#wqnext');n.hidden=false;n.textContent=cur.i+1>=cur.pool.length?'Terminar':'Siguiente';n.focus();
+}
+function done(){
+  var box=$('#wb-q',pp),ok=cur.pool.filter(function(q){return S.r[q.id]===1}).length;
+  box.innerHTML='<p class="lead">Has terminado este bloque. Puedes repetirlo o repasar solo las que has dejado para revisar.</p><div class="r-btns"><button type="button" class="btn primary" id="wagain">Repetir bloque</button><button type="button" class="btn" id="wfails">Solo falladas</button></div>';
+  $('#wagain',box).onclick=function(){start(cur.cat)};
+  $('#wfails',box).onclick=function(){start('Falladas')};
+}
+
+/* ---------- SIMULACRO ---------- */
+var ps=panel('simulacro');
+var ex={list:[],orders:[],ans:[],i:0,sure:false,over:false};
+function newExam(){
+  ex.list=shuf(WQ).slice(0,EXAM_N);
+  ex.orders=ex.list.map(function(q){return shuf(q.o.map(function(_,i){return i}))});
+  ex.ans=ex.list.map(function(){return -1});
+  ex.i=0;ex.sure=false;ex.over=false;drawEx();
+}
+function drawEx(){
+  if(ex.over)return;
+  var h='<div class="card"><div class="exh"><h3>Simulacro de '+EXAM_N+' preguntas</h3><span class="qprog" id="wexc"></span></div>';
+  h+='<div class="grid" id="wexg"></div><div id="wexq"></div><div class="r-btns"><button type="button" class="btn" id="wexprev">Anterior</button><button type="button" class="btn" id="wexnext">Siguiente</button><button type="button" class="btn primary" id="wexend">Terminar y corregir</button></div><div class="r-msg" id="wexmsg" aria-live="polite"></div></div>';
+  ps.innerHTML=h;
+  var g=$('#wexg',ps);
+  ex.list.forEach(function(_,k){var b=el('button','gn',String(k+1));b.type='button';b.onclick=function(){ex.i=k;drawEx()};g.appendChild(b)});
+  paintEx();
+  $('#wexprev',ps).onclick=function(){if(ex.i>0){ex.i--;drawEx()}};
+  $('#wexnext',ps).onclick=function(){if(ex.i<EXAM_N-1){ex.i++;drawEx()}};
+  $('#wexend',ps).onclick=finish;
+}
+function paintEx(){
+  var q=ex.list[ex.i];
+  $('#wexc',ps).textContent='Pregunta '+(ex.i+1);
+  $$('.gn',ps).forEach(function(b,k){b.classList.toggle('on',k===ex.i);b.classList.toggle('dn',ex.ans[k]>=0)});
+  $('#wexq',ps).innerHTML=qHtml(q,ex.orders[ex.i],{pick:ex.ans[ex.i]});
+  $$('.opt',$('#wexq',ps)).forEach(function(b){b.onclick=function(){ex.ans[ex.i]=+b.getAttribute('data-p');ex.sure=false;$('#wexmsg',ps).textContent='';paintEx()}});
+  $('#wexprev',ps).disabled=ex.i===0;$('#wexnext',ps).disabled=ex.i===EXAM_N-1;
+}
+function finish(){
+  var un=ex.ans.filter(function(a){return a<0}).length,m=$('#wexmsg',ps);
+  if(un>0&&!ex.sure){ex.sure=true;m.className='r-msg bad';m.textContent='Hay preguntas sin contestar. Si quieres, pulsa otra vez para corregir igualmente.';return}
+  ex.over=true;
+  var ok=0,bad=[];
+  ex.list.forEach(function(q,k){var good=ex.ans[k]>=0&&ex.orders[k][ex.ans[k]]===0;if(good)ok++;else bad.push(k);S.r[q.id]=good?1:0});
+  var nota=Math.round(ok*100/EXAM_N)/10;
+  if(nota>S.best)S.best=nota;save();refresh();
+  var h='<div class="card"><h3>Resultado</h3><p class="big">'+ok+' de '+EXAM_N+' · nota '+nota.toFixed(1).replace('.',',')+' sobre 10</p><p class="lead" style="margin:0 0 12px">Sin penalización por fallo.</p><div class="r-btns"><button type="button" class="btn primary" id="wexnew">Nuevo simulacro</button></div></div>';
+  if(bad.length){
+    h+='<div class="card"><h3>Revisa tus '+bad.length+' fallos</h3>';
+    bad.forEach(function(k){
+      var q=ex.list[k],o=ex.orders[k],mine=ex.ans[k]>=0?q.o[o[ex.ans[k]]]:'Sin contestar';
+      h+='<div class="rev">'+(q.code?'<div class="qk">'+esc(q.code)+'</div>':'')+'<p class="qt">'+(k+1)+'. '+esc(q.q)+'</p><p class="rv bad">Tu respuesta: '+esc(mine)+'</p><p class="rv good">Correcta: '+esc(q.o[0])+'</p><p class="rx">'+esc(q.e)+'</p></div>';
+    });
+    h+='</div>';
+  }
+  ps.innerHTML=h;$('#wexnew',ps).onclick=newExam;
+  try{window.scrollTo(0,0)}catch(e){}
+}
+function refresh(){
+  var ok=WQ.filter(function(q){return S.r[q.id]===1}).length;
+  var c=$('#wb-card-count');if(c)c.textContent=ok+' de '+N+' preguntas acertadas';
+  var s=$('#wb-sum');if(s)s.textContent=ok+' de '+N+' acertadas'+(S.best?' · mejor simulacro '+S.best.toFixed(1).replace('.',','):'');
+  var bar=$('#wb-bar');if(bar)bar.style.width=Math.round(ok*100/N)+'%';
+}
+function route(){
+  var h=(location.hash||'').slice(1);
+  if(h!=='web'&&h.indexOf('wb-')!==0)return;
+  var id=h.slice(3);if(!$('#wbp-'+id))id='estudio';
+  $$('#wb-panels .panel').forEach(function(p){p.hidden=(p.id!=='wbp-'+id)});
   $$('a',tabs).forEach(function(a){a.classList.toggle('on',a.getAttribute('data-t')===id)});
 }
 window.addEventListener('hashchange',route);
