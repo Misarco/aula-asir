@@ -118,6 +118,55 @@ svg .lf{stroke:var(--line-strong);stroke-width:1;stroke-dasharray:3 4}
 .r-fb{margin:6px 0 0;padding-left:18px;font-size:14px;color:var(--muted)}
 .exhead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
 .tag{font-size:13px;font-weight:500;padding:2px 10px;border-radius:999px;background:var(--violet-soft);color:var(--violet)}
+.mb{display:flex;flex-direction:column;gap:10px}
+.mbr{display:grid;grid-template-columns:1fr 24px 1fr;gap:8px;align-items:center}
+.mbr small{grid-column:1/-1;color:var(--muted);font-size:12px;margin-top:-4px}
+.mbr code{font:400 12px/1.5 var(--mono);padding:8px 10px;border-radius:8px;overflow-wrap:anywhere}
+.mbr code.bad{background:var(--bad-soft);color:var(--bad)}
+.mbr code.good{background:var(--good-soft);color:var(--good)}
+.mba{text-align:center;color:var(--muted);font-size:18px}
+.lad{display:flex;align-items:center;gap:10px;margin:0 0 6px;font-size:13px}
+.lad b{font:500 13px var(--mono);width:64px;flex:none}
+.lb{height:24px;border-radius:6px;display:flex;align-items:center;padding:0 8px;min-width:0;white-space:nowrap;overflow:hidden}
+.lb span{font-size:12px;overflow:hidden;text-overflow:ellipsis}
+.lb.bad{background:var(--bad-soft);color:var(--bad)}
+.lb.warn{background:var(--violet-soft);color:var(--violet)}
+.lb.ok{background:var(--good-soft);color:var(--good)}
+.flow{display:flex;align-items:stretch;gap:6px;flex-wrap:wrap}
+.fa{align-self:center;color:var(--muted)}
+.fb{flex:1;min-width:120px;border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--surface)}
+.fb b{display:block;font:500 14px var(--mono);margin-bottom:3px}
+.fb small{display:block;font-size:12px;color:var(--muted);line-height:1.4}
+.two{display:flex;gap:10px;flex-wrap:wrap}
+.tec{margin:0;padding-left:20px;font-size:14px}
+.tec li{margin:5px 0}
+code{font-family:var(--mono);font-size:.92em}
+.qprog{font-size:13px;color:var(--muted);margin-bottom:8px;font-variant-numeric:tabular-nums}
+.qmeta{margin-bottom:8px}
+.qt{font:500 16px/1.45 var(--body);margin:0 0 10px}
+.qk{font:400 13px/1.6 var(--mono);background:var(--code-bg);border-radius:10px;padding:10px 12px;margin:0 0 12px;white-space:pre-wrap;overflow-wrap:anywhere}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;gap:10px;align-items:flex-start;text-align:left;font:400 14px/1.45 var(--body);padding:10px 12px;border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);color:var(--ink);cursor:pointer}
+.opt:hover{border-color:var(--accent)}
+.opt i{font:500 12px var(--mono);font-style:normal;flex:none;width:22px;height:22px;border-radius:50%;background:var(--code-bg);display:grid;place-items:center;color:var(--muted)}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.ok{border-color:var(--good);background:var(--good-soft);color:var(--good)}
+.opt.bad{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.fbk{margin-top:12px;font-size:14px;line-height:1.5}
+.fbk.good b{color:var(--good)}
+.fbk.bad b{color:var(--bad)}
+.exh{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.grid{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 14px}
+.gn{font:500 12px var(--mono);width:30px;height:28px;border-radius:6px;border:1px solid var(--line-strong);background:var(--surface);color:var(--muted);cursor:pointer;padding:0}
+.gn.dn{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.gn.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.big{font:700 26px var(--display);margin:4px 0 6px}
+.rev{border-top:1px solid var(--line);padding:12px 0}
+.rv{margin:2px 0;font-size:14px}
+.rv.bad{color:var(--bad)}.rv.good{color:var(--good)}
+.rx{margin:6px 0 0;font-size:13px;color:var(--muted)}
+.btn:disabled{opacity:.45;cursor:default}
+@media (max-width:520px){.mbr{grid-template-columns:1fr}.mba{transform:rotate(90deg)}}
 @media (max-width:520px){h1{font-size:26px}h2{font-size:22px}}
 </style>
 </head>
@@ -136,6 +185,13 @@ svg .lf{stroke:var(--line-strong);stroke-width:1;stroke-dasharray:3 4}
 <div class="sum"><div class="bar" role="progressbar" aria-label="Ejercicios sin fallos"><i id="bar"></i></div><span id="count"></span></div>
 <nav class="tabs" id="tabs" aria-label="Servicios"></nav>
 <div id="panels"></div>
+</section>
+<section id="view-bd" hidden>
+<a class="crumb" href="#inicio">← Asignaturas</a>
+<h2>Gestores de Bases de Datos · UT02 Optimización SQL</h2>
+<div class="sum"><div class="bar" role="progressbar" aria-label="Preguntas acertadas"><i id="bd-bar"></i></div><span id="bd-sum"></span></div>
+<nav class="tabs" id="bd-tabs" aria-label="Secciones"></nav>
+<div id="bd-panels"></div>
 </section>
 </div>
 <script>
@@ -632,9 +688,9 @@ var CARDS=[
 ];
 var sg=$('#subjects');
 CARDS.forEach(function(c){
-  var on=c[0]==='b8',a=el(on?'a':'div','subj '+(on?'on':'off'));
-  if(on)a.href='#sri';else a.setAttribute('aria-disabled','true');
-  a.innerHTML='<div class="ban '+c[0]+'"></div><div class="tx"><h3>'+esc(c[1])+'</h3><span class="sub">2º ASIR Vespertino</span>'+(on?'<span class="badge">Parte práctica disponible</span><span class="sub" id="sri-card-count"></span>':'<span class="badge">Próximamente</span>')+'</div>';
+  var on=c[0]==='b8'||c[0]==='b2',isBd=c[0]==='b2',a=el(on?'a':'div','subj '+(on?'on':'off'));
+  if(on)a.href=isBd?'#bd':'#sri';else a.setAttribute('aria-disabled','true');
+  a.innerHTML='<div class="ban '+c[0]+'"></div><div class="tx"><h3>'+esc(c[1])+'</h3><span class="sub">2º ASIR Vespertino</span>'+(on?(isBd?'<span class="badge">Test de optimización SQL</span><span class="sub" id="bd-card-count"></span>':'<span class="badge">Parte práctica disponible</span><span class="sub" id="sri-card-count"></span>'):'<span class="badge">Próximamente</span>')+'</div>';
   sg.appendChild(a);
 });
 
@@ -642,8 +698,8 @@ var lastView='';
 function route(){
   var h=(location.hash||'#inicio').slice(1);
   if(h==='sri')h='sri-dns';
-  var inSri=h.indexOf('sri-')===0,view=inSri?'sri':'inicio';
-  $('#view-inicio').hidden=inSri;$('#view-sri').hidden=!inSri;
+  var inSri=h.indexOf('sri-')===0,inBd=h==='bd'||h.indexOf('bd-')===0,view=inSri?'sri':inBd?'bd':'inicio';
+  $('#view-inicio').hidden=inSri||inBd;$('#view-sri').hidden=!inSri;$('#view-bd').hidden=!inBd;
   if(inSri){
     var id=h.slice(4);if(!$('#panel-'+id))id='dns';
     $$('.panel').forEach(function(p){p.hidden=(p.id!=='panel-'+id)});
@@ -653,6 +709,296 @@ function route(){
 }
 window.addEventListener('hashchange',route);
 refresh();route();
+})();
+
+</script>
+<script>
+var QS=[];
+function Q(c,q,o,e,k){QS.push({c:c,q:q,o:o,e:e,k:k||''})}
+var T='Teoría',E='Escalera type',M='Mal y bien',I='Índices',X='Interpretar EXPLAIN',J='JOIN y subconsultas',U='UPDATE y DELETE';
+
+Q(T,"¿Qué hace EXPLAIN?",["Muestra cómo ejecutará el motor una consulta (plan de ejecución)","Ejecuta la consulta y guarda el resultado en otra tabla","Crea automáticamente los índices que faltan","Hace una copia de seguridad de la tabla"],"EXPLAIN enseña el plan: qué índices usaría, cuántas filas revisará y en qué orden hará las operaciones. Sirve para detectar cuellos de botella.");
+Q(T,"¿Qué NO puedes ver con un EXPLAIN normal?",["El tiempo real exacto que tardó en ejecutarse","Si se usa algún índice","Cuántas filas estima procesar","El orden en que se ejecutarán las operaciones"],"EXPLAIN da un plan estimado, no tiempos reales. Para la ejecución real está ANALYZE FORMAT=JSON.");
+Q(T,"El EXPLAIN tradicional de MariaDB devuelve...",["Un plan estimado, normalmente sin ejecutar el SELECT","Las filas del SELECT ya ordenadas","El tiempo real en milisegundos","Solo la lista de índices de la tabla"],"MariaDB analiza la consulta y muestra un plan estimado, normalmente sin ejecutarla para devolver sus filas.");
+Q(T,"¿Qué diferencia a ANALYZE FORMAT=JSON de EXPLAIN?",["Ejecuta la consulta y da información de la ejecución real","Es más rápido porque no ejecuta nada","Solo sirve para UPDATE","Borra la caché de consultas"],"ANALYZE FORMAT=JSON ejecuta la consulta y aporta métricas reales. EXPLAIN solo estima.");
+Q(T,"Plan estimado frente a ejecución real. ¿Cuál es la pareja correcta?",["EXPLAIN: qué cree MariaDB que hará. ANALYZE: qué trabajo ha hecho de verdad","EXPLAIN: trabajo real. ANALYZE: estimación","Los dos son solo estimaciones","Los dos ejecutan la consulta"],"Son dos conceptos distintos: plan estimado y ejecución real.");
+Q(T,"El campo type de EXPLAIN indica...",["El método de acceso: cómo se buscan las filas","El tiempo que tardará la consulta","El tipo de dato de la columna","El número de filas devueltas"],"No indica cuánto tarda, sino cómo localiza MariaDB los registros.");
+Q(T,"El campo possible_keys indica...",["Los índices que MariaDB considera candidatos","El índice que ha usado finalmente","Las claves primarias de la tabla","Las columnas del SELECT"],"Son candidatos. No significa que vaya a usarlos todos.");
+Q(T,"El campo key indica...",["El índice que el optimizador ha elegido realmente","Todos los índices candidatos","El número de claves de la tabla","La clave foránea de la tabla"],"key es el índice elegido. No lo confundas con possible_keys.");
+Q(T,"¿Qué pregunta responde cada campo?",["possible_keys: ¿qué índices podrían servir? key: ¿cuál ha elegido?","possible_keys: ¿cuál ha elegido? key: ¿cuáles podrían servir?","Los dos responden lo mismo","Ninguno tiene que ver con índices"],"possible_keys = candidatos. key = elegido.");
+Q(T,"El campo rows es...",["Una estimación de las filas que examinará en ese paso","El número exacto de filas que devuelve la consulta","Las filas modificadas por un UPDATE","El número total de filas de la tabla siempre"],"Es una estimación del optimizador basada en estadísticas. No es el número de filas devueltas.");
+Q(T,"Orden recomendado para analizar un EXPLAIN:",["type, possible_keys, key, rows y Extra","rows, key, type, Extra","Extra, rows, type, key","key, rows, possible_keys, type"],"Primero cómo accede (type), luego candidatos, luego el elegido, después las filas y por último Extra.");
+Q(T,"¿Para qué sirve el campo Extra?",["Para ver indicadores adicionales como Using where, Using index o Using filesort","Para ver el nombre de la tabla","Para ver el usuario que ejecuta la consulta","Para ver el tamaño del índice"],"Extra añade información sobre cómo se resuelve la consulta.");
+Q(T,"Una consulta es eficiente cuando...",["El plan da el resultado correcto con un coste razonable de recursos y tiempo","Simplemente usa un índice","Tiene muchos JOIN","Devuelve siempre pocas columnas"],"Usar un índice no basta: lo que cuenta es el coste total razonable.");
+Q(T,"¿Menos filas estimadas significa siempre menos tiempo total?",["No: también influyen disco, tamaño de registros, memoria y operaciones adicionales","Sí, siempre","Solo en los UPDATE","Solo con JOIN"],"Menos filas estimadas es buena señal, pero no garantiza menor tiempo total.");
+Q(T,"En una consulta con varios JOIN, EXPLAIN muestra...",["Normalmente una fila del plan por cada tabla; no se suman los rows como total exacto","Una única fila con el total","Solo la primera tabla","Un error de sintaxis"],"No debemos sumar todos los valores rows como si fueran el total exacto de registros procesados.");
+Q(T,"Sobre normalizar la base de datos:",["Mantenerla normalizada, pero valorar desnormalizar en consultas muy frecuentes","Nunca se debe normalizar","Hay que desnormalizar siempre","Normalizar impide usar JOIN"],"Normalizar evita duplicidad y facilita los JOIN. A veces se desnormaliza para consultas muy frecuentes.");
+Q(T,"¿Qué se usa para simplificar consultas complejas con subconsultas redundantes?",["Expresiones comunes de tabla (CTE)","SELECT * siempre","Borrar los índices","Duplicar la tabla"],"La técnica 5 propone simplificar con subconsultas menos redundantes o CTE y reorganizar filtros y JOIN para usar los índices.");
+Q(T,"Los índices que no se usan...",["Pueden ralentizar INSERT y UPDATE, por eso conviene depurarlos","Aceleran siempre los INSERT","No tienen ningún coste","Bloquean toda la base de datos"],"Cada índice hay que mantenerlo al insertar o actualizar. Se revisan y se eliminan los innecesarios.");
+Q(T,"¿En qué cláusulas conviene crear índices?",["WHERE, JOIN y ORDER BY","Solo en SELECT","Solo en INSERT","Solo en los comentarios"],"Se crean en columnas que se usan en WHERE, JOIN y ORDER BY.");
+Q(T,"¿Qué columnas NO conviene indexar?",["Las de pocos valores distintos (poca selectividad)","Las que se usan en WHERE","Las que se usan en JOIN","Las que se usan en ORDER BY"],"Un índice sobre una columna con pocos valores distintos apenas reduce filas.");
+Q(T,"Si EXPLAIN muestra ALL aunque exista un índice, ¿es necesariamente un error?",["No: si la consulta devuelve gran parte de la tabla, MariaDB puede preferir ALL","Sí, siempre es un error","Solo si hay JOIN","Sí, el índice está corrupto"],"Si el resultado abarca gran parte de la tabla, leerla entera puede ser más rápido.");
+Q(T,"key = NULL significa...",["Que no se ha elegido ningún índice; no es automáticamente un problema","Que la tabla no existe","Un error de sintaxis","Que el índice está roto"],"Por ejemplo, leer una tabla pequeña completa puede ser más rápido que usar un índice.");
+Q(T,"possible_keys = NULL significa...",["Que MariaDB no ve ningún índice candidato para ese acceso","Que hay demasiados índices","Que la tabla está vacía","Que el índice es compuesto"],"Puede ser porque no hay índices adecuados o porque la condición (por ejemplo, una función sobre la columna) no permite aprovecharlos.");
+Q(T,"¿Cuándo se recomienda ejecutar EXPLAIN?",["Antes y después de crear índices o cambiar JOINs","Solo al final del curso","Solo en los INSERT","Nunca, es solo teoría"],"Así se comprueba si el cambio ha mejorado el plan.");
+Q(T,"En un INSERT bien escrito, las columnas...",["Se declaran explícitamente","No se indican nunca","Se sustituyen por *","Se sustituyen por una subconsulta"],"Consejo: declara las columnas explícitamente en INSERT.");
+
+Q(E,"type = ALL significa...",["Escaneo completo de la tabla","Búsqueda por índice único en un JOIN","Tabla con una única fila","Búsqueda por rango en un índice"],"ALL es un full table scan: potencialmente costoso. Evítalo si puedes.");
+Q(E,"type = index significa...",["Recorrido completo de un índice","Búsqueda por rango","Escaneo completo de la tabla","Consulta que da como máximo una fila"],"No es lo ideal, pero es mejor que ALL. Depende del caso.");
+Q(E,"type = range significa...",["Búsqueda por rango en un índice","Escaneo completo de la tabla","Tabla con una única fila","Recorrido de todo el índice"],"Generalmente eficiente. Sale con condiciones como salario > 50000 e índice en salario.");
+Q(E,"type = ref significa...",["Búsqueda mediante un índice no único o un prefijo de índice","Escaneo completo","Tabla con una sola fila","Recorrido de todos los índices"],"Generalmente eficiente.");
+Q(E,"type = eq_ref significa...",["Búsqueda por índice único en un JOIN","Escaneo completo de la tabla","Recorrido completo del índice","Rango de un índice no único"],"Muy eficiente. Típico en JOIN contra clave primaria o única.");
+Q(E,"type = const significa...",["La búsqueda produce como máximo una fila","Escaneo completo de la tabla","Búsqueda por rango","Recorrido del índice entero"],"Muy eficiente: el resultado es constante.");
+Q(E,"type = system significa...",["La tabla tiene una única fila","Es una tabla del sistema operativo","Escaneo completo","Rango de índice"],"Muy eficiente.");
+Q(E,"Ordena de peor a mejor:",["ALL, index, range, ref, eq_ref, const","const, eq_ref, ref, range, index, ALL","index, ALL, range, const, ref, eq_ref","range, ALL, index, ref, const, eq_ref"],"ALL es lo peor, const lo mejor. Entre medias: index, range, ref y eq_ref.");
+Q(E,"¿Cuál de estos types es el más eficiente?",["const","ALL","index","range"],"const produce como máximo una fila.");
+Q(E,"¿Cuál de estos types es un full table scan?",["ALL","range","ref","const"],"ALL: examina toda la tabla.");
+Q(E,"Tras CREATE INDEX idx_salario ON empleados(salario); el EXPLAIN de SELECT * FROM empleados WHERE salario > 50000; muestra normalmente...",["type: range","type: ALL","type: const","type: system"],"El índice se usa como búsqueda por rango y rows baja (en el ejemplo de 2000 a 300).");
+Q(E,"Tras indexar id_departamento, un JOIN suele mostrar type...",["ref o eq_ref","ALL en las dos tablas","system","index siempre"],"Indica que se usan índices y la consulta mejora.");
+Q(E,"index frente a ALL: ¿qué afirmación es correcta?",["index lee todo el índice y ALL toda la tabla; index suele ser mejor","Son idénticos","ALL es siempre mejor","index es un rango"],"index no es lo ideal, pero es mejor que ALL.");
+Q(E,"Según el tema, ¿qué tipos busca siempre una consulta bien optimizada?",["RANGE, REF o EQ_REF","ALL","Solo INDEX","Solo SYSTEM"],"Consejo: busca que el tipo sea lo más eficiente posible (RANGE, REF, EQ_REF).");
+
+Q(M,"¿Cuál es la mejor consulta?",["SELECT nombre, apellido, salario FROM empleados WHERE salario > 50000;","SELECT * FROM empleados;","SELECT * FROM empleados WHERE salario > 50000;","SELECT nombre, apellido, salario FROM empleados;"],"Solo las columnas necesarias y filtrando con WHERE.");
+Q(M,"¿Qué problema tiene SELECT * FROM empleados;?",["Trae todas las columnas y todas las filas: más transferencia y proceso","Ninguno, es lo óptimo","Es sintaxis incorrecta","Bloquea la tabla siempre"],"Se cambia el * por las columnas realmente necesarias y se filtra.");
+Q(M,"¿Cuál es el INSERT mejor escrito?",["INSERT INTO empleados (nombre, apellido, departamento, salario) VALUES ('Ana', 'González', 'Ventas', 35000);","INSERT INTO empleados VALUES ('Ana', 'González', 'Ventas', 35000);","INSERT empleados ('Ana', 'González', 'Ventas', 35000);","INSERT INTO empleados SELECT *;"],"Declarar las columnas evita errores si cambia la estructura de la tabla.");
+Q(M,"¿Qué hace UPDATE empleados SET salario = 40000;?",["Cambia el salario de TODOS los empleados","Solo cambia al primero","Da error","No hace nada"],"Sin WHERE afecta a todas las filas: error masivo.");
+Q(M,"¿Cuál es el UPDATE más seguro?",["UPDATE empleados SET salario = 40000 WHERE nombre = 'Ana' AND apellido = 'González';","UPDATE empleados SET salario = 40000;","UPDATE empleados SET salario = 40000 WHERE 1;","UPDATE empleados;"],"Ventajas: evita errores masivos y mejora el control.");
+Q(M,"¿Qué hace DELETE FROM empleados;?",["Borra TODAS las filas de la tabla","Borra solo la primera fila","Borra la tabla entera con su estructura","Da error"],"Sin WHERE borra todo el contenido.");
+Q(M,"¿Cuál es el DELETE más seguro?",["DELETE FROM empleados WHERE departamento = 'Ventas' AND salario < 20000;","DELETE FROM empleados;","DELETE * FROM empleados;","DELETE empleados WHERE;"],"Menor riesgo y control total.");
+Q(M,"Hay un índice sobre fecha_contratacion. ¿Qué WHERE lo aprovecha mejor?",["WHERE fecha_contratacion BETWEEN '2020-01-01' AND '2020-12-31'","WHERE YEAR(fecha_contratacion) = 2020","WHERE UPPER(fecha_contratacion) = '2020'","WHERE DATE_FORMAT(fecha_contratacion, '%Y') = '2020'"],"Con una función sobre la columna no se aprovecha como rango. Con BETWEEN o >= y <= sí.");
+Q(M,"¿Qué WHERE es mejor para sacar las contrataciones de 2023?",["WHERE fecha >= '2023-01-01' AND fecha < '2024-01-01'","WHERE YEAR(fecha) = 2023","WHERE MONTH(fecha) > 0","WHERE CAST(fecha AS CHAR) LIKE '2023%'"],"Compara la columna directamente con un rango.");
+Q(M,"¿Por qué WHERE YEAR(fecha_contratacion) = 2020 es mala idea?",["Aplicar YEAR() a la columna impide usar el índice como búsqueda por rango","Porque YEAR no existe","Porque BETWEEN es siempre más lento","Porque obliga a crear dos índices"],"Reescríbelo como un rango de fechas.");
+Q(M,"Con un índice sobre nombre, ¿qué WHERE es mejor?",["WHERE nombre = 'Ana'","WHERE UPPER(nombre) = 'ANA'","WHERE LOWER(nombre) = 'ana'","WHERE CONCAT(nombre, '') = 'Ana'"],"No uses funciones sobre columnas indexadas.");
+Q(M,"¿Qué regla es correcta para el WHERE?",["No uses funciones sobre columnas indexadas","Usa funciones siempre que puedas","Evita filtrar en el WHERE","Usa SELECT * en el WHERE"],"Prefiere comparadores directos y rangos (BETWEEN, >=, <=) en vez de funciones.");
+Q(M,"¿Cuál de estos consejos NO aparece en los apuntes?",["Usar SELECT * siempre","Seleccionar solo las columnas necesarias","Usar WHERE sabiamente","Preferir JOIN sobre subconsultas cuando sea posible"],"SELECT * es justo lo que se desaconseja.");
+Q(M,"Filtrar lo máximo posible en el WHERE sirve para...",["Reducir el trabajo del motor y los datos transferidos","Hacer la consulta más larga","Evitar el uso de índices","Obligar a un ALL"],"Es la técnica 3: optimizar la cláusula WHERE.");
+Q(M,"¿Cuál de estas consultas usa mejor un rango de salario?",["WHERE salario BETWEEN 30000 AND 40000","WHERE ABS(salario) BETWEEN 30000 AND 40000","WHERE salario + 0 BETWEEN 30000 AND 40000","WHERE ROUND(salario) >= 30000 AND ROUND(salario) <= 40000"],"Se compara la columna directamente.");
+Q(M,"Para listar solo id y nombre de departamento, ¿qué escribes?",["SELECT id, nombre FROM departamento;","SELECT * FROM departamento;","SELECT ALL FROM departamento;","SELECT departamento FROM id, nombre;"],"Solo las columnas necesarias.");
+Q(M,"¿Qué técnica aplicas si quieres que se usen los índices disponibles en una consulta compleja?",["Reorganizar los filtros y JOIN","Añadir más subconsultas","Quitar todos los WHERE","Usar siempre SELECT *"],"Es la técnica 5: reescribir consultas complejas.");
+
+Q(I,"Para WHERE salario > 50000, ¿qué índice creas?",["CREATE INDEX idx_salario ON empleados(salario);","CREATE INDEX idx_nombre ON empleados(nombre);","CREATE INDEX idx_salario ON salario(empleados);","DROP INDEX idx_salario;"],"Se indexa la columna del WHERE.");
+Q(I,"Para UPDATE empleados SET salario = salario * 1.1 WHERE departamento = 'Ventas'; ¿qué índice ayuda?",["CREATE INDEX idx_departamento ON empleados(departamento);","CREATE INDEX idx_salario ON empleados(salario);","CREATE INDEX idx_ventas ON empleados(Ventas);","DROP INDEX idx_departamento ON empleados;"],"El WHERE filtra por departamento. Tras el índice, EXPLAIN muestra range.");
+Q(I,"Para un JOIN empleados.id_departamento = departamento.id, ¿qué índice añades?",["CREATE INDEX idx_id_departamento ON empleados(id_departamento);","CREATE INDEX idx_nombre ON departamento(nombre);","CREATE INDEX idx_id ON empleados(id);","DROP INDEX id ON departamento;"],"Se indexa la columna que une las tablas.");
+Q(I,"Para WHERE id_departamento = 2 AND salario > 70000, ¿qué índice encaja mejor?",["CREATE INDEX idx_depto_salario ON empleados(id_departamento, salario);","CREATE INDEX idx_salario ON empleados(salario);","CREATE INDEX idx_nombre ON empleados(nombre);","CREATE INDEX idx_todo ON empleados(*);"],"Si filtras por varias columnas a la vez, conviene un índice compuesto.");
+Q(I,"¿Cuál es la sintaxis correcta para crear un índice?",["CREATE INDEX idx_salario ON empleados(salario);","CREATE idx_salario ON empleados(salario);","MAKE INDEX idx_salario ON empleados(salario);","INDEX CREATE idx_salario empleados(salario);"],"CREATE INDEX nombre ON tabla(columna);");
+Q(I,"¿Cómo se elimina un índice que no se usa?",["DROP INDEX idx_salario ON empleados;","DELETE INDEX idx_salario;","REMOVE INDEX idx_salario ON empleados;","ALTER idx_salario DROP;"],"DROP INDEX nombre ON tabla;");
+Q(I,"¿Qué muestra SHOW INDEX FROM empleados;?",["Los índices de la tabla empleados","Las filas de empleados","El plan de ejecución","Los usuarios con permiso"],"Sirve para revisar y depurar índices.");
+Q(I,"¿En cuál de estas columnas NO merece la pena un índice?",["estado, con solo dos valores distintos","id_departamento, usada en JOIN","salario, filtrada por rangos","fecha_contratacion, usada en ORDER BY"],"Poca selectividad: casi no reduce filas.");
+Q(I,"Con idx_salario e idx_depto_salario, la consulta WHERE id_departamento = 2 AND salario > 70000 devuelve key = idx_depto_salario. ¿Por qué?",["Localiza el departamento 2 y dentro busca los salarios altos","Porque es el índice más antiguo","Porque ignora el WHERE","Porque idx_salario no existe"],"No tiene que buscar primero todos los salarios altos de todos los departamentos.");
+Q(I,"En el índice compuesto (id_departamento, salario), ¿por cuál se localiza primero?",["Por id_departamento","Por salario","Por nombre","Por el orden alfabético"],"Primero el departamento y, dentro de ese grupo, el salario.");
+Q(I,"Con muchos índices innecesarios, ¿qué operaciones se ralentizan?",["INSERT y UPDATE","Solo SELECT","Solo DROP","Ninguna"],"Cada índice se debe mantener al modificar datos.");
+Q(I,"¿Cuántos índices conviene crear?",["Los necesarios, revisando y depurando los que no se usan","Uno por cada columna","Ninguno","Los máximos permitidos"],"Técnica 7: revisa y elimina los índices innecesarios.");
+Q(I,"Dos índices posibles para filtrar por departamento y salario: ¿qué ve possible_keys?",["Los dos como candidatos, y key muestra el elegido","Solo el elegido","Solo el compuesto","Nada"],"possible_keys lista candidatos: idx_salario, idx_depto_salario. key: idx_depto_salario.");
+
+Q(X,"type: ALL | possible_keys: NULL | key: NULL | rows: 10000. ¿Qué situación es?",["Sin índice adecuado: escaneo completo estimado de 10.000 filas","Índice disponible pero no elegido","Búsqueda por rango","Índice compuesto seleccionado"],"No hay candidatos y se lee toda la tabla.");
+Q(X,"type: ALL | possible_keys: idx_salario | key: NULL | rows: 10000. ¿Qué situación es?",["Índice disponible, pero el optimizador no lo ha elegido","Sin índice adecuado","Búsqueda por rango","Índice compuesto seleccionado"],"idx_salario es candidato, pero key es NULL: no se ha usado.");
+Q(X,"type: range | possible_keys: idx_salario | key: idx_salario | rows: 1200. ¿Qué situación es?",["Búsqueda por rango usando idx_salario","Sin índice adecuado","Escaneo completo","Índice no elegido"],"Se busca el tramo del índice correspondiente a los salarios pedidos.");
+Q(X,"type: range | possible_keys: idx_depto_salario | key: idx_depto_salario | rows: 250. ¿Qué situación es?",["Índice compuesto seleccionado","Sin índice adecuado","Escaneo completo","Índice disponible pero no elegido"],"Es el caso de índice compuesto con pocas filas estimadas.");
+Q(X,"El índice reduce las filas estimadas de 10.000 a 1.200. ¿Qué reducción es?",["Un 88 %","Un 12 %","Un 50 %","Un 1,2 %"],"1.200 es el 12 % de 10.000, así que se reduce un 88 %.");
+Q(X,"Con type: ALL y rows: 10000, ¿cuántas filas devuelve la consulta?",["No se sabe: 10000 es lo que estima examinar","Exactamente 10.000","Ninguna","Todas las de la tabla siempre"],"rows no es el número de filas devueltas.");
+Q(X,"EXPLAIN UPDATE empleados SET salario = salario * 1.1 WHERE departamento = 'Ventas'; muestra type: ALL. ¿Qué significa?",["Escaneo completo de la tabla para buscar los de Ventas; ineficiente en tablas grandes","Usa el índice de departamento","La consulta no es válida","Ya está optimizada"],"Se corrige creando un índice en departamento.");
+Q(X,"Tras CREATE INDEX idx_departamento ON empleados(departamento); ese UPDATE pasa a mostrar...",["type: range, usando el índice","type: ALL","type: system","un error"],"Usa el índice para buscar solo los registros necesarios.");
+Q(X,"type: ALL con rows: 2000 en SELECT * FROM empleados WHERE salario > 50000; ¿qué indica?",["Full table scan, ineficiente en tablas grandes","Búsqueda por índice","Consulta constante","Plan óptimo"],"Tras crear el índice, el ejemplo baja a range y rows 300.");
+Q(X,"type: range | possible_keys: idx_salario, idx_depto_salario | key: idx_depto_salario | rows: 250. ¿Qué es correcto?",["Hay dos candidatos y el optimizador eligió idx_depto_salario","Se usan los dos índices","No se usa ningún índice","Solo existe idx_salario"],"possible_keys lista candidatos y key el elegido.");
+Q(X,"Con índice en fecha_contratacion y WHERE YEAR(fecha_contratacion) = 2020, EXPLAIN puede dar possible_keys = NULL. ¿Por qué?",["La función YEAR() sobre la columna impide aprovechar el índice como rango","Porque YEAR es lento","Porque el índice no existe","Porque falta ORDER BY"],"Aunque exista el índice, la función lo inutiliza.");
+Q(X,"¿Qué resultado indica mejor plan?",["type: range | key: idx_salario | rows: 1200","type: ALL | key: NULL | rows: 10000","type: ALL | key: NULL | rows: 2000","type: index | key: NULL | rows: 10000"],"Usa un índice y estima menos filas.");
+Q(X,"type: range | possible_keys: idx_salario | key: idx_salario | rows: 1200. ¿Qué haces?",["Nada: usa el índice y estima pocas filas","Borrar el índice","Cambiar a SELECT *","Añadir un UPDATE"],"El plan ya es razonable.");
+Q(X,"Ves type: ALL, possible_keys: NULL, key: NULL. ¿Qué revisas primero?",["Si falta un índice o si la condición impide usarlo","El nombre de la base de datos","El sistema operativo","El tamaño de la fuente"],"Crea el índice o reescribe la condición (sin funciones).");
+Q(X,"En un JOIN sin índices en id_departamento ni en id, EXPLAIN puede mostrar...",["type: ALL, revisando toda la tabla en ambas","type: const en ambas","type: system","Siempre eq_ref"],"Sin índices, el motor revisa las tablas enteras.");
+Q(X,"Al lanzar EXPLAIN de un UPDATE, ¿cómo se escribe?",["EXPLAIN UPDATE empleados SET salario = 1 WHERE departamento = 'Ventas';","UPDATE EXPLAIN empleados SET salario = 1;","EXPLAIN SET salario = 1;","UPDATE empleados EXPLAIN;"],"EXPLAIN se coloca delante de la sentencia.");
+Q(X,"¿Qué pasa con rows si creas un buen índice sobre salario?",["Suele bajar, porque se examinan menos filas","Siempre sube","Se convierte en NULL","No cambia nunca"],"En el ejemplo del tema baja de 2000 a 300, o de 10000 a 1200.");
+
+Q(J,"¿Qué es preferible, normalmente?",["Un JOIN en lugar de una subconsulta cuando sea posible","Una subconsulta en el SELECT siempre","Una subconsulta dentro de otra subconsulta","Un SELECT * con subconsulta"],"Muchas veces unir tablas con JOIN es más eficiente que usar subconsultas.");
+Q(J,"Mira la consulta. ¿Qué técnica aplicas para optimizarla?",["Reescribirla con JOIN","Añadir SELECT *","Quitar el WHERE","Añadir más subconsultas"],"Es la técnica 4: evita subconsultas innecesarias y prefiere JOIN.","SELECT nombre FROM empleados\nWHERE id_departamento IN (\n  SELECT id FROM departamento WHERE nombre = 'Ventas'\n);");
+Q(J,"¿Cuál es la reescritura con JOIN de la consulta con subconsulta?",["SELECT e.nombre FROM empleados e JOIN departamento d ON e.id_departamento = d.id WHERE d.nombre = 'Ventas';","SELECT e.nombre FROM empleados e, departamento d;","SELECT nombre FROM empleados JOIN WHERE 'Ventas';","SELECT * FROM empleados UNION departamento;"],"Se une por la columna de relación y se filtra por el nombre.","SELECT nombre FROM empleados\nWHERE id_departamento IN (\n  SELECT id FROM departamento WHERE nombre = 'Ventas'\n);");
+Q(J,"En el JOIN del ejemplo, ¿qué índice mejora el acceso a empleados?",["Uno sobre empleados(id_departamento)","Uno sobre empleados(apellido)","Uno sobre departamento(nombre) solo","Ninguno puede ayudar"],"Se indexa la columna del ON.","SELECT empleados.nombre, departamento.nombre\nFROM empleados JOIN departamento\n  ON empleados.id_departamento = departamento.id;");
+Q(J,"¿Qué compruebas con EXPLAIN en un JOIN antes de crear el índice?",["Si aparece type ALL en las tablas","Si el JOIN es INNER","El número de columnas","La longitud del nombre"],"Si hay ALL, se revisan las tablas completas.");
+Q(J,"Tras indexar la columna del JOIN, ¿qué debes hacer?",["Ejecutar EXPLAIN otra vez y comparar","Borrar la tabla","Cambiar el motor de BD","Nada"],"Ejecuta EXPLAIN antes y después de crear índices o cambiar JOIN.");
+
+Q(U,"¿Por qué conviene ejecutar UPDATE y DELETE masivos por lotes?",["Para bajar el consumo de recursos y evitar bloqueos prolongados","Para que no funcionen los índices","Para evitar el WHERE","Para duplicar los datos"],"Es la técnica 6.");
+Q(U,"¿Cuál es un borrado por lotes?",["DELETE FROM logs WHERE fecha < '2020-01-01' LIMIT 1000; (repetido)","DELETE FROM logs;","SELECT * FROM logs;","DROP INDEX logs;"],"Se borra por trozos para evitar bloqueos largos.");
+Q(U,"¿Qué ventaja tiene añadir WHERE a un UPDATE?",["Evita errores masivos y mejora el control","Hace el UPDATE más largo sin más efecto","Obliga a crear índices","Cambia el tipo de dato"],"Control total sobre qué filas cambian.");
+Q(U,"¿Qué ventaja tiene añadir WHERE a un DELETE?",["Menor riesgo y control total","Borra más rápido toda la tabla","Evita el uso de índices","Duplica las filas"],"Solo se borran las filas que cumplen la condición.");
+Q(U,"Quieres ver el plan de un UPDATE sin tocar tus datos. ¿Qué lanzas?",["EXPLAIN UPDATE ...","UPDATE ... SELECT *","ANALYZE DROP ...","SHOW UPDATE ..."],"EXPLAIN muestra el plan estimado.");
+Q(U,"Tienes que modificar millones de filas. ¿Qué haces?",["Dividir en lotes y filtrar con WHERE","Un único UPDATE sin WHERE","Borrar la tabla","Desactivar los índices siempre"],"Lotes y WHERE reducen recursos y bloqueos.");
+Q(U,"UPDATE empleados SET salario = salario * 1.1 WHERE departamento = 'Ventas'; con type ALL. ¿Qué mejora aplicas?",["Un índice sobre departamento","Quitar el WHERE","Cambiarlo por DELETE","SELECT *"],"CREATE INDEX idx_departamento ON empleados(departamento);");
+
+(function(){
+var KEY='asir-bd-v1',S={};
+try{S=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){S={}}
+S.r=S.r||{};S.best=S.best||0;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function $(s,r){return(r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+QS.forEach(function(q,i){q.id=i});
+var N=QS.length,CATS=[];
+QS.forEach(function(q){if(CATS.indexOf(q.c)<0)CATS.push(q.c)});
+var EXAM_N=Math.min(80,N);
+
+var tabs=$('#bd-tabs'),panels=$('#bd-panels');
+var TABS=[['resumen','Resumen'],['practica','Práctica'],['simulacro','Simulacro de '+EXAM_N]];
+TABS.forEach(function(t){var a=el('a','',t[1]);a.href='#bd-'+t[0];a.setAttribute('data-t',t[0]);tabs.appendChild(a)});
+function panel(id){var p=el('section','panel');p.id='bdp-'+id;p.hidden=true;panels.appendChild(p);return p}
+
+/* ---------- RESUMEN ---------- */
+var pr=panel('resumen');
+var ROWS=[
+ ['SELECT * FROM empleados;','SELECT nombre, apellido, salario FROM empleados WHERE salario &gt; 50000;','Solo columnas necesarias y filtrado'],
+ ['INSERT INTO empleados VALUES (...);','INSERT INTO empleados (nombre, apellido, ...) VALUES (...);','Columnas declaradas'],
+ ['UPDATE empleados SET salario = 40000;','UPDATE empleados SET salario = 40000 WHERE nombre = \'Ana\';','Evita errores masivos'],
+ ['DELETE FROM empleados;','DELETE FROM empleados WHERE departamento = \'Ventas\' AND salario &lt; 20000;','Menor riesgo, control total'],
+ ['WHERE YEAR(fecha) = 2020','WHERE fecha BETWEEN \'2020-01-01\' AND \'2020-12-31\'','Sin funciones sobre la columna'],
+ ['WHERE UPPER(nombre) = \'ANA\'','WHERE nombre = \'Ana\'','El índice sí se aprovecha'],
+ ['WHERE id IN (SELECT ... )','... JOIN ... ON ...','JOIN mejor que subconsulta']
+];
+var LAD=[['ALL','escaneo completo de la tabla','bad',100],['index','recorre todo el índice','warn',80],['range','un tramo del índice','ok',60],['ref','búsqueda por índice','ok',44],['eq_ref','1 fila por JOIN (índice único)','ok',32],['const','como mucho 1 fila','ok',22],['system','tabla de 1 fila','ok',16]];
+var FL=[['type','¿cómo accede?'],['possible_keys','¿qué índices podrían servir?'],['key','¿cuál ha elegido?'],['rows','¿cuántas filas estima examinar?'],['Extra','Using where, Using index, Using filesort']];
+var SIT=[['Sin índice adecuado','ALL','NULL','NULL','10000'],['Índice disponible, no elegido','ALL','idx_salario','NULL','10000'],['Búsqueda por rango','range','idx_salario','idx_salario','1200'],['Índice compuesto','range','idx_depto_salario','idx_depto_salario','250']];
+var TEC=['Índices en WHERE, JOIN y ORDER BY; compuestos si filtras por varias columnas; no en columnas con pocos valores distintos','Solo las columnas necesarias (nada de SELECT *)','WHERE: filtra al máximo y sin funciones sobre columnas indexadas (usa BETWEEN, >=, <=)','JOIN antes que subconsultas innecesarias','Reescribe consultas complejas: CTE y filtros reorganizados','UPDATE y DELETE masivos en lotes','Revisa y borra índices que no se usan (frenan INSERT y UPDATE)','EXPLAIN antes y después: busca range, ref, eq_ref','Normaliza; desnormaliza solo si la consulta es muy frecuente'];
+var h='';
+h+='<div class="card"><h3>1. Qué cambia: mal → bien</h3><div class="mb">';
+ROWS.forEach(function(r){h+='<div class="mbr"><code class="bad">'+r[0]+'</code><span class="mba">→</span><code class="good">'+r[1]+'</code><small>'+r[2]+'</small></div>'});
+h+='</div></div>';
+h+='<div class="card"><h3>2. Escalera del campo type: de peor a mejor</h3>';
+LAD.forEach(function(l){h+='<div class="lad"><b>'+l[0]+'</b><div class="lb '+l[2]+'" style="width:'+l[3]+'%"><span>'+l[1]+'</span></div></div>'});
+h+='<ul class="rules"><li>ALL y index se evitan si se puede. Lo que buscamos: range, ref, eq_ref.</li><li>ALL no siempre es un error: si la consulta devuelve gran parte de la tabla, el motor puede preferirlo.</li></ul></div>';
+h+='<div class="card"><h3>3. Cómo leer un EXPLAIN, siempre en este orden</h3><div class="flow">';
+FL.forEach(function(f,i){h+=(i?'<span class="fa">→</span>':'')+'<div class="fb"><b>'+f[0]+'</b><small>'+f[1]+'</small></div>'});
+h+='</div><ul class="rules"><li>possible_keys = candidatos. key = el que se usa de verdad.</li><li>rows es una estimación de filas examinadas, no las que devuelve la consulta.</li><li>En un JOIN hay una fila por tabla: no sumes los rows.</li></ul></div>';
+h+='<div class="card"><h3>4. Cuatro situaciones que debes reconocer</h3><div class="tw"><table><thead><tr><th>Situación</th><th>type</th><th>possible_keys</th><th>key</th><th>rows</th></tr></thead><tbody>';
+SIT.forEach(function(r){h+='<tr><td>'+r[0]+'</td><td><code>'+r[1]+'</code></td><td><code>'+r[2]+'</code></td><td><code>'+r[3]+'</code></td><td>'+r[4]+'</td></tr>'});
+h+='</tbody></table></div><ul class="rules"><li>possible_keys = NULL: no hay candidato (o una función en el WHERE lo impide).</li><li>key = NULL: no se eligió índice; no siempre es un problema (tabla pequeña).</li></ul></div>';
+h+='<div class="card"><h3>5. Las 9 técnicas, en una línea</h3><ol class="tec">';
+TEC.forEach(function(t){h+='<li>'+esc(t)+'</li>'});
+h+='</ol></div>';
+h+='<div class="card"><h3>6. EXPLAIN frente a ANALYZE</h3><div class="two"><div class="fb"><b>EXPLAIN</b><small>Plan estimado: qué cree MariaDB que hará. Normalmente no ejecuta el SELECT.</small></div><div class="fb"><b>ANALYZE FORMAT=JSON</b><small>Ejecuta la consulta y da el trabajo real.</small></div></div></div>';
+pr.innerHTML=h;
+
+/* ---------- PRACTICA ---------- */
+var pp=panel('practica');
+pp.innerHTML='<div class="card"><h3>Práctica con explicación</h3><p class="lead" style="margin:0 0 12px">Elige un tema. Al contestar ves la explicación al momento.</p><div class="pills" id="bd-cats"></div><div id="bd-q"></div></div>';
+var cur={pool:[],i:0,cat:'Todas',answered:false};
+function pools(cat){
+  if(cat==='Todas')return QS.slice();
+  if(cat==='Falladas')return QS.filter(function(q){return S.r[q.id]===0});
+  return QS.filter(function(q){return q.c===cat});
+}
+var cbox=$('#bd-cats',pp);
+['Todas'].concat(CATS).concat(['Falladas']).forEach(function(c){
+  var b=el('button','pill'+(c==='Todas'?' on':''),c);b.type='button';b.setAttribute('data-c',c);
+  b.onclick=function(){start(c)};cbox.appendChild(b);
+});
+function qHtml(q,order,state){
+  var h='<div class="qmeta"><span class="tag">'+esc(q.c)+'</span></div><p class="qt">'+esc(q.q)+'</p>';
+  if(q.k)h+='<pre class="qk">'+esc(q.k)+'</pre>';
+  h+='<div class="opts">';
+  order.forEach(function(oi,p){
+    var cls='opt';
+    if(state&&state.show){if(oi===0)cls+=' ok';else if(state.pick===p)cls+=' bad'}
+    else if(state&&state.pick===p)cls+=' sel';
+    h+='<button type="button" class="'+cls+'" data-p="'+p+'"><i>'+String.fromCharCode(65+p)+'</i><span>'+esc(q.o[oi])+'</span></button>';
+  });
+  return h+'</div>';
+}
+function start(cat){
+  var list=pools(cat);
+  cur.cat=cat;
+  $$('.pill',cbox).forEach(function(b){b.classList.toggle('on',b.getAttribute('data-c')===cat)});
+  var box=$('#bd-q',pp);
+  if(!list.length){box.innerHTML='<p class="lead">'+(cat==='Falladas'?'No tienes preguntas falladas. Buen trabajo.':'No hay preguntas en este tema.')+'</p>';return}
+  cur.pool=shuf(list);cur.i=0;show();
+}
+function show(){
+  var box=$('#bd-q',pp),q=cur.pool[cur.i];
+  cur.order=shuf([0,1,2,3].slice(0,q.o.length));cur.answered=false;cur.pick=-1;
+  box.innerHTML='<div class="qprog">Pregunta '+(cur.i+1)+' de '+cur.pool.length+'</div><div id="qbody">'+qHtml(q,cur.order,null)+'</div><div class="fbk" id="fbk" aria-live="polite"></div><div class="r-btns"><button type="button" class="btn primary" id="qnext" hidden>Siguiente</button></div>';
+  $$('.opt',box).forEach(function(b){b.onclick=function(){answer(+b.getAttribute('data-p'))}});
+  $('#qnext',box).onclick=function(){cur.i++;if(cur.i>=cur.pool.length){done()}else show()};
+}
+function answer(p){
+  if(cur.answered)return;cur.answered=true;
+  var q=cur.pool[cur.i],ok=cur.order[p]===0;
+  S.r[q.id]=ok?1:0;save();refresh();
+  $('#qbody').innerHTML=qHtml(q,cur.order,{show:true,pick:p});
+  var f=$('#fbk');f.className='fbk '+(ok?'good':'bad');
+  f.innerHTML='<b>'+(ok?'Correcto.':'No es esa.')+'</b> '+esc(q.e);
+  var n=$('#qnext');n.hidden=false;n.textContent=cur.i+1>=cur.pool.length?'Terminar':'Siguiente';n.focus();
+}
+function done(){
+  var box=$('#bd-q',pp),ok=cur.pool.filter(function(q){return S.r[q.id]===1}).length;
+  box.innerHTML='<p class="lead">Has terminado este bloque: '+ok+' de '+cur.pool.length+' acertadas en la última respuesta de cada una.</p><div class="r-btns"><button type="button" class="btn primary" id="again">Repetir bloque</button><button type="button" class="btn" id="fails">Solo falladas</button></div>';
+  $('#again',box).onclick=function(){start(cur.cat)};
+  $('#fails',box).onclick=function(){start('Falladas')};
+}
+
+/* ---------- SIMULACRO ---------- */
+var ps=panel('simulacro');
+var ex={list:[],orders:[],ans:[],i:0,sure:false,over:false};
+function newExam(){
+  ex.list=shuf(QS).slice(0,EXAM_N);
+  ex.orders=ex.list.map(function(q){return shuf([0,1,2,3].slice(0,q.o.length))});
+  ex.ans=ex.list.map(function(){return -1});
+  ex.i=0;ex.sure=false;ex.over=false;drawEx();
+}
+function drawEx(){
+  if(ex.over)return;
+  var q=ex.list[ex.i],h='<div class="card"><div class="exh"><h3>Simulacro de '+EXAM_N+' preguntas</h3><span class="qprog" id="exc"></span></div>';
+  h+='<div class="grid" id="exg"></div><div id="exq"></div><div class="r-btns"><button type="button" class="btn" id="exprev">Anterior</button><button type="button" class="btn" id="exnext">Siguiente</button><button type="button" class="btn primary" id="exend">Terminar y corregir</button></div><div class="r-msg" id="exmsg" aria-live="polite"></div></div>';
+  ps.innerHTML=h;
+  var g=$('#exg',ps);
+  ex.list.forEach(function(_,k){var b=el('button','gn',String(k+1));b.type='button';b.onclick=function(){ex.i=k;drawEx()};g.appendChild(b)});
+  paintEx();
+  $('#exprev',ps).onclick=function(){if(ex.i>0){ex.i--;drawEx()}};
+  $('#exnext',ps).onclick=function(){if(ex.i<EXAM_N-1){ex.i++;drawEx()}};
+  $('#exend',ps).onclick=finish;
+}
+function paintEx(){
+  var q=ex.list[ex.i];
+  $('#exc',ps).textContent='Pregunta '+(ex.i+1)+' de '+EXAM_N+' · '+ex.ans.filter(function(a){return a>=0}).length+' contestadas';
+  $$('.gn',ps).forEach(function(b,k){b.classList.toggle('on',k===ex.i);b.classList.toggle('dn',ex.ans[k]>=0)});
+  $('#exq',ps).innerHTML=qHtml(q,ex.orders[ex.i],{pick:ex.ans[ex.i]});
+  $$('.opt',$('#exq',ps)).forEach(function(b){b.onclick=function(){ex.ans[ex.i]=+b.getAttribute('data-p');ex.sure=false;$('#exmsg',ps).textContent='';paintEx()}});
+  $('#exprev',ps).disabled=ex.i===0;$('#exnext',ps).disabled=ex.i===EXAM_N-1;
+}
+function finish(){
+  var un=ex.ans.filter(function(a){return a<0}).length,m=$('#exmsg',ps);
+  if(un>0&&!ex.sure){ex.sure=true;m.className='r-msg bad';m.textContent='Te faltan '+un+' preguntas sin contestar. Pulsa otra vez para corregir igualmente.';return}
+  ex.over=true;
+  var ok=0,bad=[];
+  ex.list.forEach(function(q,k){var good=ex.ans[k]>=0&&ex.orders[k][ex.ans[k]]===0;if(good)ok++;else bad.push(k);S.r[q.id]=good?1:0});
+  var nota=Math.round(ok*100/EXAM_N)/10;
+  if(nota>S.best)S.best=nota;save();refresh();
+  var h='<div class="card"><h3>Resultado</h3><p class="big">'+ok+' de '+EXAM_N+' · nota '+nota.toFixed(1).replace('.',',')+' sobre 10</p><p class="lead" style="margin:0 0 12px">Calculada sin penalización por fallo. Tu mejor nota: '+S.best.toFixed(1).replace('.',',')+'.</p><div class="r-btns"><button type="button" class="btn primary" id="exnew">Nuevo simulacro</button></div></div>';
+  if(bad.length){
+    h+='<div class="card"><h3>Revisa tus '+bad.length+' fallos</h3>';
+    bad.forEach(function(k){
+      var q=ex.list[k],o=ex.orders[k],mine=ex.ans[k]>=0?q.o[o[ex.ans[k]]]:'Sin contestar';
+      h+='<div class="rev"><p class="qt">'+(k+1)+'. '+esc(q.q)+'</p>'+(q.k?'<pre class="qk">'+esc(q.k)+'</pre>':'')+'<p class="rv bad">Tu respuesta: '+esc(mine)+'</p><p class="rv good">Correcta: '+esc(q.o[0])+'</p><p class="rx">'+esc(q.e)+'</p></div>';
+    });
+    h+='</div>';
+  }
+  ps.innerHTML=h;$('#exnew',ps).onclick=newExam;
+  try{window.scrollTo(0,0)}catch(e){}
+}
+
+function refresh(){
+  var ok=QS.filter(function(q){return S.r[q.id]===1}).length;
+  var c=$('#bd-card-count');if(c)c.textContent=ok+' de '+N+' preguntas acertadas';
+  var s=$('#bd-sum');if(s)s.textContent=ok+' de '+N+' acertadas'+(S.best?' · mejor simulacro '+S.best.toFixed(1).replace('.',','):'');
+  var bar=$('#bd-bar');if(bar)bar.style.width=Math.round(ok*100/N)+'%';
+}
+function route(){
+  var h=(location.hash||'').slice(1);
+  if(h!=='bd'&&h.indexOf('bd-')!==0)return;
+  var id=h.slice(3);if(!$('#bdp-'+id))id='resumen';
+  $$('#bd-panels .panel').forEach(function(p){p.hidden=(p.id!=='bdp-'+id)});
+  $$('a',tabs).forEach(function(a){a.classList.toggle('on',a.getAttribute('data-t')===id)});
+}
+window.addEventListener('hashchange',route);
+start('Todas');newExam();refresh();route();
 })();
 
 </script>
