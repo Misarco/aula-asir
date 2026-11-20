@@ -180,6 +180,7 @@ ul.cl{list-style:none;padding:0;margin:0 0 6px}ul.cl li{display:flex;gap:10px;pa
 iframe.prev{width:100%;height:160px;border:1px solid var(--line-strong);border-radius:10px;background:#fff}
 .live{display:grid;grid-template-columns:1fr 1fr;gap:14px}.live .ta{min-height:300px}@media(max-width:760px){.live{grid-template-columns:1fr}}
 .card.sol{margin:12px 0 0;background:var(--surface-2,var(--surface))}
+.exq{border-bottom:1px solid var(--line);padding:0 0 14px;margin:0 0 14px}.exq .qt{font-weight:600;margin:0 0 8px}.exq .sl{margin-top:10px}.exq .ans{margin:0 0 6px;background:var(--good-soft);color:var(--good);border-radius:8px;padding:8px 12px}.exq .rx{margin:0;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -3785,7 +3786,7 @@ var N=WQ.length,CATS=[];
 WQ.forEach(function(q){if(CATS.indexOf(q.c)<0)CATS.push(q.c)});
 var EXAM_N=Math.min(40,N);
 var tabs=$('#wb-tabs'),panels=$('#wb-panels');
-var TABS=[['estudio','Estudio'],['taller','Escribe código'],['vivo','Vista en vivo'],['practica','Test'],['simulacro','Simulacro de '+EXAM_N]];
+var TABS=[['estudio','Estudio'],['ejercicios','Ejercicios'],['taller','Escribe y comprueba'],['vivo','Vista en vivo']];
 TABS.forEach(function(t){var a=el('a','',t[1]);a.href='#wb-'+t[0];a.setAttribute('data-t',t[0]);tabs.appendChild(a)});
 function panel(id){var p=el('section','panel');p.id='wbp-'+id;p.hidden=true;panels.appendChild(p);return p}
 
@@ -4067,110 +4068,36 @@ LIVE_EX.forEach(function(x){var b=el('button','pill',x[0]);b.type='button';b.onc
 $('#wb-lv-raw',pv).onclick=function(){lvRaw=!lvRaw;this.textContent=lvRaw?'Ocultar el HTML generado':'Ver el HTML generado';$('#wb-lv-pre',pv).hidden=!lvRaw};
 lvTa.value=S.lv||LIVE_EX[0][1];lvRun();
 
-/* ---------- PRACTICA ---------- */
-var pp=panel('practica');
-pp.innerHTML='<div class="card"><h3>Contesta y aprende</h3><p class="lead" style="margin:0 0 12px">Elige un tema. Verás la explicación al momento.</p><div class="pills" id="wb-cats"></div><div id="wb-q"></div></div>';
-var cur={pool:[],i:0,cat:'Todas',answered:false};
-function pools(cat){
-  if(cat==='Todas')return WQ.slice();
-  if(cat==='Falladas')return WQ.filter(function(q){return S.r[q.id]===0});
-  return WQ.filter(function(q){return q.c===cat});
+/* ---------- EJERCICIOS: enunciado y solución al pulsar «Ver» ---------- */
+var pe=panel('ejercicios');
+pe.innerHTML='<div class="card"><h3>Ejercicios</h3><p class="lead" style="margin:0 0 12px">Lee el enunciado, hazlo en papel y, cuando quieras, pulsa <b>Ver solución</b>. Hay preguntas de teoría (qué hace, qué diferencia hay, qué es mejor, por qué no…) y ejercicios de código.</p><div class="pills" id="wb-eg"></div><div id="wb-el"></div></div>';
+var TEO=[];WQ.forEach(function(q){if(TEO.indexOf(q.c)<0)TEO.push(q.c)});
+var EG=[['Teoría'].concat([]),];
+var eGrp='t:'+TEO[0],ebox=$('#wb-eg',pe);
+var GR=[];TEO.forEach(function(c){GR.push(['t:'+c,c])});EXGROUPS.forEach(function(g){GR.push(['x:'+g[0],'Código · '+g[1]])});
+GR.forEach(function(g){var b=el('button','pill'+(g[0]===eGrp?' on':''),g[1]);b.type='button';b.setAttribute('data-g',g[0]);b.onclick=function(){eGrp=g[0];drawE()};ebox.appendChild(b)});
+function solBtn(box){
+  var b=$('.vs',box),s=$('.sl',box);
+  b.onclick=function(){s.hidden=!s.hidden;b.textContent=s.hidden?'Ver solución':'Ocultar solución'};
 }
-var cbox=$('#wb-cats',pp);
-['Todas'].concat(CATS).concat(['Falladas']).forEach(function(c){
-  var b=el('button','pill'+(c==='Todas'?' on':''),c);b.type='button';b.setAttribute('data-c',c);
-  b.onclick=function(){start(c)};cbox.appendChild(b);
-});
-function qHtml(q,order,state){
-  var h='<div class="qmeta"><span class="tag">'+esc(q.c)+'</span></div>'+(q.code?'<div class="qk">'+esc(q.code)+'</div>':'')+'<p class="qt">'+esc(q.q)+'</p><div class="opts">';
-  order.forEach(function(oi,p){
-    var cls='opt';
-    if(state&&state.show){if(oi===0)cls+=' ok';else if(state.pick===p)cls+=' bad'}
-    else if(state&&state.pick===p)cls+=' sel';
-    h+='<button type="button" class="'+cls+'" data-p="'+p+'"><i>'+String.fromCharCode(65+p)+'</i><span>'+esc(q.o[oi])+'</span></button>';
-  });
-  return h+'</div>';
-}
-function start(cat){
-  var list=pools(cat);
-  cur.cat=cat;
-  $$('.pill',cbox).forEach(function(b){b.classList.toggle('on',b.getAttribute('data-c')===cat)});
-  var box=$('#wb-q',pp);
-  if(!list.length){box.innerHTML='<p class="lead">'+(cat==='Falladas'?'No tienes preguntas falladas. Buen trabajo.':'No hay preguntas en este bloque.')+'</p>';return}
-  cur.pool=shuf(list);cur.i=0;show();
-}
-function show(){
-  var box=$('#wb-q',pp),q=cur.pool[cur.i];
-  cur.order=shuf(q.o.map(function(_,i){return i}));cur.answered=false;
-  box.innerHTML='<div id="wqbody">'+qHtml(q,cur.order,null)+'</div><div class="fbk" id="wfbk" aria-live="polite"></div><div class="r-btns"><button type="button" class="btn primary" id="wqnext" hidden>Siguiente</button></div>';
-  $$('.opt',box).forEach(function(b){b.onclick=function(){answer(+b.getAttribute('data-p'))}});
-  $('#wqnext',box).onclick=function(){cur.i++;if(cur.i>=cur.pool.length){done()}else show()};
-}
-function answer(p){
-  if(cur.answered)return;cur.answered=true;
-  var q=cur.pool[cur.i],ok=cur.order[p]===0;
-  S.r[q.id]=ok?1:0;save();refresh();
-  $('#wqbody').innerHTML=qHtml(q,cur.order,{show:true,pick:p});
-  var f=$('#wfbk');f.className='fbk '+(ok?'good':'bad');
-  f.innerHTML='<b>'+(ok?'Correcto.':'No es esa.')+'</b> '+esc(q.e);
-  var n=$('#wqnext');n.hidden=false;n.textContent=cur.i+1>=cur.pool.length?'Terminar':'Siguiente';n.focus();
-}
-function done(){
-  var box=$('#wb-q',pp),ok=cur.pool.filter(function(q){return S.r[q.id]===1}).length;
-  box.innerHTML='<p class="lead">Has terminado este bloque. Puedes repetirlo o repasar solo las que has dejado para revisar.</p><div class="r-btns"><button type="button" class="btn primary" id="wagain">Repetir bloque</button><button type="button" class="btn" id="wfails">Solo falladas</button></div>';
-  $('#wagain',box).onclick=function(){start(cur.cat)};
-  $('#wfails',box).onclick=function(){start('Falladas')};
-}
-
-/* ---------- SIMULACRO ---------- */
-var ps=panel('simulacro');
-var ex={list:[],orders:[],ans:[],i:0,sure:false,over:false};
-function newExam(){
-  ex.list=shuf(WQ).slice(0,EXAM_N);
-  ex.orders=ex.list.map(function(q){return shuf(q.o.map(function(_,i){return i}))});
-  ex.ans=ex.list.map(function(){return -1});
-  ex.i=0;ex.sure=false;ex.over=false;drawEx();
-}
-function drawEx(){
-  if(ex.over)return;
-  var h='<div class="card"><div class="exh"><h3>Simulacro de '+EXAM_N+' preguntas</h3><span class="qprog" id="wexc"></span></div>';
-  h+='<div class="grid" id="wexg"></div><div id="wexq"></div><div class="r-btns"><button type="button" class="btn" id="wexprev">Anterior</button><button type="button" class="btn" id="wexnext">Siguiente</button><button type="button" class="btn primary" id="wexend">Terminar y corregir</button></div><div class="r-msg" id="wexmsg" aria-live="polite"></div></div>';
-  ps.innerHTML=h;
-  var g=$('#wexg',ps);
-  ex.list.forEach(function(_,k){var b=el('button','gn',String(k+1));b.type='button';b.onclick=function(){ex.i=k;drawEx()};g.appendChild(b)});
-  paintEx();
-  $('#wexprev',ps).onclick=function(){if(ex.i>0){ex.i--;drawEx()}};
-  $('#wexnext',ps).onclick=function(){if(ex.i<EXAM_N-1){ex.i++;drawEx()}};
-  $('#wexend',ps).onclick=finish;
-}
-function paintEx(){
-  var q=ex.list[ex.i];
-  $('#wexc',ps).textContent='Pregunta '+(ex.i+1);
-  $$('.gn',ps).forEach(function(b,k){b.classList.toggle('on',k===ex.i);b.classList.toggle('dn',ex.ans[k]>=0)});
-  $('#wexq',ps).innerHTML=qHtml(q,ex.orders[ex.i],{pick:ex.ans[ex.i]});
-  $$('.opt',$('#wexq',ps)).forEach(function(b){b.onclick=function(){ex.ans[ex.i]=+b.getAttribute('data-p');ex.sure=false;$('#wexmsg',ps).textContent='';paintEx()}});
-  $('#wexprev',ps).disabled=ex.i===0;$('#wexnext',ps).disabled=ex.i===EXAM_N-1;
-}
-function finish(){
-  var un=ex.ans.filter(function(a){return a<0}).length,m=$('#wexmsg',ps);
-  if(un>0&&!ex.sure){ex.sure=true;m.className='r-msg bad';m.textContent='Hay preguntas sin contestar. Si quieres, pulsa otra vez para corregir igualmente.';return}
-  ex.over=true;
-  var ok=0,bad=[];
-  ex.list.forEach(function(q,k){var good=ex.ans[k]>=0&&ex.orders[k][ex.ans[k]]===0;if(good)ok++;else bad.push(k);S.r[q.id]=good?1:0});
-  var nota=Math.round(ok*100/EXAM_N)/10;
-  if(nota>S.best)S.best=nota;save();refresh();
-  var h='<div class="card"><h3>Resultado</h3><p class="big">'+ok+' de '+EXAM_N+' · nota '+nota.toFixed(1).replace('.',',')+' sobre 10</p><p class="lead" style="margin:0 0 12px">Sin penalización por fallo.</p><div class="r-btns"><button type="button" class="btn primary" id="wexnew">Nuevo simulacro</button></div></div>';
-  if(bad.length){
-    h+='<div class="card"><h3>Revisa tus '+bad.length+' fallos</h3>';
-    bad.forEach(function(k){
-      var q=ex.list[k],o=ex.orders[k],mine=ex.ans[k]>=0?q.o[o[ex.ans[k]]]:'Sin contestar';
-      h+='<div class="rev">'+(q.code?'<div class="qk">'+esc(q.code)+'</div>':'')+'<p class="qt">'+(k+1)+'. '+esc(q.q)+'</p><p class="rv bad">Tu respuesta: '+esc(mine)+'</p><p class="rv good">Correcta: '+esc(q.o[0])+'</p><p class="rx">'+esc(q.e)+'</p></div>';
+function drawE(){
+  $$('.pill',ebox).forEach(function(b){b.classList.toggle('on',b.getAttribute('data-g')===eGrp)});
+  var box=$('#wb-el',pe),h='',k=eGrp.slice(2);
+  if(eGrp.charAt(0)==='t'){
+    WQ.filter(function(q){return q.c===k}).forEach(function(q,i){
+      h+='<div class="exq"><p class="qt">'+esc(q.q)+'</p>'+(q.code?'<div class="qk">'+esc(q.code)+'</div>':'')+'<button type="button" class="btn vs">Ver solución</button><div class="sl" hidden><p class="ans"><b>Respuesta:</b> '+esc(q.o[0])+'</p><p class="rx">'+esc(q.e)+'</p></div></div>';
     });
-    h+='</div>';
+  }else{
+    EX.filter(function(x){return x.g===k}).forEach(function(x){
+      var r=PHPSim.run(exProgram(EXSETUP[x.s],x.sol,x.mode).p);
+      h+='<div class="exq"><h4 class="exh2">'+esc(x.t)+'</h4><div class="enun"><b>Enunciado</b><p>'+esc(x.enun)+'</p>'+(x.vars?'<p class="vr">'+esc(x.vars)+'</p>':'')+'</div><details class="arr"><summary>Array de partida</summary><div class="r-code">'+esc(EXSETUP[x.s])+'</div></details><button type="button" class="btn vs">Ver solución</button><div class="sl" hidden><p class="lab">Solución</p><div class="r-code">'+esc(x.sol)+'</div>'+(r.ok?'<p class="lab">Resultado'+(x.g==='azar'?' (varía en cada ejecución)':'')+'</p>'+frame(r.out,'wb-sf-'+x.id):'')+'</div></div>';
+    });
   }
-  ps.innerHTML=h;$('#wexnew',ps).onclick=newExam;
-  try{window.scrollTo(0,0)}catch(e){}
+  box.innerHTML=h;
+  $$('.exq',box).forEach(solBtn);
+  $$('iframe.prev',box).forEach(function(f){f.onload=function(){try{f.style.height=Math.min(Math.max(f.contentDocument.body.scrollHeight+28,80),460)+'px'}catch(e){}}});
 }
+drawE();
 function refresh(){
   var ok=WQ.filter(function(q){return S.r[q.id]===1}).length;
   var c=$('#wb-card-count');if(c)c.textContent=ok+' de '+N+' preguntas acertadas';
@@ -4185,7 +4112,7 @@ function route(){
   $$('a',tabs).forEach(function(a){a.classList.toggle('on',a.getAttribute('data-t')===id)});
 }
 window.addEventListener('hashchange',route);
-start('Todas');newExam();refresh();route();
+refresh();route();
 })();
 
 </script>
