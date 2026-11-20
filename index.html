@@ -181,6 +181,11 @@ iframe.prev{width:100%;height:160px;border:1px solid var(--line-strong);border-r
 .live{display:grid;grid-template-columns:1fr 1fr;gap:14px}.live .ta{min-height:300px}@media(max-width:760px){.live{grid-template-columns:1fr}}
 .card.sol{margin:12px 0 0;background:var(--surface-2,var(--surface))}
 .exq{border-bottom:1px solid var(--line);padding:0 0 14px;margin:0 0 14px}.exq .qt{font-weight:600;margin:0 0 8px}.exq .sl{margin-top:10px}.exq .ans{margin:0 0 6px;background:var(--good-soft);color:var(--good);border-radius:8px;padding:8px 12px}.exq .rx{margin:0;color:var(--muted)}
+.vt{width:100%}.vt td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}.vt td.en{font-weight:600;width:48%}.vt tr.cv td.es{color:transparent;background:var(--code-bg);cursor:pointer;user-select:none}.vt tr.cv.show td.es{color:inherit;background:none}
+.pg{font:500 12px var(--body);color:var(--muted);margin-left:6px}.sp{border:0;background:none;cursor:pointer;font-size:14px;padding:0 4px}
+.ig-q{flex:1;min-width:160px;font:400 14px var(--body);padding:7px 10px;border-radius:8px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink)}
+.fc{border:1px solid var(--line-strong);border-radius:14px;background:var(--surface);min-height:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:22px 16px;margin:6px 0 12px;cursor:pointer;gap:8px}.fc.open{border-color:var(--accent);background:var(--accent-soft)}.fq{font:600 26px/1.2 var(--body)}.fa2{font:500 22px/1.3 var(--body);color:var(--accent)}.fh{color:var(--muted)}
+.big2{font:600 24px/1.25 var(--body);margin:6px 0}
 </style>
 </head>
 <body>
@@ -197,6 +202,12 @@ iframe.prev{width:100%;height:160px;border:1px solid var(--line-strong);border-r
 <div class="sum"><div class="bar" role="progressbar" aria-label="Ejercicios sin fallos"><i id="bar"></i></div><span id="count"></span></div>
 <nav class="tabs" id="tabs" aria-label="Servicios"></nav>
 <div id="panels"></div>
+</section>
+<section id="view-ing" hidden>
+<a class="crumb" href="#inicio">← Asignaturas</a>
+<h2>Inglés · Vocabulary Builder</h2>
+<nav class="tabs" id="ig-tabs" aria-label="Secciones"></nav>
+<div id="ig-panels"></div>
 </section>
 <section id="view-web" hidden>
 <a class="crumb" href="#inicio">← Asignaturas</a>
@@ -719,9 +730,9 @@ var CARDS=[
 ];
 var sg=$('#subjects');
 CARDS.forEach(function(c){
-  var on=c[0]==='b8'||c[0]==='b2'||c[0]==='b7'||c[0]==='b3'||c[0]==='b5',isWeb=c[0]==='b5',isBd=c[0]==='b2',isSeg=c[0]==='b7',isNube=c[0]==='b3',a=el(on?'a':'div','subj '+(on?'on':'off'));
-  if(on)a.href=isWeb?'#web':isNube?'#nube':isSeg?'#seg':isBd?'#bd':'#sri';else a.setAttribute('aria-disabled','true');
-  a.innerHTML='<div class="ban '+c[0]+'"></div><div class="tx"><h3>'+esc(c[1])+'</h3><span class="sub">2º ASIR Vespertino</span>'+(on?(isWeb?'<span class="badge">PHP: arrays, cadenas y HTML</span>':isNube?'<span class="badge">Prácticas de AWS: estudio y ejercicios con imágenes</span>':isSeg?'<span class="badge">Estudio y ejercicios con imágenes</span><span class="sub" id="seg-card-count"></span>':isBd?'<span class="badge">Test de optimización SQL</span><span class="sub" id="bd-card-count"></span>':'<span class="badge">Parte práctica disponible</span><span class="sub" id="sri-card-count"></span>'):'<span class="badge">Próximamente</span>')+'</div>';
+  var on=c[0]==='b8'||c[0]==='b2'||c[0]==='b7'||c[0]==='b3'||c[0]==='b5'||c[0]==='b6',isIng=c[0]==='b6',isWeb=c[0]==='b5',isBd=c[0]==='b2',isSeg=c[0]==='b7',isNube=c[0]==='b3',a=el(on?'a':'div','subj '+(on?'on':'off'));
+  if(on)a.href=isIng?'#ing':isWeb?'#web':isNube?'#nube':isSeg?'#seg':isBd?'#bd':'#sri';else a.setAttribute('aria-disabled','true');
+  a.innerHTML='<div class="ban '+c[0]+'"></div><div class="tx"><h3>'+esc(c[1])+'</h3><span class="sub">2º ASIR Vespertino</span>'+(on?(isIng?'<span class="badge">Vocabulario: unidades 11, 12 y 13</span>':isWeb?'<span class="badge">PHP: arrays, cadenas y HTML</span>':isNube?'<span class="badge">Prácticas de AWS: estudio y ejercicios con imágenes</span>':isSeg?'<span class="badge">Estudio y ejercicios con imágenes</span><span class="sub" id="seg-card-count"></span>':isBd?'<span class="badge">Test de optimización SQL</span><span class="sub" id="bd-card-count"></span>':'<span class="badge">Parte práctica disponible</span><span class="sub" id="sri-card-count"></span>'):'<span class="badge">Próximamente</span>')+'</div>';
   sg.appendChild(a);
 });
 
@@ -729,8 +740,8 @@ var lastView='';
 function route(){
   var h=(location.hash||'#inicio').slice(1);
   if(h==='sri')h='sri-dns';
-  var inSri=h.indexOf('sri-')===0,inBd=h==='bd'||h.indexOf('bd-')===0,inSeg=h==='seg'||h.indexOf('seg-')===0,inNube=h==='nube'||h.indexOf('nb-')===0,inWeb=h==='web'||h.indexOf('wb-')===0,view=inSri?'sri':inBd?'bd':inSeg?'seg':inNube?'nube':'inicio';
-  $('#view-inicio').hidden=inSri||inBd||inSeg||inNube||inWeb;$('#view-web').hidden=!inWeb;$('#view-seg').hidden=!inSeg;$('#view-nube').hidden=!inNube;$('#view-sri').hidden=!inSri;$('#view-bd').hidden=!inBd;
+  var inSri=h.indexOf('sri-')===0,inBd=h==='bd'||h.indexOf('bd-')===0,inSeg=h==='seg'||h.indexOf('seg-')===0,inNube=h==='nube'||h.indexOf('nb-')===0,inWeb=h==='web'||h.indexOf('wb-')===0,inIng=h==='ing'||h.indexOf('ig-')===0,view=inSri?'sri':inBd?'bd':inSeg?'seg':inNube?'nube':'inicio';
+  $('#view-inicio').hidden=inSri||inBd||inSeg||inNube||inWeb||inIng;$('#view-web').hidden=!inWeb;$('#view-ing').hidden=!inIng;$('#view-seg').hidden=!inSeg;$('#view-nube').hidden=!inNube;$('#view-sri').hidden=!inSri;$('#view-bd').hidden=!inBd;
   if(inSri){
     var id=h.slice(4);if(!$('#panel-'+id))id='dns';
     $$('.panel').forEach(function(p){p.hidden=(p.id!=='panel-'+id)});
@@ -4113,6 +4124,314 @@ function route(){
 }
 window.addEventListener('hashchange',route);
 refresh();route();
+})();
+
+var IU=[
+{id:'u11',n:'Unidad 11',secs:[
+{t:'Business skills for IT',p:58,w:`access (n)|acceso
+apply|aplicar
+chart|gráfico
+configure|configurar
+customise|personalizar
+data analysis|análisis de datos
+embedded|incrustado / integrado
+enhance|mejorar
+feature updates|actualizaciones de funciones
+files|archivos
+filter|filtro / filtrar
+format|formato / dar formato
+generate|generar
+layout|diseño / disposición
+licensed software|software con licencia
+merge|combinar / fusionar
+platforms|plataformas
+project management|gestión de proyectos
+real time|tiempo real
+reminder|recordatorio
+schedule|programar / calendario
+sign up|registrarse
+sort|ordenar
+spreadsheet|hoja de cálculo
+table|tabla
+tools|herramientas
+track (v)|rastrear / hacer seguimiento`},
+{t:'Software',p:60,w:`cash flow|flujo de caja
+cloud|nube
+database|base de datos
+efficiency|eficiencia
+encode|codificar
+existing|existente
+extension|extensión
+fee|tarifa / cuota
+free trial|prueba gratuita
+licence|licencia
+licensee|licenciatario
+package|paquete
+payroll|nómina
+seller|vendedor
+shared|compartido
+subscription|suscripción
+sync|sincronizar
+task|tarea
+utility|utilidad`},
+{t:'Extra!',x:1,w:`adaptive content|contenido adaptable
+beta version|versión beta
+character encoding|codificación de caracteres
+custom slides|diapositivas personalizadas
+default program|programa predeterminado
+intellectual property (IP)|propiedad intelectual
+open-source software|software de código abierto
+pivot table|tabla dinámica
+public domain|dominio público
+third-party app|aplicación de terceros
+visual presentation|presentación visual`}]},
+{id:'u12',n:'Unidad 12',secs:[
+{t:'Window',p:62,w:`autosave|autoguardado
+Copilot|Copilot (asistente de IA)
+document area|área del documento
+file tab|pestaña Archivo
+quick access toolbar|barra de herramientas de acceso rápido
+ribbon|cinta de opciones
+scroll bar|barra de desplazamiento
+status bar|barra de estado
+title bar|barra de título
+view controls|controles de vista`},
+{t:'Home',p:62,w:`copy and paste|copiar y pegar
+cut|cortar
+find and replace|buscar y reemplazar
+format painter|copiar formato`},
+{t:'Page layout',p:62,w:`columns|columnas
+indent (n)|sangría
+indent (v)|sangrar
+landscape|orientación horizontal
+page border|borde de página
+portrait|orientación vertical`},
+{t:'Quick access toolbar',p:62,w:`redo|rehacer
+undo|deshacer`},
+{t:'Insert',p:62,w:`footer|pie de página
+header|encabezado
+page break|salto de página
+screenshot|captura de pantalla`},
+{t:'Image editing',p:64,w:`adjust|ajustar
+background|fondo
+blur (v)|desenfocar
+brightness|brillo
+brush (v)|pintar con pincel
+contrast|contraste
+crop (v)|recortar
+dim|atenuar / oscurecer
+draft (n)|borrador
+effects|efectos
+emphasise|resaltar / enfatizar
+enlarge|ampliar
+layers|capas
+resize|cambiar el tamaño
+retouch|retocar
+rotate|girar
+shadow (n)|sombra
+sharpen|dar nitidez / enfocar
+zoom in|acercar
+zoom out|alejar`},
+{t:'Extra!',x:1,w:`alignment|alineación
+colour palette|paleta de colores
+composition|composición
+compression|compresión
+exposure|exposición
+highlighting|resaltado
+letterhead|membrete
+line spacing|interlineado
+orientation|orientación
+page setup|configuración de página
+pixel|píxel
+saturation|saturación
+spell / grammar checker|corrector ortográfico / gramatical
+tint|tinte / matiz`}]},
+{id:'u13',n:'Unidad 13',secs:[
+{t:'Spreadsheets',p:70,w:`access (n)|acceso
+according to|según
+add|sumar / añadir
+align|alinear
+ascending|ascendente
+autosum|autosuma
+average|promedio / media
+cell|celda
+clear|borrar / limpiar
+column|columna
+descending|descendente
+divide|dividir
+fill|rellenar
+format (n)|formato
+formula|fórmula
+functions|funciones
+group together|agrupar
+multiply|multiplicar
+purchase price|precio de compra
+row|fila
+sort (v)|ordenar
+spreadsheet|hoja de cálculo
+status|estado
+subtract|restar
+sum|suma
+undo|deshacer
+view (n)|vista
+worksheet|hoja de trabajo`},
+{t:'Charts and graphs',p:70,w:`bar chart|gráfico de barras
+flow chart|diagrama de flujo
+line graph|gráfico de líneas
+pie chart|gráfico circular
+scatter chart|gráfico de dispersión`},
+{t:'Databases',p:72,w:`backup (n)|copia de seguridad
+balance (n)|saldo
+billing address|dirección de facturación
+classification|clasificación
+criteria|criterios
+cross-reference|referencia cruzada
+duplicate|duplicado
+field|campo
+null|nulo
+postcode|código postal
+query|consulta
+recovery|recuperación
+retail|venta al por menor / minorista
+retrieve|recuperar / obtener
+schema|esquema
+service address|dirección de servicio
+store (v)|almacenar
+surname|apellido
+tech rep|representante técnico
+title|título / tratamiento
+update (v)|actualizar
+value|valor`},
+{t:'Extra!',x:1,w:`active cell|celda activa
+cell reference|referencia de celda
+entity|entidad
+index|índice
+key|clave
+normalisation|normalización
+owner|propietario
+range|rango
+record (n)|registro`}]}
+];
+
+(function(){
+var KEY='asir-ing-v1',S={};
+try{S=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){S={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function $(s,r){return(r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+var tabs=$('#ig-tabs'),panels=$('#ig-panels');
+var TABS=[['voc','Vocabulario'],['tar','Tarjetas'],['test','Test']];
+TABS.forEach(function(t){var a=el('a','',t[1]);a.href='#ig-'+t[0];a.setAttribute('data-t',t[0]);tabs.appendChild(a)});
+function panel(id){var p=el('section','panel');p.id='igp-'+id;p.hidden=true;panels.appendChild(p);return p}
+/* palabras */
+var W=[];
+IU.forEach(function(u){u.secs.forEach(function(s){s.w.split('\n').forEach(function(l){var a=l.split('|');W.push({en:a[0],es:a[1],u:u.id,un:u.n,s:s.t,x:!!s.x,k:u.id+'/'+s.t})})})});
+var SETS=[['all','Todo'],['u11','Unidad 11'],['u12','Unidad 12'],['u13','Unidad 13'],['extra','Solo Extra!']];
+function inSet(w,id){return id==='all'||(id==='extra'?w.x:w.u===id)}
+function speak(t){try{var u=new SpeechSynthesisUtterance(t.replace(/\s*\((n|v)\)/,''));u.lang='en-GB';u.rate=.9;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+function setPills(box,cur,on){
+  box.innerHTML='';
+  SETS.forEach(function(s){var b=el('button','pill'+(s[0]===cur?' on':''),s[1]);b.type='button';b.onclick=function(){on(s[0])};box.appendChild(b)});
+}
+/* ---- Vocabulario ---- */
+var pv=panel('voc');
+pv.innerHTML='<div class="card"><h3>Vocabulario a estudiar</h3><p class="lead" style="margin:0 0 10px">Las palabras de los Vocabulary Builder 11, 12 y 13, con su traducción. Pulsa 🔊 para oír la pronunciación. Con «Tapar traducción» puedes autoevaluarte: toca una fila para ver su traducción.</p><div class="pills" id="ig-vs"></div><div class="r-btns" style="margin:0 0 10px"><input id="ig-q" class="ig-q" type="search" placeholder="Buscar palabra…" aria-label="Buscar"><button type="button" class="btn" id="ig-cov">Tapar traducción</button></div></div><div id="ig-vl"></div>';
+var vSet=S.vs||'all',cover=false;
+function drawV(){
+  setPills($('#ig-vs',pv),vSet,function(x){vSet=x;S.vs=x;save();drawV()});
+  var q=($('#ig-q',pv).value||'').toLowerCase().trim(),h='';
+  IU.forEach(function(u){
+    u.secs.forEach(function(s){
+      var rows=W.filter(function(w){return w.k===u.id+'/'+s.t&&inSet(w,vSet)&&(!q||w.en.toLowerCase().indexOf(q)>=0||w.es.toLowerCase().indexOf(q)>=0)});
+      if(!rows.length)return;
+      h+='<div class="card"><h3>'+esc(u.n)+' · '+esc(s.t)+(s.p?' <span class="pg">antes de la página '+s.p+'</span>':'')+'</h3><div class="tw"><table class="vt"><tbody>';
+      rows.forEach(function(w){h+='<tr class="'+(cover?'cv':'')+'"><td class="en">'+esc(w.en)+' <button type="button" class="sp" data-w="'+esc(w.en)+'" aria-label="Escuchar '+esc(w.en)+'">🔊</button></td><td class="es">'+esc(w.es)+'</td></tr>'});
+      h+='</tbody></table></div></div>';
+    });
+  });
+  $('#ig-vl',pv).innerHTML=h||'<div class="card"><p>No hay resultados.</p></div>';
+}
+pv.addEventListener('click',function(e){
+  var b=e.target.closest&&e.target.closest('.sp');
+  if(b){speak(b.getAttribute('data-w'));e.stopPropagation();return}
+  var tr=e.target.closest&&e.target.closest('tr.cv');
+  if(tr)tr.classList.toggle('show');
+});
+$('#ig-q',pv).oninput=drawV;
+$('#ig-cov',pv).onclick=function(){cover=!cover;this.textContent=cover?'Mostrar traducción':'Tapar traducción';drawV()};
+drawV();
+/* ---- Tarjetas ---- */
+var pt=panel('tar');
+pt.innerHTML='<div class="card"><h3>Tarjetas</h3><p class="lead" style="margin:0 0 10px">Toca la tarjeta para darle la vuelta. Pasa a la siguiente cuando quieras.</p><div class="pills" id="ig-ts"></div><div class="pills" id="ig-td"></div><div class="fc" id="ig-fc" role="button" tabindex="0" aria-label="Dar la vuelta a la tarjeta"><div class="fq" id="ig-fq"></div><div class="fa2" id="ig-fa" hidden></div><small class="fh">Toca para ver la respuesta</small></div><div class="r-btns"><button type="button" class="btn primary" id="ig-fn">Siguiente</button><button type="button" class="btn" id="ig-fs">🔊 Escuchar</button></div></div>';
+var tSet=S.ts||'all',tDir=S.td||'en',deck=[],cur=null;
+function newDeck(){deck=shuf(W.filter(function(w){return inSet(w,tSet)}))}
+function nextCard(){
+  if(!deck.length)newDeck();
+  cur=deck.pop();
+  var en=tDir==='es'?false:tDir==='mix'?Math.random()<.5:true;
+  cur._en=en;
+  $('#ig-fq',pt).textContent=en?cur.en:cur.es;
+  $('#ig-fa',pt).textContent=en?cur.es:cur.en;
+  $('#ig-fa',pt).hidden=true;$('#ig-fc',pt).classList.remove('open');$('.fh',pt).hidden=false;
+}
+function drawT(){
+  setPills($('#ig-ts',pt),tSet,function(x){tSet=x;S.ts=x;save();newDeck();drawT();nextCard()});
+  var d=$('#ig-td',pt);d.innerHTML='';
+  [['en','Inglés → Español'],['es','Español → Inglés'],['mix','Mezcla']].forEach(function(x){var b=el('button','pill'+(x[0]===tDir?' on':''),x[1]);b.type='button';b.onclick=function(){tDir=x[0];S.td=x[0];save();drawT();nextCard()};d.appendChild(b)});
+}
+function flip(){var a=$('#ig-fa',pt),o=a.hidden;a.hidden=!o;$('#ig-fc',pt).classList.toggle('open',o);$('.fh',pt).hidden=o}
+$('#ig-fc',pt).onclick=flip;
+$('#ig-fc',pt).onkeydown=function(e){if(e.key===' '||e.key==='Enter'){e.preventDefault();flip()}};
+$('#ig-fn',pt).onclick=nextCard;
+$('#ig-fs',pt).onclick=function(){if(cur)speak(cur.en)};
+drawT();newDeck();nextCard();
+/* ---- Test ---- */
+var pq=panel('test');
+pq.innerHTML='<div class="card"><h3>Test de vocabulario</h3><div class="pills" id="ig-qs"></div><div class="pills" id="ig-qd"></div><div id="ig-qb"></div></div>';
+var qSet=S.qs||'all',qDir=S.qd||'en',qDeck=[],qCur=null;
+function qNew(){qDeck=shuf(W.filter(function(w){return inSet(w,qSet)}))}
+function drawQC(){
+  setPills($('#ig-qs',pq),qSet,function(x){qSet=x;S.qs=x;save();qNew();drawQC();ask()});
+  var d=$('#ig-qd',pq);d.innerHTML='';
+  [['en','Inglés → Español'],['es','Español → Inglés'],['mix','Mezcla']].forEach(function(x){var b=el('button','pill'+(x[0]===qDir?' on':''),x[1]);b.type='button';b.onclick=function(){qDir=x[0];S.qd=x[0];save();drawQC();ask()};d.appendChild(b)});
+}
+function ask(){
+  if(!qDeck.length)qNew();
+  var w=qDeck.pop();qCur=w;
+  var en=qDir==='es'?false:qDir==='mix'?Math.random()<.5:true;
+  var same=shuf(W.filter(function(x){return x.k===w.k&&x.en!==w.en&&x.es!==w.es})),rest=shuf(W.filter(function(x){return x.k!==w.k&&x.en!==w.en&&x.es!==w.es&&x.en.toLowerCase()!==w.en.toLowerCase()}));
+  var dis=[];same.concat(rest).forEach(function(x){if(dis.length<3&&dis.every(function(y){return (en?y.es:y.en)!==(en?x.es:x.en)}))dis.push(x)});
+  var opts=shuf([w].concat(dis));
+  var b=$('#ig-qb',pq);
+  b.innerHTML='<p class="qt big2">'+esc(en?w.en:w.es)+(en?' <button type="button" class="sp" id="ig-qsp" aria-label="Escuchar">🔊</button>':'')+'</p><p class="lead" style="margin:0 0 10px">'+(en?'¿Qué significa en español?':'¿Cómo se dice en inglés?')+'</p><div class="opts" id="ig-qo"></div><div id="ig-qf"></div>';
+  var box=$('#ig-qo',pq);
+  opts.forEach(function(o){
+    var bt=el('button','opt',en?o.es:o.en);bt.type='button';
+    bt.onclick=function(){
+      if(box.getAttribute('data-done'))return;box.setAttribute('data-done','1');
+      var ok=o===w;
+      $$('.opt',box).forEach(function(x,i){x.disabled=true;if(opts[i]===w)x.classList.add('ok');else if(opts[i]===o)x.classList.add('bad')});
+      $('#ig-qf',pq).innerHTML='<div class="fbk '+(ok?'good':'bad')+'"><b>'+(ok?'¡Correcto!':'No es esa.')+'</b> <b>'+esc(w.en)+'</b> = '+esc(w.es)+'<br><small>'+esc(w.un)+' · '+esc(w.s)+'</small></div><div class="r-btns"><button type="button" class="btn primary" id="ig-qn">Siguiente</button></div>';
+      if(!ok){var pos=Math.min(qDeck.length,3+Math.floor(Math.random()*6));qDeck.splice(qDeck.length-pos,0,w)}
+      $('#ig-qn',pq).onclick=ask;
+    };
+    box.appendChild(bt);
+  });
+  var sp=$('#ig-qsp',pq);if(sp)sp.onclick=function(){speak(w.en)};
+}
+drawQC();qNew();ask();
+function route(){
+  var h=(location.hash||'').slice(1);
+  if(h!=='ing'&&h.indexOf('ig-')!==0)return;
+  var id=h.slice(3);if(!$('#igp-'+id))id='voc';
+  $$('#ig-panels .panel').forEach(function(p){p.hidden=(p.id!=='igp-'+id)});
+  $$('a',tabs).forEach(function(a){a.classList.toggle('on',a.getAttribute('data-t')===id)});
+}
+window.addEventListener('hashchange',route);
+route();
 })();
 
 </script>
